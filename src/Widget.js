@@ -22,7 +22,6 @@ var Widget = React.createClass({
     var returnData;
     $.ajaxSetup({async: false});
     $.getJSON(url, function(json) {
-      //todo: verify json
       returnData = json.data; //cannot directly return, why?
     });
     return returnData;

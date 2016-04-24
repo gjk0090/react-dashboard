@@ -1,4 +1,4 @@
-// This script uses pure js, no need of NodeJS.
+// This script is pure js, no need of NodeJS.
 
 // var React = require('react');
 // var ReactDOM = require('react-dom');
