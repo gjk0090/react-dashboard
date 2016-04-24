@@ -3,7 +3,7 @@ var React = require('react');
 var PieChart = React.createClass({
   
   render: function() {
-
+    
     var style = {};
 
     return (

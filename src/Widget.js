@@ -7,6 +7,34 @@ var TableView = require('./widgets/TableView');
 
 
 var Widget = React.createClass({
+
+  getInitialState: function() {
+    var data = this.getRemoteData(this.props.widget.url);
+    if(data == null){
+      data = this.props.widget.data;
+    }
+    return {data: data};
+  },
+
+  getRemoteData: function(url){
+    if(url == null && url == ""){return null;}
+
+    var returnData;
+    $.ajaxSetup({async: false});
+    $.getJSON(url, function(json) {
+      //todo: verify json
+      returnData = json.data; //cannot directly return, why?
+    });
+    return returnData;
+  },
+
+  refreshWidget: function() {
+    var data = this.getRemoteData(this.props.widget.url);
+    if(data == null){
+      data = this.props.widget.data;
+    }
+    this.setState({data: data}); //this.setState({}) will trigger a re-render
+  },
   
   render: function() {
 
@@ -17,31 +45,29 @@ var Widget = React.createClass({
     //todo: rewrite this with factory pattern
     if(this.props.widget.type == 'PieChart'){
       content = (
-        <PieChart data={this.props.widget.data}></PieChart>
+        <PieChart data={this.state.data}></PieChart>
       );
     }else if(this.props.widget.type == 'ColumnChart'){
       content = (
-        <ColumnChart data={this.props.widget.data}></ColumnChart>
+        <ColumnChart data={this.state.data}></ColumnChart>
       );
     }else if(this.props.widget.type == 'TableView'){
       content = (
-        <TableView data={this.props.widget.data}></TableView>
+        <TableView data={this.state.data}></TableView>
       );
     }else{
       content = (
-        <div>this.props.widget.data</div>
+        <div>this.state.data</div>
       );
     }
 
     //bootstrap classes : default/primary/success/info/warning/danger
-    //todo: make refresh work
-    //todo: use ng-if equivalent for heading buttons
     return (
       <div style={widgetStyle}>
           <div className="panel panel-default">
             <div className="panel-heading">
               {this.props.widget.title}
-              <span className="pull-right"><a title="reload widget content"> <i className="glyphicon glyphicon-refresh"></i> </a></span>
+              <span className="pull-right"><a title="reload widget content" onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a></span>
             </div>
             <div className="panel-body">
               {content}
@@ -54,7 +80,7 @@ var Widget = React.createClass({
 });
 
 Widget.defaultProps = {
-  widget      : {type:"", title:"", data:""}
+  widget      : {colSpan:"", type:"", title:"", url:"", data:""}
 };
 
 module.exports = Widget;

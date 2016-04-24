@@ -58,11 +58,10 @@ var ReactDashboard =
 
 	    var dashboardStyle = {};
 
-	    var colSpan = 12 / this.props.schema.style.colNum;
-	    //todo: validate colSpan
-	    var clazzName = "col-xs-" + colSpan;
-
 	    var widgets = this.props.schema.widgets.map(function (widget) {
+
+	      var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
+
 	      return React.createElement(
 	        'div',
 	        { className: clazzName },
@@ -3672,6 +3671,36 @@ var ReactDashboard =
 	  displayName: 'Widget',
 
 
+	  getInitialState: function getInitialState() {
+	    var data = this.getRemoteData(this.props.widget.url);
+	    if (data == null) {
+	      data = this.props.widget.data;
+	    }
+	    return { data: data };
+	  },
+
+	  getRemoteData: function getRemoteData(url) {
+	    if (url == null && url == "") {
+	      return null;
+	    }
+
+	    var returnData;
+	    $.ajaxSetup({ async: false });
+	    $.getJSON(url, function (json) {
+	      //todo: verify json
+	      returnData = json.data; //cannot directly return, why?
+	    });
+	    return returnData;
+	  },
+
+	  refreshWidget: function refreshWidget() {
+	    var data = this.getRemoteData(this.props.widget.url);
+	    if (data == null) {
+	      data = this.props.widget.data;
+	    }
+	    this.setState({ data: data }); //this.setState({}) will trigger a re-render
+	  },
+
 	  render: function render() {
 
 	    var widgetStyle = {};
@@ -3680,22 +3709,20 @@ var ReactDashboard =
 
 	    //todo: rewrite this with factory pattern
 	    if (this.props.widget.type == 'PieChart') {
-	      content = React.createElement(PieChart, { data: this.props.widget.data });
+	      content = React.createElement(PieChart, { data: this.state.data });
 	    } else if (this.props.widget.type == 'ColumnChart') {
-	      content = React.createElement(ColumnChart, { data: this.props.widget.data });
+	      content = React.createElement(ColumnChart, { data: this.state.data });
 	    } else if (this.props.widget.type == 'TableView') {
-	      content = React.createElement(TableView, { data: this.props.widget.data });
+	      content = React.createElement(TableView, { data: this.state.data });
 	    } else {
 	      content = React.createElement(
 	        'div',
 	        null,
-	        'this.props.widget.data'
+	        'this.state.data'
 	      );
 	    }
 
 	    //bootstrap classes : default/primary/success/info/warning/danger
-	    //todo: make refresh work
-	    //todo: use ng-if equivalent for heading buttons
 	    return React.createElement(
 	      'div',
 	      { style: widgetStyle },
@@ -3711,7 +3738,7 @@ var ReactDashboard =
 	            { className: 'pull-right' },
 	            React.createElement(
 	              'a',
-	              { title: 'reload widget content' },
+	              { title: 'reload widget content', onClick: this.refreshWidget },
 	              ' ',
 	              React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
 	              ' '
@@ -3730,7 +3757,7 @@ var ReactDashboard =
 	});
 
 	Widget.defaultProps = {
-	  widget: { type: "", title: "", data: "" }
+	  widget: { colSpan: "", type: "", title: "", url: "", data: "" }
 	};
 
 	module.exports = Widget;

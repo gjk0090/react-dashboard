@@ -9,12 +9,15 @@
 //   $('#testinput').val(value);
 // };
 
+//todo: specify row for each widget
 var schema = {
-  style:{colNum:2},
+  style:{},
   widgets:[
-    {type:"PieChart", title:"title1", data:"testData1"},
-    {type:"ColumnChart", title:"title2", data:"testData2"},
-    {type:"TableView", title:"title3", data:"testData3"}
+    {colSpan:"6", type:"PieChart", title:"title1", url:"remoteData.json", data:"testData1"}, //url has higher priority than data
+    {colSpan:"6", type:"ColumnChart", title:"title2", url:"remoteData.json", data:"testData2"},
+    {colSpan:"3", type:"TableView", title:"title3", url:"remoteData.json", data:"testData3"},
+    {colSpan:"4", type:"TableView", title:"title4", url:"remoteData.json", data:"testData4"},
+    {colSpan:"5", type:"TableView", title:"title5", url:"remoteData.json", data:"testData5"}
   ]
 };
 
