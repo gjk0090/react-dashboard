@@ -1,8 +1,11 @@
 module.exports = {
-    entry: "./example/script.js",
+    entry: "./src/Dashboard.js",
     output: {
         path: __dirname,
-        filename: "./example/build.js"
+        filename: "./dist/ReactDashboard.js",
+        //the following 2 params exports the module as global variable
+        libraryTarget: "var",
+        library: "ReactDashboard"
     },
     module: {
         loaders: [{
@@ -17,3 +20,25 @@ module.exports = {
       ]
     }
 };
+
+
+// module.exports = {
+//     entry: "./example/script.js",
+//     output: {
+//         path: __dirname,
+//         filename: "./example/build.js"
+//     },
+//     module: {
+//         loaders: [{
+//             test: /\.js$/,
+//             loader: 'babel',
+//             query:
+//             {
+//                 presets:['es2015', 'react']
+//             }
+//         },
+//         {test: /\.less$/, loader: "style!css!less"}
+//       ]
+//     }
+// };
+

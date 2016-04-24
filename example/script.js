@@ -1,17 +1,14 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
-var Dashboard = require('../src/Dashboard');
+// This script uses pure js, no need of NodeJS.
+
+// var React = require('react');
+// var ReactDOM = require('react-dom');
+// var ReactDashboard = require('../dist/Dashboard');
 
 
 // var handleChange = function(value){
 //   $('#testinput').val(value);
 // };
 
-// $('#testinput').keyup(function(){
-//     refreshDashboard();
-// });
-
-//todo: design schema
 var schema = {
   style:{colNum:2},
   widgets:[
@@ -22,15 +19,14 @@ var schema = {
 };
 
 var refreshDashboard = function(){
-  ReactDOM.render(
-    <Dashboard message={$('#testinput').val()} schema={schema}></Dashboard>,
-    document.getElementById('example')
-  );
+  // JSX
+  // ReactDOM.render(
+  //   <ReactDashboard schema={schema}></ReactDashboard>,
+  //   document.getElementById('example')
+  // );
+  ReactDOM.render(React.createElement(ReactDashboard, {schema: schema}), document.getElementById('example'));
 };
 
 $(document).ready(function(){
   refreshDashboard();
 });
-
-
-//todo: make this example pure js (import ReactDOM, import this js, update webpack, import dist/ReactDashboard js, update readme)

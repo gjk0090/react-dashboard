@@ -35,6 +35,7 @@ var Widget = React.createClass({
 
     //bootstrap classes : default/primary/success/info/warning/danger
     //todo: make refresh work
+    //todo: use ng-if equivalent for heading buttons
     return (
       <div style={widgetStyle}>
           <div className="panel panel-default">
