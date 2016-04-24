@@ -31,3 +31,6 @@ var refreshDashboard = function(){
 $(document).ready(function(){
   refreshDashboard();
 });
+
+
+//todo: make this example pure js (import ReactDOM, import this js, import ReactDashboard js, update webpack)
