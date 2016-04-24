@@ -1,0 +1,26 @@
+{
+  "name": "AngularReact",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.3.26",
+    "babel-loader": "^6.2.0",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-es2015": "^6.3.13",
+    "webpack": "^1.12.9",
+    "style-loader": "^0.13.0",
+    "less": "^2.5.3",
+    "less-loader": "^2.2.2",
+    "css-loader": "^0.23.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
