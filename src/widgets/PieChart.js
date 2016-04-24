@@ -1,15 +1,38 @@
 var React = require('react');
 
 var PieChart = React.createClass({
-  
+
+  componentDidMount: function(){
+    //this.drawChart();
+  },
+
+  componentDidUpdate: function(){
+    this.drawChart();
+  },
+
+  drawChart: function(){
+    
+    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+    var options = this.props.data.options;
+
+    var chart = new google.visualization.PieChart(
+      document.getElementById("pieChart1") //todo: auto id
+    );
+
+    chart.draw(data, options);
+  },
+
   render: function() {
     
-    var style = {};
+    var style = {
+      width: "100%",
+      height: "300px" //todo: auto height
+    };
 
     return (
-      <div style={style}>
-        Pie Chart, 
-      	{this.props.data}
+      <div style={style} id="pieChart1">
+        Pie Chart
       </div>
     );
   }
@@ -17,7 +40,7 @@ var PieChart = React.createClass({
 });
 
 PieChart.defaultProps = {
-  data      : "default data"
+  data      : {data:[], options:{}}
 };
 
 module.exports = PieChart;

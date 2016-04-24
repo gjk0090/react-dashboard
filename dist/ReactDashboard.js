@@ -54,6 +54,19 @@ var ReactDashboard =
 	  displayName: 'Dashboard',
 
 
+	  componentDidMount: function componentDidMount() {
+	    //todo: google chart from npm
+	    //todo: google chart breaks Bootstrap responsive
+	    google.charts.load('current', { 'packages': ['corechart'] });
+	    google.charts.setOnLoadCallback(this.refreshWidgets);
+	  },
+
+	  refreshWidgets: function refreshWidgets() {
+	    this.setState({}); //this.setState({}) will trigger a re-render
+	  },
+
+	  //todo: specify row for each widget, or use multi column design
+	  //todo: add height in schema
 	  render: function render() {
 
 	    var dashboardStyle = {};
@@ -3687,7 +3700,7 @@ var ReactDashboard =
 	    var returnData;
 	    $.ajaxSetup({ async: false });
 	    $.getJSON(url, function (json) {
-	      returnData = json.data; //cannot directly return, why?
+	      returnData = json; //cannot directly return, why?
 	    });
 	    return returnData;
 	  },
@@ -3697,7 +3710,7 @@ var ReactDashboard =
 	    if (data == null) {
 	      data = this.props.widget.data;
 	    }
-	    this.setState({ data: data }); //this.setState({}) will trigger a re-render
+	    this.setState({ data: data });
 	  },
 
 	  render: function render() {
@@ -3773,22 +3786,44 @@ var ReactDashboard =
 	  displayName: "PieChart",
 
 
+	  componentDidMount: function componentDidMount() {
+	    //this.drawChart();
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    this.drawChart();
+	  },
+
+	  drawChart: function drawChart() {
+
+	    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+	    var options = this.props.data.options;
+
+	    var chart = new google.visualization.PieChart(document.getElementById("pieChart1") //todo: auto id
+	    );
+
+	    chart.draw(data, options);
+	  },
+
 	  render: function render() {
 
-	    var style = {};
+	    var style = {
+	      width: "100%",
+	      height: "300px" //todo: auto height
+	    };
 
 	    return React.createElement(
 	      "div",
-	      { style: style },
-	      "Pie Chart,",
-	      this.props.data
+	      { style: style, id: "pieChart1" },
+	      "Pie Chart"
 	    );
 	  }
 
 	});
 
 	PieChart.defaultProps = {
-	  data: "default data"
+	  data: { data: [], options: {} }
 	};
 
 	module.exports = PieChart;
@@ -3805,15 +3840,36 @@ var ReactDashboard =
 	  displayName: "ColumnChart",
 
 
+	  componentDidMount: function componentDidMount() {
+	    //this.drawChart();
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    this.drawChart();
+	  },
+
+	  drawChart: function drawChart() {
+
+	    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+	    var options = this.props.data.options;
+
+	    var chart = new google.visualization.ColumnChart(document.getElementById("columnChart1"));
+
+	    chart.draw(data, options);
+	  },
+
 	  render: function render() {
 
-	    var style = {};
+	    var style = {
+	      width: "100%",
+	      height: "300px"
+	    };
 
 	    return React.createElement(
 	      "div",
-	      { style: style },
-	      "Column Chart,",
-	      this.props.data
+	      { style: style, id: "columnChart1" },
+	      "Column Chart"
 	    );
 	  }
 
@@ -3844,8 +3900,7 @@ var ReactDashboard =
 	    return React.createElement(
 	      "div",
 	      { style: style },
-	      "Table View,",
-	      this.props.data
+	      "Table View"
 	    );
 	  }
 

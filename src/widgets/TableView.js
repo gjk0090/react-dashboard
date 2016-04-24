@@ -8,8 +8,7 @@ var TableView = React.createClass({
 
     return (
       <div style={style}>
-        Table View, 
-      	{this.props.data}
+        Table View
       </div>
     );
   }

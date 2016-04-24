@@ -22,7 +22,7 @@ var Widget = React.createClass({
     var returnData;
     $.ajaxSetup({async: false});
     $.getJSON(url, function(json) {
-      returnData = json.data; //cannot directly return, why?
+      returnData = json; //cannot directly return, why?
     });
     return returnData;
   },
@@ -32,7 +32,7 @@ var Widget = React.createClass({
     if(data == null){
       data = this.props.widget.data;
     }
-    this.setState({data: data}); //this.setState({}) will trigger a re-render
+    this.setState({data: data});
   },
   
   render: function() {
