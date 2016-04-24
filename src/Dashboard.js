@@ -33,6 +33,3 @@ Dashboard.defaultProps = {
 };
 
 module.exports = Dashboard;
-
-
-//separate Dashboard from example file
