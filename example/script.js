@@ -33,4 +33,4 @@ $(document).ready(function(){
 });
 
 
-//todo: make this example pure js (import ReactDOM, import this js, import ReactDashboard js, update webpack)
+//todo: make this example pure js (import ReactDOM, import this js, update webpack, import dist/ReactDashboard js, update readme)
