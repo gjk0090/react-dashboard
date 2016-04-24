@@ -11,6 +11,7 @@ var Dashboard = require('../src/Dashboard');
 //     refreshDashboard();
 // });
 
+//todo: design schema
 var schema = {
   style:{colNum:2},
   widgets:[

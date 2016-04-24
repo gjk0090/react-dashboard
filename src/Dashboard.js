@@ -8,7 +8,7 @@ var Dashboard = React.createClass({
     var dashboardStyle = {};
 
     var colSpan = 12/this.props.schema.style.colNum;
-    //validate colSpan
+    //todo: validate colSpan
     var clazzName = "col-xs-" + colSpan;
 
     var widgets = this.props.schema.widgets.map(widget => {

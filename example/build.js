@@ -58,6 +58,7 @@
 	//     refreshDashboard();
 	// });
 
+	//todo: design schema
 	var schema = {
 	  style: { colNum: 2 },
 	  widgets: [{ type: "PieChart", title: "title1", data: "testData1" }, { type: "ColumnChart", title: "title2", data: "testData2" }, { type: "TableView", title: "title3", data: "testData3" }]
@@ -20083,7 +20084,7 @@
 	    var dashboardStyle = {};
 
 	    var colSpan = 12 / this.props.schema.style.colNum;
-	    //validate colSpan
+	    //todo: validate colSpan
 	    var clazzName = "col-xs-" + colSpan;
 
 	    var widgets = this.props.schema.widgets.map(function (widget) {
@@ -20109,8 +20110,6 @@
 
 	module.exports = Dashboard;
 
-	//separate Dashboard from example file
-
 /***/ },
 /* 167 */
 /***/ function(module, exports, __webpack_require__) {
@@ -20119,7 +20118,7 @@
 
 	var React = __webpack_require__(1);
 
-	//how to require all in folder
+	//todo: how to require all in folder?
 	var PieChart = __webpack_require__(168);
 	var ColumnChart = __webpack_require__(169);
 	var TableView = __webpack_require__(170);
@@ -20133,7 +20132,8 @@
 	    var widgetStyle = {};
 
 	    var content;
-	    //rewrite this with factory pattern
+
+	    //todo: rewrite this with factory pattern
 	    if (this.props.widget.type == 'PieChart') {
 	      content = React.createElement(PieChart, { data: this.props.widget.data });
 	    } else if (this.props.widget.type == 'ColumnChart') {
@@ -20149,6 +20149,7 @@
 	    }
 
 	    //bootstrap classes : default/primary/success/info/warning/danger
+	    //todo: make refresh work
 	    return React.createElement(
 	      'div',
 	      { style: widgetStyle },

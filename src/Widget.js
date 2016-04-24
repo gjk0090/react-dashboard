@@ -1,6 +1,6 @@
 var React = require('react');
 
-//how to require all in folder
+//todo: how to require all in folder?
 var PieChart = require('./widgets/PieChart');
 var ColumnChart = require('./widgets/ColumnChart');
 var TableView = require('./widgets/TableView');
@@ -13,7 +13,8 @@ var Widget = React.createClass({
     var widgetStyle = {};
 
     var content;
-    //rewrite this with factory pattern
+
+    //todo: rewrite this with factory pattern
     if(this.props.widget.type == 'PieChart'){
       content = (
         <PieChart data={this.props.widget.data}></PieChart>
@@ -33,6 +34,7 @@ var Widget = React.createClass({
     }
 
     //bootstrap classes : default/primary/success/info/warning/danger
+    //todo: make refresh work
     return (
       <div style={widgetStyle}>
           <div className="panel panel-default">
