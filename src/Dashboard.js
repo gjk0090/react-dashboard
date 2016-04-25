@@ -14,12 +14,11 @@ var Dashboard = React.createClass({
     this.setState({}); //this.setState({}) will trigger a re-render
   },
 
-  //todo: specify row for each widget, or use multi column design
-  //todo: add height in schema
   render: function() {
 
     var dashboardStyle = {};
 
+    //todo: design layout
     var widgets = this.props.schema.widgets.map(widget => {
 
       var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan

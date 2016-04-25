@@ -9,14 +9,16 @@
 //   $('#testinput').val(value);
 // };
 
+//todo: bind schema with Angular model and display on page
+
 var schema = {
   style:{},
   widgets:[
     {colSpan:"6", type:"PieChart", title:"title1", url:"PieChart.json", data:"testData1"}, //url has higher priority than data
     {colSpan:"6", type:"ColumnChart", title:"title2", url:"ColumnChart.json", data:"testData2"},
-    {colSpan:"3", type:"TableView", title:"title3", url:"remoteData.json", data:"testData3"},
-    {colSpan:"4", type:"TableView", title:"title4", url:"remoteData.json", data:"testData4"},
-    {colSpan:"5", type:"TableView", title:"title5", url:"remoteData.json", data:"testData5"}
+    {colSpan:"5", type:"PieChart", title:"title3", url:"PieChart.json", data:"testData3"},
+    {colSpan:"5", type:"ColumnChart", title:"title4", url:"ColumnChart.json", data:"testData4"},
+    {colSpan:"2", type:"TableView", title:"title5", url:"remoteData.json", data:"testData5"}
   ]
 };
 

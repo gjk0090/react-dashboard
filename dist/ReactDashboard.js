@@ -65,12 +65,11 @@ var ReactDashboard =
 	    this.setState({}); //this.setState({}) will trigger a re-render
 	  },
 
-	  //todo: specify row for each widget, or use multi column design
-	  //todo: add height in schema
 	  render: function render() {
 
 	    var dashboardStyle = {};
 
+	    //todo: design layout
 	    var widgets = this.props.schema.widgets.map(function (widget) {
 
 	      var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
@@ -3786,8 +3785,8 @@ var ReactDashboard =
 	  displayName: "PieChart",
 
 
-	  componentDidMount: function componentDidMount() {
-	    //this.drawChart();
+	  componentWillMount: function componentWillMount() {
+	    this.setState({ id: "pie_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
@@ -3800,8 +3799,7 @@ var ReactDashboard =
 
 	    var options = this.props.data.options;
 
-	    var chart = new google.visualization.PieChart(document.getElementById("pieChart1") //todo: auto id
-	    );
+	    var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
 
 	    chart.draw(data, options);
 	  },
@@ -3815,7 +3813,7 @@ var ReactDashboard =
 
 	    return React.createElement(
 	      "div",
-	      { style: style, id: "pieChart1" },
+	      { style: style, id: this.state.id },
 	      "Pie Chart"
 	    );
 	  }
@@ -3840,8 +3838,8 @@ var ReactDashboard =
 	  displayName: "ColumnChart",
 
 
-	  componentDidMount: function componentDidMount() {
-	    //this.drawChart();
+	  componentWillMount: function componentWillMount() {
+	    this.setState({ id: "column_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
@@ -3854,7 +3852,7 @@ var ReactDashboard =
 
 	    var options = this.props.data.options;
 
-	    var chart = new google.visualization.ColumnChart(document.getElementById("columnChart1"));
+	    var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
 
 	    chart.draw(data, options);
 	  },
@@ -3868,7 +3866,7 @@ var ReactDashboard =
 
 	    return React.createElement(
 	      "div",
-	      { style: style, id: "columnChart1" },
+	      { style: style, id: this.state.id },
 	      "Column Chart"
 	    );
 	  }
@@ -3900,7 +3898,7 @@ var ReactDashboard =
 	    return React.createElement(
 	      "div",
 	      { style: style },
-	      "Table View"
+	      "Table View; not implemented"
 	    );
 	  }
 

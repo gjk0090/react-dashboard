@@ -2,8 +2,8 @@ var React = require('react');
 
 var PieChart = React.createClass({
 
-  componentDidMount: function(){
-    //this.drawChart();
+  componentWillMount: function(){
+    this.setState({id : "pie_chart_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
   },
 
   componentDidUpdate: function(){
@@ -11,13 +11,13 @@ var PieChart = React.createClass({
   },
 
   drawChart: function(){
-    
+
     var data = google.visualization.arrayToDataTable(this.props.data.data);
 
     var options = this.props.data.options;
 
     var chart = new google.visualization.PieChart(
-      document.getElementById("pieChart1") //todo: auto id
+      document.getElementById(this.state.id)
     );
 
     chart.draw(data, options);
@@ -31,7 +31,7 @@ var PieChart = React.createClass({
     };
 
     return (
-      <div style={style} id="pieChart1">
+      <div style={style} id={this.state.id}>
         Pie Chart
       </div>
     );

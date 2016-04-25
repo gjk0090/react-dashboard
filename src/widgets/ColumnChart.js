@@ -2,8 +2,8 @@ var React = require('react');
 
 var ColumnChart = React.createClass({
   
-  componentDidMount: function(){
-    //this.drawChart();
+  componentWillMount: function(){
+    this.setState({id : "column_chart_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
   },
 
   componentDidUpdate: function(){
@@ -17,7 +17,7 @@ var ColumnChart = React.createClass({
     var options = this.props.data.options;
 
     var chart = new google.visualization.ColumnChart(
-      document.getElementById("columnChart1")
+      document.getElementById(this.state.id)
     );
 
     chart.draw(data, options);
@@ -31,7 +31,7 @@ var ColumnChart = React.createClass({
     };
 
     return (
-      <div style={style} id="columnChart1">
+      <div style={style} id={this.state.id}>
       	Column Chart
       </div>
     );
