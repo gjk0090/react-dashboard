@@ -41,7 +41,6 @@ var ColumnChart = React.createClass({
         <div style={chartStyle} id={this.state.id}></div>
       </div>
     );
-
   }
 
 });
