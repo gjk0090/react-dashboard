@@ -3806,15 +3806,22 @@ var ReactDashboard =
 
 	  render: function render() {
 
-	    var style = {
+	    //auto height from http://jsfiddle.net/toddlevy/c59HH/
+	    var chartWrapStyle = {
+	      position: "relative",
+	      paddingBottom: "70%"
+	    };
+
+	    var chartStyle = {
+	      position: "absolute",
 	      width: "100%",
-	      height: "300px" //todo: auto height
+	      height: "100%"
 	    };
 
 	    return React.createElement(
 	      "div",
-	      { style: style, id: this.state.id },
-	      "Pie Chart"
+	      { style: chartWrapStyle },
+	      React.createElement("div", { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
@@ -3859,15 +3866,21 @@ var ReactDashboard =
 
 	  render: function render() {
 
-	    var style = {
+	    var chartWrapStyle = {
+	      position: "relative",
+	      paddingBottom: "70%"
+	    };
+
+	    var chartStyle = {
+	      position: "absolute",
 	      width: "100%",
-	      height: "300px"
+	      height: "100%"
 	    };
 
 	    return React.createElement(
 	      "div",
-	      { style: style, id: this.state.id },
-	      "Column Chart"
+	      { style: chartWrapStyle },
+	      React.createElement("div", { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
