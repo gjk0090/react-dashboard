@@ -24,15 +24,22 @@ var PieChart = React.createClass({
   },
 
   render: function() {
-    
-    var style = {
-      width: "100%",
-      height: "300px" //todo: auto height
+
+    //auto height from http://jsfiddle.net/toddlevy/c59HH/
+    var chartWrapStyle = {
+        position: "relative",
+        paddingBottom: "70%"
+    };
+
+    var chartStyle = {
+        position: "absolute",
+        width: "100%",
+        height: "100%"
     };
 
     return (
-      <div style={style} id={this.state.id}>
-        Pie Chart
+      <div style={chartWrapStyle}>
+        <div style={chartStyle} id={this.state.id}></div>
       </div>
     );
   }

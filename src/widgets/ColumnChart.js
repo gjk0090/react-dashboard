@@ -25,16 +25,23 @@ var ColumnChart = React.createClass({
 
   render: function() {
 
-    var style = {
-      width: "100%",
-      height: "300px"
+    var chartWrapStyle = {
+        position: "relative",
+        paddingBottom: "70%"
+    };
+
+    var chartStyle = {
+        position: "absolute",
+        width: "100%",
+        height: "100%"
     };
 
     return (
-      <div style={style} id={this.state.id}>
-      	Column Chart
+      <div style={chartWrapStyle}>
+        <div style={chartStyle} id={this.state.id}></div>
       </div>
     );
+
   }
 
 });
