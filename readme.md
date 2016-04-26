@@ -10,6 +10,7 @@
 
 ##### TODO
 ---
+* auto build example with webpack
 * example with AngularJS
 * Google Chart from npm
 * Google Chart respomsive
