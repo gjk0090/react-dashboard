@@ -21,3 +21,5 @@
 * minify and map
 * beautiful readme
 * learn css, implement auto height
+* extract style to class
+* versioning, use branch
