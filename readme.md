@@ -18,5 +18,5 @@
 * tests
 * update webpack
 * minify and map
-* more widgets
 * beautiful readme
+* learn css, implement auto height
