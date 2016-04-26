@@ -25,10 +25,7 @@ var ColumnChart = React.createClass({
 
   render: function() {
 
-    var chartWrapStyle = {
-        position: "relative",
-        paddingBottom: "70%"
-    };
+    var chartWrapStyle = {};
 
     var chartStyle = {
         position: "absolute",

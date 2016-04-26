@@ -6,3 +6,17 @@
 * Run the example by double clicking example/index.html, it uses pure js.
 * Use webpack to build spurce, it reads the webpack.config.js file and outputs dist/ReactDashboard.js.
 * Try the [example page](http://gjk0090.github.io/ReactDashboard "ReactDashboard Example").
+
+
+##### TODO
+---
+* example with AngularJS
+* Google Chart from npm
+* Google Chart respomsive
+* Google Chart animation
+* Google Chart click events
+* tests
+* update webpack
+* minify and map
+* more widgets
+* beautiful readme

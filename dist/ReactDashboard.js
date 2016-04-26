@@ -55,9 +55,8 @@ var ReactDashboard =
 
 
 	  componentDidMount: function componentDidMount() {
-	    //todo: google chart from npm
-	    //todo: google chart breaks Bootstrap responsive
-	    google.charts.load('current', { 'packages': ['corechart'] });
+
+	    google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] });
 	    google.charts.setOnLoadCallback(this.refreshWidgets);
 	  },
 
@@ -3677,7 +3676,10 @@ var ReactDashboard =
 	//todo: how to require all in folder?
 	var PieChart = __webpack_require__(33);
 	var ColumnChart = __webpack_require__(34);
+	var GeoChart = __webpack_require__(36);
 	var TableView = __webpack_require__(35);
+	var ScatterChart = __webpack_require__(37);
+	var Gauge = __webpack_require__(38);
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -3716,6 +3718,11 @@ var ReactDashboard =
 
 	    var widgetStyle = {};
 
+	    var panelBodyStyle = {
+	      position: "relative",
+	      paddingBottom: this.props.widget.colSpan == "12" ? "40%" : "70%" //temp splution
+	    };
+
 	    var content;
 
 	    //todo: rewrite this with factory pattern
@@ -3723,8 +3730,14 @@ var ReactDashboard =
 	      content = React.createElement(PieChart, { data: this.state.data });
 	    } else if (this.props.widget.type == 'ColumnChart') {
 	      content = React.createElement(ColumnChart, { data: this.state.data });
+	    } else if (this.props.widget.type == 'GeoChart') {
+	      content = React.createElement(GeoChart, { data: this.state.data });
 	    } else if (this.props.widget.type == 'TableView') {
 	      content = React.createElement(TableView, { data: this.state.data });
+	    } else if (this.props.widget.type == 'ScatterChart') {
+	      content = React.createElement(ScatterChart, { data: this.state.data });
+	    } else if (this.props.widget.type == 'Gauge') {
+	      content = React.createElement(Gauge, { data: this.state.data });
 	    } else {
 	      content = React.createElement(
 	        'div',
@@ -3759,7 +3772,11 @@ var ReactDashboard =
 	        React.createElement(
 	          'div',
 	          { className: 'panel-body' },
-	          content
+	          React.createElement(
+	            'div',
+	            { style: panelBodyStyle },
+	            content
+	          )
 	        )
 	      )
 	    );
@@ -3807,10 +3824,7 @@ var ReactDashboard =
 	  render: function render() {
 
 	    //auto height from http://jsfiddle.net/toddlevy/c59HH/
-	    var chartWrapStyle = {
-	      position: "relative",
-	      paddingBottom: "70%"
-	    };
+	    var chartWrapStyle = {};
 
 	    var chartStyle = {
 	      position: "absolute",
@@ -3866,10 +3880,7 @@ var ReactDashboard =
 
 	  render: function render() {
 
-	    var chartWrapStyle = {
-	      position: "relative",
-	      paddingBottom: "70%"
-	    };
+	    var chartWrapStyle = {};
 
 	    var chartStyle = {
 	      position: "absolute",
@@ -3904,24 +3915,217 @@ var ReactDashboard =
 	  displayName: "TableView",
 
 
+	  componentWillMount: function componentWillMount() {
+	    this.setState({ id: "table_view_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    this.drawChart();
+	  },
+
+	  drawChart: function drawChart() {
+
+	    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+	    var options = this.props.data.options;
+
+	    var chart = new google.visualization.Table(document.getElementById(this.state.id));
+
+	    chart.draw(data, options);
+	  },
+
 	  render: function render() {
 
-	    var style = {};
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
 
 	    return React.createElement(
 	      "div",
-	      { style: style },
-	      "Table View; not implemented"
+	      { style: chartWrapStyle },
+	      React.createElement("div", { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	TableView.defaultProps = {
-	  data: "default data"
+	  data: { data: [], options: {} }
 	};
 
 	module.exports = TableView;
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+
+	var GeoChart = React.createClass({
+	  displayName: "GeoChart",
+
+
+	  componentWillMount: function componentWillMount() {
+	    this.setState({ id: "geo_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    this.drawChart();
+	  },
+
+	  drawChart: function drawChart() {
+
+	    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+	    var options = this.props.data.options;
+
+	    var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
+
+	    chart.draw(data, options);
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      "div",
+	      { style: chartWrapStyle },
+	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	    );
+	  }
+
+	});
+
+	GeoChart.defaultProps = {
+	  data: { data: [], options: {} }
+	};
+
+	module.exports = GeoChart;
+
+/***/ },
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+
+	var ScatterChart = React.createClass({
+	  displayName: "ScatterChart",
+
+
+	  componentWillMount: function componentWillMount() {
+	    this.setState({ id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    this.drawChart();
+	  },
+
+	  drawChart: function drawChart() {
+
+	    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+	    var options = this.props.data.options;
+
+	    var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
+
+	    chart.draw(data, options);
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      "div",
+	      { style: chartWrapStyle },
+	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	    );
+	  }
+
+	});
+
+	ScatterChart.defaultProps = {
+	  data: { data: [], options: {} }
+	};
+
+	module.exports = ScatterChart;
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+
+	var Gauge = React.createClass({
+	  displayName: "Gauge",
+
+
+	  componentWillMount: function componentWillMount() {
+	    this.setState({ id: "gauge_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    this.drawChart();
+	  },
+
+	  drawChart: function drawChart() {
+
+	    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+	    var options = this.props.data.options;
+
+	    var chart = new google.visualization.Gauge(document.getElementById(this.state.id));
+
+	    chart.draw(data, options);
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      "div",
+	      { style: chartWrapStyle },
+	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	    );
+	  }
+
+	});
+
+	Gauge.defaultProps = {
+	  data: { data: [], options: {} }
+	};
+
+	module.exports = Gauge;
 
 /***/ }
 /******/ ]);

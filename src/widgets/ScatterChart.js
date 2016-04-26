@@ -1,9 +1,9 @@
 var React = require('react');
 
-var PieChart = React.createClass({
+var ScatterChart = React.createClass({
 
   componentWillMount: function(){
-    this.setState({id : "pie_chart_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
+    this.setState({id : "scatter_chart_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
   },
 
   componentDidUpdate: function(){
@@ -16,7 +16,7 @@ var PieChart = React.createClass({
 
     var options = this.props.data.options;
 
-    var chart = new google.visualization.PieChart(
+    var chart = new google.visualization.ScatterChart(
       document.getElementById(this.state.id)
     );
 
@@ -25,7 +25,6 @@ var PieChart = React.createClass({
 
   render: function() {
 
-    //auto height from http://jsfiddle.net/toddlevy/c59HH/
     var chartWrapStyle = {};
 
     var chartStyle = {
@@ -43,8 +42,8 @@ var PieChart = React.createClass({
 
 });
 
-PieChart.defaultProps = {
+ScatterChart.defaultProps = {
   data      : {data:[], options:{}}
 };
 
-module.exports = PieChart;
+module.exports = ScatterChart;

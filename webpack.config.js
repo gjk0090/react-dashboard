@@ -41,6 +41,3 @@ module.exports = {
 //       ]
 //     }
 // };
-
-//todo: read about the config and update this
-//todo: minify and map

@@ -9,16 +9,15 @@
 //   $('#testinput').val(value);
 // };
 
-//todo: bind schema with Angular model and display on page
-
 var schema = {
   style:{},
   widgets:[
-    {colSpan:"6", type:"PieChart", title:"title1", url:"PieChart.json", data:"testData1"}, //url has higher priority than data
-    {colSpan:"6", type:"ColumnChart", title:"title2", url:"ColumnChart.json", data:"testData2"},
-    {colSpan:"5", type:"PieChart", title:"title3", url:"PieChart.json", data:"testData3"},
-    {colSpan:"5", type:"ColumnChart", title:"title4", url:"ColumnChart.json", data:"testData4"},
-    {colSpan:"2", type:"TableView", title:"title5", url:"remoteData.json", data:"testData5"}
+    {colSpan:"6", type:"PieChart", title:"title1", url:"testdata/PieChart.json", data:"testData1"}, //url has higher priority than data
+    {colSpan:"6", type:"GeoChart", title:"title2", url:"testdata/GeoChart.json", data:"testData2"},
+    {colSpan:"12", type:"ColumnChart", title:"title3", url:"testdata/ColumnChart.json", data:"testData3"},
+    {colSpan:"4", type:"TableView", title:"title4", url:"testdata/TableView.json", data:"testData4"},
+    {colSpan:"4", type:"ScatterChart", title:"title5", url:"testdata/ScatterChart.json", data:"testData5"},
+    {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", data:"testData6"}
   ]
 };
 

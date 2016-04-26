@@ -3,7 +3,10 @@ var React = require('react');
 //todo: how to require all in folder?
 var PieChart = require('./widgets/PieChart');
 var ColumnChart = require('./widgets/ColumnChart');
+var GeoChart = require('./widgets/GeoChart');
 var TableView = require('./widgets/TableView');
+var ScatterChart = require('./widgets/ScatterChart');
+var Gauge = require('./widgets/Gauge');
 
 
 var Widget = React.createClass({
@@ -39,6 +42,11 @@ var Widget = React.createClass({
 
     var widgetStyle = {};
 
+    var panelBodyStyle = {
+        position: "relative",
+        paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%" //temp splution
+    };
+
     var content;
 
     //todo: rewrite this with factory pattern
@@ -50,9 +58,21 @@ var Widget = React.createClass({
       content = (
         <ColumnChart data={this.state.data}></ColumnChart>
       );
+    }else if(this.props.widget.type == 'GeoChart'){
+      content = (
+        <GeoChart data={this.state.data}></GeoChart>
+      );
     }else if(this.props.widget.type == 'TableView'){
       content = (
         <TableView data={this.state.data}></TableView>
+      );
+    }else if(this.props.widget.type == 'ScatterChart'){
+      content = (
+        <ScatterChart data={this.state.data}></ScatterChart>
+      );
+    }else if(this.props.widget.type == 'Gauge'){
+      content = (
+        <Gauge data={this.state.data}></Gauge>
       );
     }else{
       content = (
@@ -69,7 +89,9 @@ var Widget = React.createClass({
               <span className="pull-right"><a title="reload widget content" onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a></span>
             </div>
             <div className="panel-body">
-              {content}
+              <div style={panelBodyStyle}>
+                {content}
+              </div>
             </div>
           </div>
       </div>

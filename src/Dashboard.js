@@ -4,9 +4,8 @@ var Widget = require('./Widget');
 var Dashboard = React.createClass({
 
   componentDidMount: function(){
-    //todo: google chart from npm
-    //todo: google chart breaks Bootstrap responsive
-    google.charts.load('current', {'packages':['corechart']});
+
+    google.charts.load('current', {'packages':['corechart','table','gauge']});
     google.charts.setOnLoadCallback(this.refreshWidgets);
   },
 
