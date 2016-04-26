@@ -12,12 +12,12 @@
 var schema = {
   style:{},
   widgets:[
-    {colSpan:"6", type:"PieChart", title:"title1", url:"testdata/PieChart.json", data:"testData1"}, //url has higher priority than data
-    {colSpan:"6", type:"GeoChart", title:"title2", url:"testdata/GeoChart.json", data:"testData2"},
-    {colSpan:"12", type:"ColumnChart", title:"title3", url:"testdata/ColumnChart.json", data:"testData3"},
-    {colSpan:"4", type:"TableView", title:"title4", url:"testdata/TableView.json", data:"testData4"},
-    {colSpan:"4", type:"ScatterChart", title:"title5", url:"testdata/ScatterChart.json", data:"testData5"},
-    {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", data:"testData6"}
+    {colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", data:"testData"}, //url has higher priority than data
+    {colSpan:"6", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", data:"testData"},
+    {colSpan:"12", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", data:"testData"},
+    {colSpan:"4", type:"TableView", title:"Table", url:"testdata/TableView.json", data:"testData"},
+    {colSpan:"4", type:"ScatterChart", title:"Scatter Chart", url:"testdata/ScatterChart.json", data:"testData"},
+    {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", data:"testData"}
   ]
 };
 
