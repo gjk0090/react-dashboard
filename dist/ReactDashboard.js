@@ -3672,14 +3672,7 @@ var ReactDashboard =
 	'use strict';
 
 	var React = __webpack_require__(1);
-
-	//todo: how to require all in folder?
-	var PieChart = __webpack_require__(33);
-	var ColumnChart = __webpack_require__(34);
-	var GeoChart = __webpack_require__(36);
-	var TableView = __webpack_require__(35);
-	var ScatterChart = __webpack_require__(37);
-	var Gauge = __webpack_require__(38);
+	var WidgetList = __webpack_require__(33);
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -3723,27 +3716,9 @@ var ReactDashboard =
 	      paddingBottom: this.props.widget.colSpan == "12" ? "40%" : "70%" //temp splution
 	    };
 
-	    var content;
-
-	    //todo: rewrite this with factory pattern
-	    if (this.props.widget.type == 'PieChart') {
-	      content = React.createElement(PieChart, { data: this.state.data });
-	    } else if (this.props.widget.type == 'ColumnChart') {
-	      content = React.createElement(ColumnChart, { data: this.state.data });
-	    } else if (this.props.widget.type == 'GeoChart') {
-	      content = React.createElement(GeoChart, { data: this.state.data });
-	    } else if (this.props.widget.type == 'TableView') {
-	      content = React.createElement(TableView, { data: this.state.data });
-	    } else if (this.props.widget.type == 'ScatterChart') {
-	      content = React.createElement(ScatterChart, { data: this.state.data });
-	    } else if (this.props.widget.type == 'Gauge') {
-	      content = React.createElement(Gauge, { data: this.state.data });
-	    } else {
-	      content = React.createElement(
-	        'div',
-	        null,
-	        'this.state.data'
-	      );
+	    var DetailWidget = WidgetList[this.props.widget.type];
+	    if (!DetailWidget) {
+	      throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');
 	    }
 
 	    //bootstrap classes : default/primary/success/info/warning/danger
@@ -3775,7 +3750,7 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: panelBodyStyle },
-	            content
+	            React.createElement(DetailWidget, { data: this.state.data })
 	          )
 	        )
 	      )
@@ -3792,6 +3767,62 @@ var ReactDashboard =
 
 /***/ },
 /* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var React = __webpack_require__(1);
+
+	var WidgetList = {
+	  PieChart: __webpack_require__(34),
+	  ColumnChart: __webpack_require__(35),
+	  GeoChart: __webpack_require__(36),
+	  TableView: __webpack_require__(37),
+	  ScatterChart: __webpack_require__(38),
+	  Gauge: __webpack_require__(39)
+	};
+
+	//below are for adding custom widgets
+
+	/**
+	 * Add a Widget
+	 *
+	 * @param  type      name     Name of Widget
+	 * @param  Component instance Widget Component
+	 */
+	WidgetList.addWidget = function (name, instance) {
+	  if (typeof name !== 'string') {
+	    throw new Error('ReactDashboard: First parameter of addWidget must be of type string');
+	  }
+
+	  if (!React.Component instanceof instance.constructor) {
+	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
+	  }
+
+	  WidgetList[name] = instance;
+	};
+
+	/**
+	 * Add multiple Widgets
+	 *
+	 * @param  object widgets, Widgets to add. string => Component
+	 */
+	WidgetList.addWidgets = function (widgets) {
+	  if ((typeof widgets === 'undefined' ? 'undefined' : _typeof(widgets)) !== 'object') {
+	    throw new Error('ReactDashboard: First parameter of addWidgets must be of type object');
+	  }
+
+	  for (var name in widgets) {
+	    WidgetList.addWidget(name, widgets[name]);
+	  }
+	};
+
+	module.exports = WidgetList;
+
+/***/ },
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3848,7 +3879,7 @@ var ReactDashboard =
 	module.exports = PieChart;
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3902,62 +3933,6 @@ var ReactDashboard =
 	};
 
 	module.exports = ColumnChart;
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var React = __webpack_require__(1);
-
-	var TableView = React.createClass({
-	  displayName: "TableView",
-
-
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "table_view_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
-	  },
-
-	  drawChart: function drawChart() {
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.Table(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      "div",
-	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
-	    );
-	  }
-
-	});
-
-	TableView.defaultProps = {
-	  data: { data: [], options: {} }
-	};
-
-	module.exports = TableView;
 
 /***/ },
 /* 36 */
@@ -4023,6 +3998,62 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 
+	var TableView = React.createClass({
+	  displayName: "TableView",
+
+
+	  componentWillMount: function componentWillMount() {
+	    this.setState({ id: "table_view_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    this.drawChart();
+	  },
+
+	  drawChart: function drawChart() {
+
+	    var data = google.visualization.arrayToDataTable(this.props.data.data);
+
+	    var options = this.props.data.options;
+
+	    var chart = new google.visualization.Table(document.getElementById(this.state.id));
+
+	    chart.draw(data, options);
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      "div",
+	      { style: chartWrapStyle },
+	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	    );
+	  }
+
+	});
+
+	TableView.defaultProps = {
+	  data: { data: [], options: {} }
+	};
+
+	module.exports = TableView;
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+
 	var ScatterChart = React.createClass({
 	  displayName: "ScatterChart",
 
@@ -4072,7 +4103,7 @@ var ReactDashboard =
 	module.exports = ScatterChart;
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

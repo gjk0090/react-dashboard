@@ -1,13 +1,5 @@
 var React = require('react');
-
-//todo: how to require all in folder?
-var PieChart = require('./widgets/PieChart');
-var ColumnChart = require('./widgets/ColumnChart');
-var GeoChart = require('./widgets/GeoChart');
-var TableView = require('./widgets/TableView');
-var ScatterChart = require('./widgets/ScatterChart');
-var Gauge = require('./widgets/Gauge');
-
+var WidgetList = require('./widgets');
 
 var Widget = React.createClass({
 
@@ -47,38 +39,8 @@ var Widget = React.createClass({
         paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%" //temp splution
     };
 
-    var content;
-
-    //todo: rewrite this with factory pattern
-    if(this.props.widget.type == 'PieChart'){
-      content = (
-        <PieChart data={this.state.data}></PieChart>
-      );
-    }else if(this.props.widget.type == 'ColumnChart'){
-      content = (
-        <ColumnChart data={this.state.data}></ColumnChart>
-      );
-    }else if(this.props.widget.type == 'GeoChart'){
-      content = (
-        <GeoChart data={this.state.data}></GeoChart>
-      );
-    }else if(this.props.widget.type == 'TableView'){
-      content = (
-        <TableView data={this.state.data}></TableView>
-      );
-    }else if(this.props.widget.type == 'ScatterChart'){
-      content = (
-        <ScatterChart data={this.state.data}></ScatterChart>
-      );
-    }else if(this.props.widget.type == 'Gauge'){
-      content = (
-        <Gauge data={this.state.data}></Gauge>
-      );
-    }else{
-      content = (
-        <div>this.state.data</div>
-      );
-    }
+    var DetailWidget = WidgetList[this.props.widget.type];
+    if (!DetailWidget) {throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');}
 
     //bootstrap classes : default/primary/success/info/warning/danger
     return (
@@ -90,7 +52,7 @@ var Widget = React.createClass({
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>
-                {content}
+                <DetailWidget data={this.state.data}></DetailWidget>
               </div>
             </div>
           </div>
