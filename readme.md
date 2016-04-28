@@ -22,3 +22,6 @@
 * learn css, implement auto height
 * extract style to class
 * versioning, use branch
+* Angular widget
+* example: one widget control another
+* cursor pointer for <a>
