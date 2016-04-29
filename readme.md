@@ -9,14 +9,12 @@
 
 ### TODO
 ---
-###### example
-* Angular widget?
-* widget event propagation
-
 ###### core
+* Angular widget?
 * learn css, implement auto height
 * extract style to class
 * design layout
+* widget event propagation
 * individual config modal
 * drag and drop (react-sortable, html5 drag drop, jquery drag and drop)
 
