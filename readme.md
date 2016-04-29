@@ -17,6 +17,7 @@
 * learn css, implement auto height
 * extract style to class
 * design layout
+* individual config modal
 
 ###### google charts
 * Google Chart from npm
