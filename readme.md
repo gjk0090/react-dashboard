@@ -17,6 +17,7 @@
 * design layout
 * widget event propagation
 * individual config modal
+* collapse panel
 * drag and drop (react-sortable, html5 drag drop, jquery drag and drop)
 
 ###### google charts
