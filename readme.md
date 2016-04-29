@@ -25,3 +25,9 @@
 * Angular widget
 * example: one widget control another
 * cursor pointer for <a>
+
+##### Reference
+---
+* [Lifecycle Methods](https://facebook.github.io/react/docs/component-specs.html)
+* [Component API](https://facebook.github.io/react/docs/component-api.html)
+* [Load Initial Data via AJAX](https://facebook.github.io/react/tips/initial-ajax.html)

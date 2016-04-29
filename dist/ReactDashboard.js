@@ -56,7 +56,7 @@ var ReactDashboard =
 
 	  componentDidMount: function componentDidMount() {
 
-	    google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] });
+	    google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] }); //should be put outside
 	    google.charts.setOnLoadCallback(this.refreshWidgets);
 	  },
 
@@ -3686,6 +3686,12 @@ var ReactDashboard =
 	    return { data: data };
 	  },
 
+	  //this function triggers before render except first time
+	  //this functoin can call this.setState() safely
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.refreshWidget();
+	  },
+
 	  getRemoteData: function getRemoteData(url) {
 	    if (url == null && url == "") {
 	      return null;
@@ -3710,6 +3716,10 @@ var ReactDashboard =
 	  render: function render() {
 
 	    var widgetStyle = {};
+
+	    var aTagStyle = {
+	      cursor: "pointer"
+	    };
 
 	    var panelBodyStyle = {
 	      position: "relative",
@@ -3737,7 +3747,7 @@ var ReactDashboard =
 	            { className: 'pull-right' },
 	            React.createElement(
 	              'a',
-	              { title: 'reload widget content', onClick: this.refreshWidget },
+	              { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget },
 	              ' ',
 	              React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
 	              ' '

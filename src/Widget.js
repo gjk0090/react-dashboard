@@ -11,6 +11,12 @@ var Widget = React.createClass({
     return {data: data};
   },
 
+  //this function triggers before render except first time
+  //this functoin can call this.setState() safely
+  componentWillReceiveProps: function(nextProps) {
+    this.refreshWidget();
+  },
+
   getRemoteData: function(url){
     if(url == null && url == ""){return null;}
 
@@ -34,6 +40,10 @@ var Widget = React.createClass({
 
     var widgetStyle = {};
 
+    var aTagStyle = {
+      cursor : "pointer"
+    };
+
     var panelBodyStyle = {
         position: "relative",
         paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%" //temp splution
@@ -48,7 +58,7 @@ var Widget = React.createClass({
           <div className="panel panel-default">
             <div className="panel-heading">
               {this.props.widget.title}
-              <span className="pull-right"><a title="reload widget content" onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a></span>
+              <span className="pull-right"><a title="reload widget content" style={aTagStyle} onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a></span>
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>
