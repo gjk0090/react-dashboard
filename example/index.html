@@ -35,7 +35,7 @@
       </thead>
       <tbody>
         <tr ng-repeat="widget in schema.widgets">
-          <th scope="row">1</th>
+          <th scope="row">{{$index+1}}</th>
           <td ng-repeat="(key, value) in widget"><input ng-model="widget[key]"></input></td>
         </tr>
     </table>
