@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
 
 <head>
   <meta charset="utf-8">
@@ -9,16 +9,36 @@
   <!-- <link rel="stylesheet" href="style.css" /> -->
 </head>
 
-<body>
+<body ng-controller="myCtrl">
   <div class="container">
 
     <h3>ReactJS Dashboard 
-      <span class="pull-right"><a title="reload dashboard" onClick="refreshDashboard()" style="cursor:pointer;"> <i class="glyphicon glyphicon-refresh"></i> </a></span>
+      <span class="pull-right"><a title="reload dashboard" ng-click="refreshDashboard()" style="cursor:pointer;"> <i class="glyphicon glyphicon-refresh"></i> </a></span>
     </h3>
 
     <hr>
 
     <div id="example"></div>
+
+    <br>
+
+    <h3>Schema</h3>
+
+    <hr>
+
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th ng-repeat="(key, value) in schema.widgets[0]">{{key}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="widget in schema.widgets">
+          <th scope="row">1</th>
+          <td ng-repeat="(key, value) in widget"><input ng-model="widget[key]"></input></td>
+        </tr>
+    </table>
 
   </div>
 

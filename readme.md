@@ -10,10 +10,8 @@
 ### TODO
 ---
 ###### example
-* auto build example with webpack
-* example with AngularJS
-* Angular widget
-* example: one widget control another
+* Angular widget?
+* widget event propagation
 
 ###### core
 * learn css, implement auto height
