@@ -11,6 +11,7 @@
 ---
 ###### core
 * Angular widget?
+* HighChart widget
 * learn css, implement auto height
 * extract style to class
 * design layout
