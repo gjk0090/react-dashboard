@@ -18,6 +18,7 @@
 * extract style to class
 * design layout
 * individual config modal
+* drag and drop (react-sortable, html5 drag drop, jquery drag and drop)
 
 ###### google charts
 * Google Chart from npm
