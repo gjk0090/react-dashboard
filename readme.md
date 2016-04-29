@@ -7,26 +7,34 @@
 * Use webpack to build source code, it reads the webpack.config.js file and outputs dist/ReactDashboard.js.
 * Try the example page [here](http://gjk0090.github.io/ReactDashboard "ReactDashboard Example").
 
-##### TODO
+### TODO
 ---
+###### example
 * auto build example with webpack
 * example with AngularJS
+* Angular widget
+* example: one widget control another
+
+###### core
+* learn css, implement auto height
+* extract style to class
+* design layout
+
+###### google charts
 * Google Chart from npm
 * Google Chart respomsive
 * Google Chart animation
 * Google Chart click events
+
+###### project
 * tests
 * update webpack
 * minify and map
 * beautiful readme
-* learn css, implement auto height
-* extract style to class
 * versioning, use branch
-* Angular widget
-* example: one widget control another
-* cursor pointer for <a>
 
-##### Reference
+
+### Reference
 ---
 * [Lifecycle Methods](https://facebook.github.io/react/docs/component-specs.html)
 * [Component API](https://facebook.github.io/react/docs/component-api.html)
