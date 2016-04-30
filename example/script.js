@@ -17,13 +17,17 @@ app.controller('myCtrl',function($scope){
     ]
   };
 
+  $scope.handleClick = function(i, type, value){
+    alert('You clicked the ' + (i+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
+  };
+
   $scope.refreshDashboard = function(){
   // JSX
   // ReactDOM.render(
   //   <ReactDashboard schema={schema}></ReactDashboard>,
   //   document.getElementById('example')
   // );
-    ReactDOM.render(React.createElement(ReactDashboard, {schema: $scope.schema}), document.getElementById('example'));
+    ReactDOM.render(React.createElement(ReactDashboard, {schema: $scope.schema, onClick: $scope.handleClick}), document.getElementById('example'));
   };
 
   $scope.$watch('schema', function(newValue, oldValue) {

@@ -14,7 +14,7 @@ var Dashboard = React.createClass({
   },
 
   handleClick: function(i, type, value) {
-    alert('You clicked the ' + (i+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
+    //alert('You clicked the ' + (i+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
     if(this.props.onClick){
       this.props.onClick(i, type, value);
     }
