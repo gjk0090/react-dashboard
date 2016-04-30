@@ -3871,29 +3871,27 @@ var ReactDashboard =
 	    return { id: "pie_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
 	  },
 
-	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization && !this.state.chart) {
+
+	      var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
+	      this.setState({ chart: chart });
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+
+	      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, gc_data));
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    //todo : validate data
-
-	    if (!window.google || !window.google.visualization) {
-	      return;
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
 	    }
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    if (!chart) {
-	      var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
-
-	      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, data));
-	    }
-
-	    chart.draw(data, options);
 	  },
 
 	  handleSelect: function handleSelect(chart, data) {
