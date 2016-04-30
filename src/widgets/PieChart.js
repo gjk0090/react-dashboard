@@ -14,7 +14,7 @@ var PieChart = React.createClass({
 
     //todo : validate data
 
-    if(!google || !google.visualization){return;}
+    if(!window.google || !window.google.visualization){return;}
 
     var data = google.visualization.arrayToDataTable(this.props.data.data);
 
