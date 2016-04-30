@@ -3872,10 +3872,14 @@ var ReactDashboard =
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (window.google && window.google.visualization && !this.state.chart) {
+	    if (window.google && window.google.visualization) {
 
-	      var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
-	      this.setState({ chart: chart });
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
 
 	      //todo : validate data
 	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
@@ -3883,8 +3887,6 @@ var ReactDashboard =
 
 	      var options = nextProps.data.options;
 	      this.setState({ options: options });
-
-	      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, gc_data));
 	    }
 	  },
 
@@ -3894,10 +3896,11 @@ var ReactDashboard =
 	    }
 	  },
 
-	  handleSelect: function handleSelect(chart, data) {
-	    var value = data.getValue(chart.getSelection()[0].row, 1);
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var value = gc_data.getValue(chart.getSelection()[0].row, 1);
 	    this.props.onClick(value);
-	    //alert(data.getValue(chart.getSelection()[0].row,1)); //if(undefined)
 	  },
 
 	  render: function render() {
