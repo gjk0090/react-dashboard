@@ -3,7 +3,7 @@ var Widget = require('./Widget');
 
 var Dashboard = React.createClass({
 
-  componentDidMount: function(){
+  componentWillMount: function(){
 
     google.charts.load('current', {'packages':['corechart','table','gauge']}); //should be put outside
     google.charts.setOnLoadCallback(this.refreshWidgets);

@@ -54,7 +54,7 @@ var ReactDashboard =
 	  displayName: 'Dashboard',
 
 
-	  componentDidMount: function componentDidMount() {
+	  componentWillMount: function componentWillMount() {
 
 	    google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] }); //should be put outside
 	    google.charts.setOnLoadCallback(this.refreshWidgets);
@@ -3679,18 +3679,30 @@ var ReactDashboard =
 
 
 	  getInitialState: function getInitialState() {
-	    var data = this.getRemoteData(this.props.widget.url);
-	    if (data == null) {
-	      data = this.props.widget.data;
-	    }
-	    return { data: data };
+	    return { data: this.props.widget.data };
+	  },
+
+	  componentWillMount: function componentWillMount() {},
+
+	  componentDidMount: function componentDidMount() {
+	    this.refreshWidget();
 	  },
 
 	  //this function triggers before render except first time
-	  //this functoin can call this.setState() safely
+	  //this functoin can set state safely
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    this.refreshWidget();
 	  },
+
+	  shouldComponentUpdate: function shouldComponentUpdate() {
+	    return true;
+	  },
+
+	  componentWillUpdate: function componentWillUpdate() {},
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  componentWillUnmount: function componentWillUnmount() {},
 
 	  getRemoteData: function getRemoteData(url) {
 	    if (url == null && url == "") {
@@ -3707,10 +3719,9 @@ var ReactDashboard =
 
 	  refreshWidget: function refreshWidget() {
 	    var data = this.getRemoteData(this.props.widget.url);
-	    if (data == null) {
-	      data = this.props.widget.data;
+	    if (data != null) {
+	      this.setState({ data: data });
 	    }
-	    this.setState({ data: data });
 	  },
 
 	  render: function render() {
@@ -3844,30 +3855,20 @@ var ReactDashboard =
 
 
 	  getInitialState: function getInitialState() {
-	    return {};
+	    return { id: "pie_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
 	  },
-
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "pie_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
-	  },
-
-	  componentDidMount: function componentDidMount() {},
-
-	  componentWillReceiveProps: function componentWillReceiveProps() {},
-
-	  shouldComponentUpdate: function shouldComponentUpdate() {
-	    return true;
-	  },
-
-	  componentWillUpdate: function componentWillUpdate() {},
 
 	  componentDidUpdate: function componentDidUpdate() {
 	    this.drawChart();
 	  },
 
-	  componentWillUnmount: function componentWillUnmount() {},
-
 	  drawChart: function drawChart() {
+
+	    //todo : validate data
+
+	    if (!google || !google.visualization) {
+	      return;
+	    }
 
 	    var data = google.visualization.arrayToDataTable(this.props.data.data);
 
@@ -3921,8 +3922,8 @@ var ReactDashboard =
 	  displayName: 'ColumnChart',
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "column_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "column_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
@@ -3930,6 +3931,10 @@ var ReactDashboard =
 	  },
 
 	  drawChart: function drawChart() {
+
+	    if (!google || !google.visualization) {
+	      return;
+	    }
 
 	    var data = google.visualization.arrayToDataTable(this.props.data.data);
 
@@ -3983,8 +3988,8 @@ var ReactDashboard =
 	  displayName: "GeoChart",
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "geo_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "geo_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
@@ -3992,6 +3997,10 @@ var ReactDashboard =
 	  },
 
 	  drawChart: function drawChart() {
+
+	    if (!google || !google.visualization) {
+	      return;
+	    }
 
 	    var data = google.visualization.arrayToDataTable(this.props.data.data);
 
@@ -4039,8 +4048,8 @@ var ReactDashboard =
 	  displayName: "TableView",
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "table_view_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "table_view_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
@@ -4048,6 +4057,10 @@ var ReactDashboard =
 	  },
 
 	  drawChart: function drawChart() {
+
+	    if (!google || !google.visualization) {
+	      return;
+	    }
 
 	    var data = google.visualization.arrayToDataTable(this.props.data.data);
 
@@ -4095,8 +4108,8 @@ var ReactDashboard =
 	  displayName: "ScatterChart",
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
@@ -4104,6 +4117,10 @@ var ReactDashboard =
 	  },
 
 	  drawChart: function drawChart() {
+
+	    if (!google || !google.visualization) {
+	      return;
+	    }
 
 	    var data = google.visualization.arrayToDataTable(this.props.data.data);
 
@@ -4151,8 +4168,8 @@ var ReactDashboard =
 	  displayName: "Gauge",
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "gauge_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "gauge_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
@@ -4160,6 +4177,10 @@ var ReactDashboard =
 	  },
 
 	  drawChart: function drawChart() {
+
+	    if (!google || !google.visualization) {
+	      return;
+	    }
 
 	    var data = google.visualization.arrayToDataTable(this.props.data.data);
 

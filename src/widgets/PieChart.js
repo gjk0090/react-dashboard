@@ -2,39 +2,19 @@ var React = require('react');
 
 var PieChart = React.createClass({
 
-  getInitialState: function() {
-    return {};
+  getInitialState: function(){
+    return {id : "pie_chart_"+Math.floor(Math.random() * 1000000)}; //id for google chart element //todo : id from parent?
   },
 
-  componentWillMount: function(){
-    this.setState({id : "pie_chart_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
-  },
-
-  componentDidMount: function(){
-
-  },
-
-  componentWillReceiveProps: function(){
-
-  },
-  
-  shouldComponentUpdate: function(){
-    return true;
-  },
-  
-  componentWillUpdate: function(){
-
-  },
-  
   componentDidUpdate: function(){
     this.drawChart();
   },
-  
-  componentWillUnmount: function(){
-
-  },
 
   drawChart: function(){
+
+    //todo : validate data
+
+    if(!google || !google.visualization){return;}
 
     var data = google.visualization.arrayToDataTable(this.props.data.data);
 

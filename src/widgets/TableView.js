@@ -2,8 +2,8 @@ var React = require('react');
 
 var TableView = React.createClass({
 
-  componentWillMount: function(){
-    this.setState({id : "table_view_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
+  getInitialState: function(){
+    return {id : "table_view_"+Math.floor(Math.random() * 1000000)}; //id for google chart element
   },
 
   componentDidUpdate: function(){
@@ -11,6 +11,8 @@ var TableView = React.createClass({
   },
 
   drawChart: function(){
+
+    if(!google || !google.visualization){return;}
 
     var data = google.visualization.arrayToDataTable(this.props.data.data);
 

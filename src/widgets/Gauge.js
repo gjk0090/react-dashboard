@@ -2,8 +2,8 @@ var React = require('react');
 
 var Gauge = React.createClass({
 
-  componentWillMount: function(){
-    this.setState({id : "gauge_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
+  getInitialState: function(){
+    return {id : "gauge_"+Math.floor(Math.random() * 1000000)}; //id for google chart element
   },
 
   componentDidUpdate: function(){
@@ -11,6 +11,8 @@ var Gauge = React.createClass({
   },
 
   drawChart: function(){
+
+    if(!google || !google.visualization){return;}
 
     var data = google.visualization.arrayToDataTable(this.props.data.data);
 

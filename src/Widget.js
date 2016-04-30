@@ -4,17 +4,33 @@ var WidgetList = require('./widgets');
 var Widget = React.createClass({
 
   getInitialState: function() {
-    var data = this.getRemoteData(this.props.widget.url);
-    if(data == null){
-      data = this.props.widget.data;
-    }
-    return {data: data};
+    return {data: this.props.widget.data};
+  },
+
+  componentWillMount: function(){
+  },
+
+  componentDidMount: function(){
+    this.refreshWidget();
   },
 
   //this function triggers before render except first time
-  //this functoin can call this.setState() safely
+  //this functoin can set state safely
   componentWillReceiveProps: function(nextProps) {
     this.refreshWidget();
+  },
+
+  shouldComponentUpdate: function(){
+    return true;
+  },
+  
+  componentWillUpdate: function(){
+  },
+  
+  componentDidUpdate: function(){
+  },
+  
+  componentWillUnmount: function(){
   },
 
   getRemoteData: function(url){
@@ -30,10 +46,9 @@ var Widget = React.createClass({
 
   refreshWidget: function() {
     var data = this.getRemoteData(this.props.widget.url);
-    if(data == null){
-      data = this.props.widget.data;
+    if(data != null){
+      this.setState({data: data});
     }
-    this.setState({data: data});
   },
   
   render: function() {
