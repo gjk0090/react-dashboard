@@ -77,7 +77,7 @@ var Widget = React.createClass({
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>
-                <DetailWidget data={this.state.data}></DetailWidget>
+                <DetailWidget data={this.state.data} onClick={this.props.onClick}></DetailWidget>
               </div>
             </div>
           </div>
@@ -88,7 +88,8 @@ var Widget = React.createClass({
 });
 
 Widget.defaultProps = {
-  widget      : {colSpan:"", type:"", title:"", url:"", data:""}
+  widget      : {colSpan:"", type:"", title:"", url:"", data:""},
+  onClick     : undefined
 };
 
 module.exports = Widget;

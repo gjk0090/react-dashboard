@@ -14,12 +14,12 @@
 * learn css, implement auto height
 * extract style to class
 * design layout
-* widget event propagation
 * tabs
 * add remove widget
 * individual config modal
 * collapse panel
 * drag and drop (react-sortable, html5 drag drop, jquery drag and drop)
+* update other widgets according to PieChart
 
 ###### google charts
 * Google Chart from npm
@@ -37,4 +37,5 @@
 ---
 * [Lifecycle Methods](https://facebook.github.io/react/docs/component-specs.html)
 * [Component API](https://facebook.github.io/react/docs/component-api.html)
+* [DOM Event Listener](https://facebook.github.io/react/tips/dom-event-listeners.html)
 * [Load Initial Data via AJAX](https://facebook.github.io/react/tips/initial-ajax.html)

@@ -13,18 +13,25 @@ var Dashboard = React.createClass({
     this.setState({}); //this.setState({}) will trigger a re-render
   },
 
+  handleClick: function(i, type, value) {
+    alert('You clicked the ' + (i+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
+    if(this.props.onClick){
+      this.props.onClick(i, type, value);
+    }
+  },
+
   render: function() {
 
     var dashboardStyle = {};
 
     //todo: design layout
-    var widgets = this.props.schema.widgets.map(widget => {
+    var widgets = this.props.schema.widgets.map((widget, i) => {
 
       var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
 
       return (
         <div className={clazzName}>
-          <Widget widget={widget}></Widget>
+          <Widget widget={widget} onClick={this.handleClick.bind(this, i, widget.type)}></Widget>
         </div>
       );
     });

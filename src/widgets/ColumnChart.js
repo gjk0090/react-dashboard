@@ -18,18 +18,20 @@ var ColumnChart = React.createClass({
 
     var options = this.props.data.options;
 
-    var chart = new google.visualization.ColumnChart(
-      document.getElementById(this.state.id)
-    );
+    if(!chart){
+      var chart = new google.visualization.ColumnChart(
+        document.getElementById(this.state.id)
+      );
+
+      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, data));
+    }
 
     chart.draw(data, options);
+  },
 
-    google.visualization.events.addListener(chart, 'select', function() {
-      alert(JSON.stringify(chart.getSelection()));
-      alert(JSON.stringify(data));
-      //alert(data.getValue(chart.getSelection()[0].row,1));
-    });
-
+  handleSelect: function(chart, data){
+    var value = "temp";
+    this.props.onClick(value);
   },
 
   render: function() {

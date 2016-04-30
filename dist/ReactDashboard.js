@@ -64,19 +64,27 @@ var ReactDashboard =
 	    this.setState({}); //this.setState({}) will trigger a re-render
 	  },
 
+	  handleClick: function handleClick(i, type, value) {
+	    alert('You clicked the ' + (i + 1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
+	    if (this.props.onClick) {
+	      this.props.onClick(i, type, value);
+	    }
+	  },
+
 	  render: function render() {
+	    var _this = this;
 
 	    var dashboardStyle = {};
 
 	    //todo: design layout
-	    var widgets = this.props.schema.widgets.map(function (widget) {
+	    var widgets = this.props.schema.widgets.map(function (widget, i) {
 
 	      var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
 
 	      return React.createElement(
 	        'div',
 	        { className: clazzName },
-	        React.createElement(Widget, { widget: widget })
+	        React.createElement(Widget, { widget: widget, onClick: _this.handleClick.bind(_this, i, widget.type) })
 	      );
 	    });
 
@@ -3771,7 +3779,7 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: panelBodyStyle },
-	            React.createElement(DetailWidget, { data: this.state.data })
+	            React.createElement(DetailWidget, { data: this.state.data, onClick: this.props.onClick })
 	          )
 	        )
 	      )
@@ -3781,7 +3789,8 @@ var ReactDashboard =
 	});
 
 	Widget.defaultProps = {
-	  widget: { colSpan: "", type: "", title: "", url: "", data: "" }
+	  widget: { colSpan: "", type: "", title: "", url: "", data: "" },
+	  onClick: undefined
 	};
 
 	module.exports = Widget;
@@ -3874,14 +3883,19 @@ var ReactDashboard =
 
 	    var options = this.props.data.options;
 
-	    var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
+	    if (!chart) {
+	      var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
 
-	    google.visualization.events.addListener(chart, 'select', function () {
-	      alert(JSON.stringify(chart.getSelection()));
-	      //alert(data.getValue(chart.getSelection()[0].row,1)); //if(undefined)
-	    });
+	      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, data));
+	    }
 
 	    chart.draw(data, options);
+	  },
+
+	  handleSelect: function handleSelect(chart, data) {
+	    var value = data.getValue(chart.getSelection()[0].row, 1);
+	    this.props.onClick(value);
+	    //alert(data.getValue(chart.getSelection()[0].row,1)); //if(undefined)
 	  },
 
 	  render: function render() {
@@ -3905,7 +3919,8 @@ var ReactDashboard =
 	});
 
 	PieChart.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = PieChart;
@@ -3940,15 +3955,18 @@ var ReactDashboard =
 
 	    var options = this.props.data.options;
 
-	    var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
+	    if (!chart) {
+	      var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
+
+	      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, data));
+	    }
 
 	    chart.draw(data, options);
+	  },
 
-	    google.visualization.events.addListener(chart, 'select', function () {
-	      alert(JSON.stringify(chart.getSelection()));
-	      alert(JSON.stringify(data));
-	      //alert(data.getValue(chart.getSelection()[0].row,1));
-	    });
+	  handleSelect: function handleSelect(chart, data) {
+	    var value = "temp";
+	    this.props.onClick(value);
 	  },
 
 	  render: function render() {

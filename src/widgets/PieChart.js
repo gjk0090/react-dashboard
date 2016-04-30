@@ -20,16 +20,21 @@ var PieChart = React.createClass({
 
     var options = this.props.data.options;
 
-    var chart = new google.visualization.PieChart(
-      document.getElementById(this.state.id)
-    );
+    if(!chart){
+      var chart = new google.visualization.PieChart(
+        document.getElementById(this.state.id)
+      );
 
-    google.visualization.events.addListener(chart, 'select', function() {
-      alert(JSON.stringify(chart.getSelection()));
-      //alert(data.getValue(chart.getSelection()[0].row,1)); //if(undefined)
-    });
+      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, data));
+    }
 
     chart.draw(data, options);
+  },
+
+  handleSelect: function(chart, data){
+    var value = data.getValue(chart.getSelection()[0].row,1);
+    this.props.onClick(value);
+    //alert(data.getValue(chart.getSelection()[0].row,1)); //if(undefined)
   },
 
   render: function() {
@@ -53,7 +58,8 @@ var PieChart = React.createClass({
 });
 
 PieChart.defaultProps = {
-  data      : {data:[], options:{}}
+  data      : {data:[], options:{}},
+  onClick   : undefined
 };
 
 module.exports = PieChart;
