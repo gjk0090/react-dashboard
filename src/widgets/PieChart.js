@@ -2,12 +2,36 @@ var React = require('react');
 
 var PieChart = React.createClass({
 
+  getInitialState: function() {
+    return {};
+  },
+
   componentWillMount: function(){
     this.setState({id : "pie_chart_"+Math.floor(Math.random() * 1000000)}); //id for google chart element
   },
 
+  componentDidMount: function(){
+
+  },
+
+  componentWillReceiveProps: function(){
+
+  },
+  
+  shouldComponentUpdate: function(){
+    return true;
+  },
+  
+  componentWillUpdate: function(){
+
+  },
+  
   componentDidUpdate: function(){
     this.drawChart();
+  },
+  
+  componentWillUnmount: function(){
+
   },
 
   drawChart: function(){
@@ -19,6 +43,11 @@ var PieChart = React.createClass({
     var chart = new google.visualization.PieChart(
       document.getElementById(this.state.id)
     );
+
+    google.visualization.events.addListener(chart, 'select', function() {
+      alert(JSON.stringify(chart.getSelection()));
+      //alert(data.getValue(chart.getSelection()[0].row,1)); //if(undefined)
+    });
 
     chart.draw(data, options);
   },

@@ -10,21 +10,20 @@
 ### TODO
 ---
 ###### core
-* Angular widget?
 * HighChart widget
 * learn css, implement auto height
 * extract style to class
 * design layout
 * widget event propagation
+* tabs
+* add remove widget
 * individual config modal
 * collapse panel
 * drag and drop (react-sortable, html5 drag drop, jquery drag and drop)
 
 ###### google charts
 * Google Chart from npm
-* Google Chart respomsive
-* Google Chart animation
-* Google Chart click events
+* Google Chart responsive
 
 ###### project
 * tests

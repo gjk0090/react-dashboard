@@ -3835,21 +3835,37 @@ var ReactDashboard =
 /* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var PieChart = React.createClass({
-	  displayName: "PieChart",
+	  displayName: 'PieChart',
 
+
+	  getInitialState: function getInitialState() {
+	    return {};
+	  },
 
 	  componentWillMount: function componentWillMount() {
 	    this.setState({ id: "pie_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
 	  },
 
+	  componentDidMount: function componentDidMount() {},
+
+	  componentWillReceiveProps: function componentWillReceiveProps() {},
+
+	  shouldComponentUpdate: function shouldComponentUpdate() {
+	    return true;
+	  },
+
+	  componentWillUpdate: function componentWillUpdate() {},
+
 	  componentDidUpdate: function componentDidUpdate() {
 	    this.drawChart();
 	  },
+
+	  componentWillUnmount: function componentWillUnmount() {},
 
 	  drawChart: function drawChart() {
 
@@ -3858,6 +3874,11 @@ var ReactDashboard =
 	    var options = this.props.data.options;
 
 	    var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
+
+	    google.visualization.events.addListener(chart, 'select', function () {
+	      alert(JSON.stringify(chart.getSelection()));
+	      //alert(data.getValue(chart.getSelection()[0].row,1)); //if(undefined)
+	    });
 
 	    chart.draw(data, options);
 	  },
@@ -3874,9 +3895,9 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
@@ -3892,12 +3913,12 @@ var ReactDashboard =
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var ColumnChart = React.createClass({
-	  displayName: "ColumnChart",
+	  displayName: 'ColumnChart',
 
 
 	  componentWillMount: function componentWillMount() {
@@ -3917,6 +3938,12 @@ var ReactDashboard =
 	    var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
 
 	    chart.draw(data, options);
+
+	    google.visualization.events.addListener(chart, 'select', function () {
+	      alert(JSON.stringify(chart.getSelection()));
+	      alert(JSON.stringify(data));
+	      //alert(data.getValue(chart.getSelection()[0].row,1));
+	    });
 	  },
 
 	  render: function render() {
@@ -3930,9 +3957,9 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
