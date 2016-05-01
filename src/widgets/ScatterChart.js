@@ -3,26 +3,42 @@ var React = require('react');
 var ScatterChart = React.createClass({
 
   getInitialState: function(){
-    return {id : "scatter_chart_"+Math.floor(Math.random() * 1000000)}; //id for google chart element
+    return {id : "scatter_chart_"+Math.floor(Math.random() * 1000000)}; //id for google chart element //todo : id from parent?
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    if(window.google && window.google.visualization){
+
+      if(!this.state.chart){
+        var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
+        this.setState({chart: chart});
+
+        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+      }
+
+      //todo : validate data
+      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+      this.setState({gc_data: gc_data});
+
+      var options = nextProps.data.options;
+      this.setState({options: options});
+    }
   },
 
   componentDidUpdate: function(){
-    this.drawChart();
+    if(window.google && window.google.visualization){
+      this.state.chart.draw(this.state.gc_data, this.state.options);
+    }
   },
 
-  drawChart: function(){
-
-    if(!window.google || !window.google.visualization){return;}
-
-    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-    var options = this.props.data.options;
-
-    var chart = new google.visualization.ScatterChart(
-      document.getElementById(this.state.id)
-    );
-
-    chart.draw(data, options);
+  handleSelect: function(){
+    var chart = this.state.chart;
+    var gc_data = this.state.gc_data;
+    var selected = chart.getSelection()[0]; alert(JSON.stringify(selected));
+    if(selected && (selected.row || selected.row==0)){
+      //var value = gc_data.getValue(selected.row, 1);
+      //this.props.onClick(value);      
+    }
   },
 
   render: function() {
@@ -45,7 +61,8 @@ var ScatterChart = React.createClass({
 });
 
 ScatterChart.defaultProps = {
-  data      : {data:[], options:{}}
+  data      : {data:[], options:{}},
+  onClick   : undefined
 };
 
 module.exports = ScatterChart;

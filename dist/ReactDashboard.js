@@ -4184,35 +4184,51 @@ var ReactDashboard =
 /* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var GeoChart = React.createClass({
-	  displayName: "GeoChart",
+	  displayName: 'GeoChart',
 
 
 	  getInitialState: function getInitialState() {
-	    return { id: "geo_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
+	    return { id: "geo_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    if (!window.google || !window.google.visualization) {
-	      return;
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];alert(JSON.stringify(selected));
+	    if (selected && (selected.row || selected.row == 0)) {
+	      //var value = gc_data.getValue(selected.row, 1);
+	      //this.props.onClick(value);     
 	    }
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
 	  },
 
 	  render: function render() {
@@ -4226,16 +4242,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	GeoChart.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = GeoChart;
@@ -4244,35 +4261,51 @@ var ReactDashboard =
 /* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var TableView = React.createClass({
-	  displayName: "TableView",
+	  displayName: 'TableView',
 
 
 	  getInitialState: function getInitialState() {
-	    return { id: "table_view_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
+	    return { id: "table_view_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.Table(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    if (!window.google || !window.google.visualization) {
-	      return;
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];alert(JSON.stringify(selected));
+	    if (selected && (selected.row || selected.row == 0)) {
+	      //var value = gc_data.getValue(selected.row, 1);
+	      //this.props.onClick(value);     
 	    }
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.Table(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
 	  },
 
 	  render: function render() {
@@ -4286,16 +4319,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	TableView.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = TableView;
@@ -4304,35 +4338,51 @@ var ReactDashboard =
 /* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var ScatterChart = React.createClass({
-	  displayName: "ScatterChart",
+	  displayName: 'ScatterChart',
 
 
 	  getInitialState: function getInitialState() {
-	    return { id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
+	    return { id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    if (!window.google || !window.google.visualization) {
-	      return;
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];alert(JSON.stringify(selected));
+	    if (selected && (selected.row || selected.row == 0)) {
+	      //var value = gc_data.getValue(selected.row, 1);
+	      //this.props.onClick(value);     
 	    }
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
 	  },
 
 	  render: function render() {
@@ -4346,16 +4396,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	ScatterChart.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = ScatterChart;
@@ -4364,35 +4415,51 @@ var ReactDashboard =
 /* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var Gauge = React.createClass({
-	  displayName: "Gauge",
+	  displayName: 'Gauge',
 
 
 	  getInitialState: function getInitialState() {
-	    return { id: "gauge_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
+	    return { id: "gauge_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.Gauge(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    if (!window.google || !window.google.visualization) {
-	      return;
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];alert(JSON.stringify(selected));
+	    if (selected && (selected.row || selected.row == 0)) {
+	      //var value = gc_data.getValue(selected.row, 1);
+	      //this.props.onClick(value);     
 	    }
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.Gauge(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
 	  },
 
 	  render: function render() {
@@ -4406,16 +4473,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	Gauge.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = Gauge;

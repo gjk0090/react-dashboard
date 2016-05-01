@@ -18,8 +18,8 @@
 * add widget in edit mode
 * individual config modal
 * drag and drop (react-dnd)
-* update other widgets similar to PieChart
 * wrap widget with grid for dnd
+* more widget
 
 ###### google charts
 * Google Chart from npm
