@@ -43,7 +43,6 @@ var ColumnChart = React.createClass({
 
   render: function() {
 
-    //auto height from http://jsfiddle.net/toddlevy/c59HH/
     var chartWrapStyle = {};
 
     var chartStyle = {

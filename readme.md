@@ -15,12 +15,11 @@
 * learn Flux
 * extract style to class
 * tabs
-* add remove widget
+* add widget in edit mode
 * individual config modal
 * drag and drop (react-dnd)
 * update other widgets similar to PieChart
 * wrap widget with grid for dnd
-* edit mode
 
 ###### google charts
 * Google Chart from npm

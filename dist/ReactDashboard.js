@@ -152,10 +152,10 @@ var ReactDashboard =
 	    }
 
 	    if (this.props.onEdit) {
-	      this.props.onEdit(this.state.widgets);
+	      this.props.onEdit(this.state.widgets); //pass widget out for custom operation
 	    } else {
-	      alert('You edited the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, action is ' + action + '.');
-	    }
+	        alert('You edited the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, action is ' + action + '.');
+	      }
 
 	    this.refreshWidgets();
 	  },
@@ -4156,7 +4156,6 @@ var ReactDashboard =
 
 	  render: function render() {
 
-	    //auto height from http://jsfiddle.net/toddlevy/c59HH/
 	    var chartWrapStyle = {};
 
 	    var chartStyle = {

@@ -26,6 +26,10 @@ app.controller('myCtrl',function($scope){
     $scope.schema.editMode = $scope.editMode;
   };
 
+  $scope.addWidget = function(){ //todo : open a modal to choose
+    $scope.schema.widgets.push([{colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", data:"testData"}]);
+  };
+
   $scope.schema = {
     editMode: $scope.editMode,
     style: {},
