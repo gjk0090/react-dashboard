@@ -60,8 +60,9 @@ var Widget = React.createClass({
     };
 
     var panelBodyStyle = {
-        position: "relative",
-        paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%" //temp splution
+      position: "relative",
+      //paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%", //auto height from http://jsfiddle.net/toddlevy/c59HH/
+      height: this.props.widgetHeight
     };
 
     var DetailWidget = WidgetList[this.props.widget.type];

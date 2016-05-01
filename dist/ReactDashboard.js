@@ -68,10 +68,10 @@ var ReactDashboard =
 	    this.setState({}); //this.setState({}) will trigger a re-render
 	  },
 
-	  handleClick: function handleClick(i, type, value) {
-	    //alert('You clicked the ' + (i+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
+	  handleClick: function handleClick(i, j, type, value) {
+	    //alert('You clicked the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
 	    if (this.props.onClick) {
-	      this.props.onClick(i, type, value);
+	      this.props.onClick(i, j, type, value);
 	    }
 	  },
 
@@ -79,23 +79,35 @@ var ReactDashboard =
 	    var _this = this;
 
 	    var dashboardStyle = {};
+	    var rowStyle = {
+	      //border: "1px dashed grey" //for edit mode
+	    };
 
 	    //todo: design layout
-	    var widgets = this.props.schema.widgets.map(function (widget, i) {
+	    var rows = this.props.schema.widgets.map(function (row, i) {
 
-	      var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
+	      var widgets = row.map(function (widget, j) {
+	        var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
+	        var widgetHeight = widget.colSpan == "12" ? window.innerHeight / 3 : window.innerHeight / 4;
+
+	        return React.createElement(
+	          'div',
+	          { className: clazzName },
+	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, onClick: _this.handleClick.bind(_this, i, j, widget.type) })
+	        );
+	      });
 
 	      return React.createElement(
 	        'div',
-	        { className: clazzName },
-	        React.createElement(Widget, { widget: widget, onClick: _this.handleClick.bind(_this, i, widget.type) })
+	        { className: 'row', style: rowStyle },
+	        widgets
 	      );
 	    });
 
 	    return React.createElement(
 	      'div',
-	      { className: 'row', style: dashboardStyle },
-	      widgets
+	      { style: dashboardStyle },
+	      rows
 	    );
 	  }
 
@@ -3746,7 +3758,8 @@ var ReactDashboard =
 
 	    var panelBodyStyle = {
 	      position: "relative",
-	      paddingBottom: this.props.widget.colSpan == "12" ? "40%" : "70%" //temp splution
+	      //paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%", //auto height from http://jsfiddle.net/toddlevy/c59HH/
+	      height: this.props.widgetHeight
 	    };
 
 	    var DetailWidget = WidgetList[this.props.widget.type];
@@ -3899,13 +3912,15 @@ var ReactDashboard =
 	  handleSelect: function handleSelect() {
 	    var chart = this.state.chart;
 	    var gc_data = this.state.gc_data;
-	    var value = gc_data.getValue(chart.getSelection()[0].row, 1);
-	    this.props.onClick(value);
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
 	  },
 
 	  render: function render() {
 
-	    //auto height from http://jsfiddle.net/toddlevy/c59HH/
 	    var chartWrapStyle = {};
 
 	    var chartStyle = {
@@ -3975,7 +3990,7 @@ var ReactDashboard =
 	    var chart = this.state.chart;
 	    var gc_data = this.state.gc_data;
 	    var selected = chart.getSelection()[0];
-	    if (selected && selected.row && selected.column) {
+	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
 	      var value = gc_data.getValue(selected.row, selected.column);
 	      this.props.onClick(value);
 	    }

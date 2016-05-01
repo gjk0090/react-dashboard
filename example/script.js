@@ -8,17 +8,23 @@ app.controller('myCtrl',function($scope){
   $scope.schema = {
     style:{},
     widgets:[
-      {colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", data:"testData"}, //url has higher priority than data
-      {colSpan:"6", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", data:"testData"},
-      {colSpan:"12", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", data:"testData"},
-      {colSpan:"4", type:"TableView", title:"Table", url:"testdata/TableView.json", data:"testData"},
-      {colSpan:"4", type:"ScatterChart", title:"Scatter Chart", url:"testdata/ScatterChart.json", data:"testData"},
-      {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", data:"testData"}
+      [
+        {colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", data:"testData"}, //url has higher priority than data
+        {colSpan:"6", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", data:"testData"}
+      ],
+      [
+        {colSpan:"12", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", data:"testData"}
+      ],
+      [
+        {colSpan:"4", type:"TableView", title:"Table", url:"testdata/TableView.json", data:"testData"},
+        {colSpan:"4", type:"ScatterChart", title:"Scatter Chart", url:"testdata/ScatterChart.json", data:"testData"},
+        {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", data:"testData"}
+      ]
     ]
   };
 
-  $scope.handleClick = function(i, type, value){
-    alert('You clicked the ' + (i+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
+  $scope.handleClick = function(i, j, type, value){
+    alert('You clicked the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
   };
 
   $scope.refreshDashboard = function(){

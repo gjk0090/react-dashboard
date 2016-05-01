@@ -35,7 +35,7 @@ var ColumnChart = React.createClass({
     var chart = this.state.chart;
     var gc_data = this.state.gc_data;
     var selected = chart.getSelection()[0];
-    if(selected && selected.row && selected.column){
+    if(selected && (selected.row || selected.row==0) && (selected.column || selected.column==0)){
       var value = gc_data.getValue(selected.row, selected.column);
       this.props.onClick(value);      
     }

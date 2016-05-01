@@ -34,13 +34,15 @@ var PieChart = React.createClass({
   handleSelect: function(){
     var chart = this.state.chart;
     var gc_data = this.state.gc_data;
-    var value = gc_data.getValue(chart.getSelection()[0].row,1);
-    this.props.onClick(value);
+    var selected = chart.getSelection()[0];
+    if(selected && (selected.row || selected.row==0)){
+      var value = gc_data.getValue(selected.row, 1);
+      this.props.onClick(value);      
+    }
   },
 
   render: function() {
 
-    //auto height from http://jsfiddle.net/toddlevy/c59HH/
     var chartWrapStyle = {};
 
     var chartStyle = {

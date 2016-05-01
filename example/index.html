@@ -26,15 +26,15 @@
 
     <hr>
 
-    <table class="table table-striped table-bordered">
+    <table class="table table-striped table-bordered" ng-repeat="row in schema.widgets">
       <thead>
         <tr>
           <th>#</th>
-          <th ng-repeat="(key, value) in schema.widgets[0]">{{key}}</th>
+          <th ng-repeat="(key, value) in schema.widgets[$index][0]">{{key}}</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="widget in schema.widgets">
+        <tr ng-repeat="widget in schema.widgets[$index]">
           <th scope="row">{{$index+1}}</th>
           <td ng-repeat="(key, value) in widget"><input ng-model="widget[key]"></input></td>
         </tr>

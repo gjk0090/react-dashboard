@@ -10,16 +10,16 @@
 ### TODO
 ---
 ###### core
-* HighChart widget
 * learn css, implement auto height
+* use propTypes
+* learn Flux
 * extract style to class
-* design layout
 * tabs
 * add remove widget
 * individual config modal
-* collapse panel
-* drag and drop (react-sortable, html5 drag drop, jquery drag and drop)
+* drag and drop (react-dnd)
 * update other widgets similar to PieChart
+* wrap widget with grid for dnd
 
 ###### google charts
 * Google Chart from npm
