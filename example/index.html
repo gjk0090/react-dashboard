@@ -39,7 +39,10 @@
       <tbody>
         <tr ng-repeat="widget in schema.widgets[$index]">
           <th scope="row">{{$index+1}}</th>
-          <td ng-repeat="(key, value) in widget"><input ng-model="widget[key]"></input></td>
+          <td ng-repeat="(key, value) in widget">
+            <input ng-if="editMode" ng-model="widget[key]"></input>
+            <p ng-if="!editMode">{{widget[key]}}</p>
+          </td>
         </tr>
     </table>
 
