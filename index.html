@@ -13,7 +13,11 @@
   <div class="container">
 
     <h3>ReactJS Dashboard 
-      <span class="pull-right"><a title="reload dashboard" ng-click="refreshDashboard()" style="cursor:pointer;"> <i class="glyphicon glyphicon-refresh"></i> </a></span>
+      <span class="pull-right"><a title="reload dashboard" ng-if="!editMode" ng-click="refreshDashboard()" style="cursor:pointer;margin:2px;"> <i class="glyphicon glyphicon-refresh"></i> </a></span>
+      <span class="pull-right"><a title="config layout" ng-if="!editMode" ng-click="toggleEditMode('edit')" style="cursor:pointer;margin:2px;"> <i class="glyphicon glyphicon-cog"></i> </a></span>
+      <span class="pull-right"><a title="save config" ng-if="editMode" ng-click="toggleEditMode('save')" style="cursor:pointer;margin:2px;"> <i class="glyphicon glyphicon-floppy-disk"></i> </a></span>
+      <span class="pull-right"><a title="cancel config" ng-if="editMode" ng-click="toggleEditMode('cancel')" style="cursor:pointer;margin:2px;"> <i class="glyphicon glyphicon-floppy-remove"></i> </a></span>
+      <span class="pull-right"><a title="add widget" ng-if="editMode" ng-click="addWidget()" style="cursor:pointer;margin:2px;"> <i class="glyphicon glyphicon-plus"></i> </a></span>
     </h3>
 
     <hr>
@@ -26,17 +30,20 @@
 
     <hr>
 
-    <table class="table table-striped table-bordered">
+    <table class="table table-striped table-bordered" ng-repeat="row in schema.widgets">
       <thead>
         <tr>
           <th>#</th>
-          <th ng-repeat="(key, value) in schema.widgets[0]">{{key}}</th>
+          <th ng-repeat="(key, value) in schema.widgets[$index][0]">{{key}}</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="widget in schema.widgets">
+        <tr ng-repeat="widget in schema.widgets[$index]">
           <th scope="row">{{$index+1}}</th>
-          <td ng-repeat="(key, value) in widget"><input ng-model="widget[key]"></input></td>
+          <td ng-repeat="(key, value) in widget">
+            <input ng-if="editMode" ng-model="widget[key]"></input>
+            <p ng-if="!editMode">{{widget[key]}}</p>
+          </td>
         </tr>
     </table>
 
@@ -55,7 +62,7 @@
     
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-  <script src="ReactDashboard.js"></script>
+  <script src="../dist/ReactDashboard.js"></script>
   <script src="script.js"></script>
 </body>
 

@@ -54,43 +54,166 @@ var ReactDashboard =
 	  displayName: 'Dashboard',
 
 
-	  componentDidMount: function componentDidMount() {
+	  getInitialState: function getInitialState() {
+	    return { widgets: this.props.schema.widgets };
+	  },
 
-	    google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] }); //should be put outside
-	    google.charts.setOnLoadCallback(this.refreshWidgets);
+	  componentWillMount: function componentWillMount() {
+
+	    if (window.google && window.google.charts) {
+	      google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] }); //should be put outside
+	      google.charts.setOnLoadCallback(this.refreshWidgets);
+	    } else {
+	      console.warn('Google Chart API not loaded, some widgets will not work.');
+	    }
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.setState({ widgets: this.props.schema.widgets });
 	  },
 
 	  refreshWidgets: function refreshWidgets() {
 	    this.setState({}); //this.setState({}) will trigger a re-render
 	  },
 
+	  handleClick: function handleClick(i, j, type, value) {
+	    if (this.props.onClick) {
+	      this.props.onClick(i, j, type, value);
+	    } else {
+	      alert('You clicked the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
+	    }
+	  },
+
+	  handleEdit: function handleEdit(i, j, action) {
+	    //modify this.state.widgets
+	    if (action == "enlarge") {
+	      var cols = this.state.widgets[i][j].colSpan / 1;
+	      if (cols < 12) {
+	        this.state.widgets[i][j].colSpan = cols + 1;
+	      }
+	    } else if (action == "shrink") {
+	      var cols = this.state.widgets[i][j].colSpan / 1;
+	      if (cols > 1) {
+	        this.state.widgets[i][j].colSpan = cols - 1;
+	      }
+	    } else if (action == "up") {
+	      var widget = this.state.widgets[i][j];
+	      //remove i,j
+	      this.state.widgets[i].splice(j, 1);
+	      if (i > 0) {
+	        //push to i-1
+	        this.state.widgets[i - 1].push(widget);
+	      } else {
+	        //push to head
+	        this.state.widgets.unshift([widget]);
+	      }
+	      //if i empty, remove i
+	      if (this.state.widgets[i].length == 0) {
+	        this.state.widgets.splice(i, 1);
+	      }
+	    } else if (action == "down") {
+	      var widget = this.state.widgets[i][j];
+	      //remove i,j
+	      this.state.widgets[i].splice(j, 1);
+	      if (i < this.state.widgets.length - 1) {
+	        //push to i+1
+	        this.state.widgets[i + 1].unshift(widget);
+	      } else {
+	        //push to head
+	        this.state.widgets.push([widget]);
+	      }
+	      //if i empty, remove i
+	      if (this.state.widgets[i].length == 0) {
+	        this.state.widgets.splice(i, 1);
+	      }
+	    } else if (action == "left") {
+	      if (j > 0) {
+	        var widget = this.state.widgets[i][j];
+	        //remove i,j
+	        this.state.widgets[i].splice(j, 1);
+	        //push to j-1
+	        this.state.widgets[i].splice(j - 1, 0, widget);
+	      }
+	    } else if (action == "right") {
+	      if (j < this.state.widgets[i].length - 1) {
+	        var widget = this.state.widgets[i][j];
+	        //remove i,j
+	        this.state.widgets[i].splice(j, 1);
+	        //push to j+1
+	        this.state.widgets[i].splice(j + 1, 0, widget);
+	      }
+	    } else if (action == "remove") {
+	      //remove i,j
+	      this.state.widgets[i].splice(j, 1);
+	      //if i empty, remove i
+	      if (this.state.widgets[i].length == 0) {
+	        this.state.widgets.splice(i, 1);
+	      }
+	    }
+
+	    if (this.props.onEdit) {
+	      this.props.onEdit(this.state.widgets); //pass widget out for custom operation
+	    } else {
+	        alert('You edited the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, action is ' + action + '.');
+	      }
+
+	    this.refreshWidgets();
+	  },
+
 	  render: function render() {
+	    var _this = this;
 
 	    var dashboardStyle = {};
+	    var rowStyle = {
+	      marginTop: this.props.schema.editMode ? "15px" : null,
+	      marginBottom: this.props.schema.editMode ? "15px" : null,
+	      border: this.props.schema.editMode ? "1px dashed grey" : null
+	    };
 
-	    //todo: design layout
-	    var widgets = this.props.schema.widgets.map(function (widget) {
+	    var rows = this.state.widgets.map(function (row, i) {
 
-	      var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
+	      var rowIndicator;
+	      if (_this.props.schema.editMode) {
+	        rowIndicator = React.createElement(
+	          'h4',
+	          { style: { margin: "20px" } },
+	          'row ',
+	          i + 1
+	        );
+	      } else {
+	        rowIndicator = null;
+	      }
+
+	      var widgets = row.map(function (widget, j) {
+	        var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
+	        var widgetHeight = widget.colSpan == "12" ? window.innerHeight / 3 : window.innerHeight / 4;
+
+	        return React.createElement(
+	          'div',
+	          { className: clazzName },
+	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, editMode: _this.props.schema.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
+	        );
+	      });
 
 	      return React.createElement(
 	        'div',
-	        { className: clazzName },
-	        React.createElement(Widget, { widget: widget })
+	        { className: 'row', style: rowStyle },
+	        rowIndicator,
+	        widgets
 	      );
 	    });
 
 	    return React.createElement(
 	      'div',
-	      { className: 'row', style: dashboardStyle },
-	      widgets
+	      { style: dashboardStyle },
+	      rows
 	    );
 	  }
 
 	});
 
 	Dashboard.defaultProps = {
-	  schema: { style: { colNum: 2 }, widgets: [] }
+	  schema: { editMode: false, style: {}, widgets: [] }
 	};
 
 	module.exports = Dashboard;
@@ -3679,18 +3802,30 @@ var ReactDashboard =
 
 
 	  getInitialState: function getInitialState() {
-	    var data = this.getRemoteData(this.props.widget.url);
-	    if (data == null) {
-	      data = this.props.widget.data;
-	    }
-	    return { data: data };
+	    return { data: this.props.widget.data };
+	  },
+
+	  componentWillMount: function componentWillMount() {},
+
+	  componentDidMount: function componentDidMount() {
+	    this.refreshWidget();
 	  },
 
 	  //this function triggers before render except first time
-	  //this functoin can call this.setState() safely
+	  //this functoin can set state safely
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    this.refreshWidget();
 	  },
+
+	  shouldComponentUpdate: function shouldComponentUpdate() {
+	    return true;
+	  },
+
+	  componentWillUpdate: function componentWillUpdate() {},
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  componentWillUnmount: function componentWillUnmount() {},
 
 	  getRemoteData: function getRemoteData(url) {
 	    if (url == null && url == "") {
@@ -3707,10 +3842,9 @@ var ReactDashboard =
 
 	  refreshWidget: function refreshWidget() {
 	    var data = this.getRemoteData(this.props.widget.url);
-	    if (data == null) {
-	      data = this.props.widget.data;
+	    if (data != null) {
+	      this.setState({ data: data });
 	    }
-	    this.setState({ data: data });
 	  },
 
 	  render: function render() {
@@ -3723,8 +3857,78 @@ var ReactDashboard =
 
 	    var panelBodyStyle = {
 	      position: "relative",
-	      paddingBottom: this.props.widget.colSpan == "12" ? "40%" : "70%" //temp splution
+	      //paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%", //auto height from http://jsfiddle.net/toddlevy/c59HH/
+	      height: this.props.widgetHeight
 	    };
+
+	    var headingButtons = null;
+	    if (this.props.editMode) {
+	      headingButtons = React.createElement(
+	        'span',
+	        { className: 'pull-right' },
+	        React.createElement(
+	          'a',
+	          { title: 'move widget up', style: aTagStyle, onClick: this.props.onEdit.bind(this, "up") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-up' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'move widget down', style: aTagStyle, onClick: this.props.onEdit.bind(this, "down") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-down' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'move widget left', style: aTagStyle, onClick: this.props.onEdit.bind(this, "left") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-left' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'move widget right', style: aTagStyle, onClick: this.props.onEdit.bind(this, "right") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-right' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "enlarge") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-resize-full' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'decrease widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "shrink") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-resize-small' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'remove widget', style: aTagStyle, onClick: this.props.onEdit.bind(this, "remove") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-remove' }),
+	          ' '
+	        )
+	      );
+	    } else {
+	      headingButtons = React.createElement(
+	        'span',
+	        { className: 'pull-right' },
+	        React.createElement(
+	          'a',
+	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
+	          ' '
+	        )
+	      );
+	    }
 
 	    var DetailWidget = WidgetList[this.props.widget.type];
 	    if (!DetailWidget) {
@@ -3742,17 +3946,7 @@ var ReactDashboard =
 	          'div',
 	          { className: 'panel-heading' },
 	          this.props.widget.title,
-	          React.createElement(
-	            'span',
-	            { className: 'pull-right' },
-	            React.createElement(
-	              'a',
-	              { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget },
-	              ' ',
-	              React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
-	              ' '
-	            )
-	          )
+	          headingButtons
 	        ),
 	        React.createElement(
 	          'div',
@@ -3760,7 +3954,7 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: panelBodyStyle },
-	            React.createElement(DetailWidget, { data: this.state.data })
+	            React.createElement(DetailWidget, { data: this.state.data, onClick: this.props.onClick })
 	          )
 	        )
 	      )
@@ -3770,7 +3964,8 @@ var ReactDashboard =
 	});
 
 	Widget.defaultProps = {
-	  widget: { colSpan: "", type: "", title: "", url: "", data: "" }
+	  widget: { colSpan: "", type: "", title: "", url: "", data: "" },
+	  onClick: undefined
 	};
 
 	module.exports = Widget;
@@ -3835,36 +4030,55 @@ var ReactDashboard =
 /* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var PieChart = React.createClass({
-	  displayName: "PieChart",
+	  displayName: 'PieChart',
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "pie_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "pie_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
 	  },
 
 	  render: function render() {
 
-	    //auto height from http://jsfiddle.net/toddlevy/c59HH/
 	    var chartWrapStyle = {};
 
 	    var chartStyle = {
@@ -3874,16 +4088,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	PieChart.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = PieChart;
@@ -3892,31 +4107,51 @@ var ReactDashboard =
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var ColumnChart = React.createClass({
-	  displayName: "ColumnChart",
+	  displayName: 'ColumnChart',
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "column_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "column_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
 	  },
 
 	  render: function render() {
@@ -3930,16 +4165,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	ColumnChart.defaultProps = {
-	  data: "default data"
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = ColumnChart;
@@ -3948,31 +4184,51 @@ var ReactDashboard =
 /* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var GeoChart = React.createClass({
-	  displayName: "GeoChart",
+	  displayName: 'GeoChart',
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "geo_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "geo_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
 	  },
 
 	  render: function render() {
@@ -3986,16 +4242,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	GeoChart.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = GeoChart;
@@ -4004,31 +4261,51 @@ var ReactDashboard =
 /* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var TableView = React.createClass({
-	  displayName: "TableView",
+	  displayName: 'TableView',
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "table_view_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "table_view_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.Table(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.Table(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
+	      this.props.onClick(value);
+	    }
 	  },
 
 	  render: function render() {
@@ -4042,16 +4319,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	TableView.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = TableView;
@@ -4060,31 +4338,51 @@ var ReactDashboard =
 /* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var ScatterChart = React.createClass({
-	  displayName: "ScatterChart",
+	  displayName: 'ScatterChart',
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
 	  },
 
 	  render: function render() {
@@ -4098,16 +4396,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	ScatterChart.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = ScatterChart;
@@ -4116,31 +4415,52 @@ var ReactDashboard =
 /* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var Gauge = React.createClass({
-	  displayName: "Gauge",
+	  displayName: 'Gauge',
 
 
-	  componentWillMount: function componentWillMount() {
-	    this.setState({ id: "gauge_" + Math.floor(Math.random() * 1000000) }); //id for google chart element
+	  getInitialState: function getInitialState() {
+	    return { id: "gauge_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.Gauge(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    var chart = new google.visualization.Gauge(document.getElementById(this.state.id));
-
-	    chart.draw(data, options);
+	  handleSelect: function handleSelect() {
+	    //nothing selectable
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      //var value = gc_data.getValue(selected.row, 1);
+	      //this.props.onClick(value);     
+	    }
 	  },
 
 	  render: function render() {
@@ -4154,16 +4474,17 @@ var ReactDashboard =
 	    };
 
 	    return React.createElement(
-	      "div",
+	      'div',
 	      { style: chartWrapStyle },
-	      React.createElement("div", { style: chartStyle, id: this.state.id })
+	      React.createElement('div', { style: chartStyle, id: this.state.id })
 	    );
 	  }
 
 	});
 
 	Gauge.defaultProps = {
-	  data: { data: [], options: {} }
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = Gauge;
