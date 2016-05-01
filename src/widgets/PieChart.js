@@ -36,7 +36,7 @@ var PieChart = React.createClass({
     var gc_data = this.state.gc_data;
     var selected = chart.getSelection()[0];
     if(selected && (selected.row || selected.row==0)){
-      var value = gc_data.getValue(selected.row, 1);
+      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
       this.props.onClick(value);      
     }
   },

@@ -34,10 +34,10 @@ var ScatterChart = React.createClass({
   handleSelect: function(){
     var chart = this.state.chart;
     var gc_data = this.state.gc_data;
-    var selected = chart.getSelection()[0]; alert(JSON.stringify(selected));
-    if(selected && (selected.row || selected.row==0)){
-      //var value = gc_data.getValue(selected.row, 1);
-      //this.props.onClick(value);      
+    var selected = chart.getSelection()[0];
+    if(selected && (selected.row || selected.row==0) && (selected.column || selected.column==0)){
+      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+      this.props.onClick(value);      
     }
   },
 

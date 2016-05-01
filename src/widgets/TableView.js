@@ -34,10 +34,10 @@ var TableView = React.createClass({
   handleSelect: function(){
     var chart = this.state.chart;
     var gc_data = this.state.gc_data;
-    var selected = chart.getSelection()[0]; alert(JSON.stringify(selected));
+    var selected = chart.getSelection()[0];
     if(selected && (selected.row || selected.row==0)){
-      //var value = gc_data.getValue(selected.row, 1);
-      //this.props.onClick(value);      
+      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
+      this.props.onClick(value);      
     }
   },
 

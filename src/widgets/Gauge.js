@@ -31,10 +31,10 @@ var Gauge = React.createClass({
     }
   },
 
-  handleSelect: function(){
+  handleSelect: function(){ //nothing selectable
     var chart = this.state.chart;
     var gc_data = this.state.gc_data;
-    var selected = chart.getSelection()[0]; alert(JSON.stringify(selected));
+    var selected = chart.getSelection()[0];
     if(selected && (selected.row || selected.row==0)){
       //var value = gc_data.getValue(selected.row, 1);
       //this.props.onClick(value);      
