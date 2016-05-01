@@ -19,7 +19,7 @@
 * individual config modal
 * collapse panel
 * drag and drop (react-sortable, html5 drag drop, jquery drag and drop)
-* update other widgets according to PieChart
+* update other widgets similar to PieChart
 
 ###### google charts
 * Google Chart from npm

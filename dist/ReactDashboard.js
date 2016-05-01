@@ -3943,39 +3943,47 @@ var ReactDashboard =
 
 
 	  getInitialState: function getInitialState() {
-	    return { id: "column_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element
+	    return { id: "column_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (window.google && window.google.visualization) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.drawChart();
+	    if (window.google && window.google.visualization) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
 	  },
 
-	  drawChart: function drawChart() {
-
-	    if (!window.google || !window.google.visualization) {
-	      return;
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && selected.row && selected.column) {
+	      var value = gc_data.getValue(selected.row, selected.column);
+	      this.props.onClick(value);
 	    }
-
-	    var data = google.visualization.arrayToDataTable(this.props.data.data);
-
-	    var options = this.props.data.options;
-
-	    if (!chart) {
-	      var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
-
-	      google.visualization.events.addListener(chart, 'select', this.handleSelect.bind(this, chart, data));
-	    }
-
-	    chart.draw(data, options);
-	  },
-
-	  handleSelect: function handleSelect(chart, data) {
-	    var value = "temp";
-	    this.props.onClick(value);
 	  },
 
 	  render: function render() {
 
+	    //auto height from http://jsfiddle.net/toddlevy/c59HH/
 	    var chartWrapStyle = {};
 
 	    var chartStyle = {
@@ -3994,7 +4002,8 @@ var ReactDashboard =
 	});
 
 	ColumnChart.defaultProps = {
-	  data: "default data"
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
 	module.exports = ColumnChart;
