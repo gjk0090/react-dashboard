@@ -48,6 +48,7 @@ app.controller('myCtrl',function($scope){
   $scope.handleEdit = function(widgets){
     //update new widgets
     $scope.schema.widgets = widgets;
+    $scope.$apply(); //for the ng-repeat table
   };
 
   $scope.handleClick = function(i, j, type, value){
