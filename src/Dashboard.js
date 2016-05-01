@@ -119,8 +119,8 @@ var Dashboard = React.createClass({
 
     var dashboardStyle = {};
     var rowStyle = {
-      marginTop: this.props.schema.editMode? "5px" : null,
-      marginBottom: this.props.schema.editMode? "5px" : null,
+      marginTop: this.props.schema.editMode? "15px" : null,
+      marginBottom: this.props.schema.editMode? "15px" : null,
       border: this.props.schema.editMode? "1px dashed grey" : null
     };
 
@@ -128,7 +128,7 @@ var Dashboard = React.createClass({
 
       var rowIndicator;
       if (this.props.schema.editMode) {
-        rowIndicator = <p style={{margin: "5px"}}>row {i+1}</p>;
+        rowIndicator = <h4 style={{margin: "20px"}}>row {i+1}</h4>;
       } else {
         rowIndicator = null;
       }

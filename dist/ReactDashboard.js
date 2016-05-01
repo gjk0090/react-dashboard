@@ -165,8 +165,8 @@ var ReactDashboard =
 
 	    var dashboardStyle = {};
 	    var rowStyle = {
-	      marginTop: this.props.schema.editMode ? "5px" : null,
-	      marginBottom: this.props.schema.editMode ? "5px" : null,
+	      marginTop: this.props.schema.editMode ? "15px" : null,
+	      marginBottom: this.props.schema.editMode ? "15px" : null,
 	      border: this.props.schema.editMode ? "1px dashed grey" : null
 	    };
 
@@ -175,8 +175,8 @@ var ReactDashboard =
 	      var rowIndicator;
 	      if (_this.props.schema.editMode) {
 	        rowIndicator = React.createElement(
-	          'p',
-	          { style: { margin: "5px" } },
+	          'h4',
+	          { style: { margin: "20px" } },
 	          'row ',
 	          i + 1
 	        );
@@ -3868,28 +3868,28 @@ var ReactDashboard =
 	        { className: 'pull-right' },
 	        React.createElement(
 	          'a',
-	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "up") },
+	          { title: 'move widget up', style: aTagStyle, onClick: this.props.onEdit.bind(this, "up") },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-up' }),
 	          ' '
 	        ),
 	        React.createElement(
 	          'a',
-	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "down") },
+	          { title: 'move widget down', style: aTagStyle, onClick: this.props.onEdit.bind(this, "down") },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-down' }),
 	          ' '
 	        ),
 	        React.createElement(
 	          'a',
-	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "left") },
+	          { title: 'move widget left', style: aTagStyle, onClick: this.props.onEdit.bind(this, "left") },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-left' }),
 	          ' '
 	        ),
 	        React.createElement(
 	          'a',
-	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "right") },
+	          { title: 'move widget right', style: aTagStyle, onClick: this.props.onEdit.bind(this, "right") },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-right' }),
 	          ' '
@@ -3910,7 +3910,7 @@ var ReactDashboard =
 	        ),
 	        React.createElement(
 	          'a',
-	          { title: 'decrease widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "remove") },
+	          { title: 'remove widget', style: aTagStyle, onClick: this.props.onEdit.bind(this, "remove") },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-remove' }),
 	          ' '

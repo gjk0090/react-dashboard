@@ -69,13 +69,13 @@ var Widget = React.createClass({
     if(this.props.editMode){
       headingButtons = (
         <span className="pull-right">
-          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "up")}> <i className="glyphicon glyphicon-arrow-up"></i> </a>
-          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "down")}> <i className="glyphicon glyphicon-arrow-down"></i> </a>
-          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "left")}> <i className="glyphicon glyphicon-arrow-left"></i> </a>
-          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "right")}> <i className="glyphicon glyphicon-arrow-right"></i> </a>
+          <a title="move widget up" style={aTagStyle} onClick={this.props.onEdit.bind(this, "up")}> <i className="glyphicon glyphicon-arrow-up"></i> </a>
+          <a title="move widget down" style={aTagStyle} onClick={this.props.onEdit.bind(this, "down")}> <i className="glyphicon glyphicon-arrow-down"></i> </a>
+          <a title="move widget left" style={aTagStyle} onClick={this.props.onEdit.bind(this, "left")}> <i className="glyphicon glyphicon-arrow-left"></i> </a>
+          <a title="move widget right" style={aTagStyle} onClick={this.props.onEdit.bind(this, "right")}> <i className="glyphicon glyphicon-arrow-right"></i> </a>
           <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "enlarge")}> <i className="glyphicon glyphicon-resize-full"></i> </a>
           <a title="decrease widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "shrink")}> <i className="glyphicon glyphicon-resize-small"></i> </a>
-          <a title="decrease widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "remove")}> <i className="glyphicon glyphicon-remove"></i> </a>
+          <a title="remove widget" style={aTagStyle} onClick={this.props.onEdit.bind(this, "remove")}> <i className="glyphicon glyphicon-remove"></i> </a>
         </span>
       );
     }else{
