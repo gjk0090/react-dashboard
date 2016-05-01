@@ -17,6 +17,10 @@ var Dashboard = React.createClass({
     }
   },
 
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({widgets: this.props.schema.widgets});
+  },
+
   refreshWidgets: function(){
     this.setState({}); //this.setState({}) will trigger a re-render
   },
@@ -37,26 +41,69 @@ var Dashboard = React.createClass({
         this.state.widgets[i][j].colSpan = cols + 1;
       }
     }
-    if(action == "shrink"){
+    else if(action == "shrink"){
       var cols = this.state.widgets[i][j].colSpan /1;
       if(cols > 1){
         this.state.widgets[i][j].colSpan = cols - 1;
       }
     }
-    if(action == "up"){
-      
+    else if(action == "up"){
+      var widget = this.state.widgets[i][j];
+      //remove i,j
+      this.state.widgets[i].splice(j, 1);
+      if(i > 0){
+        //push to i-1
+        this.state.widgets[i-1].push(widget);
+      }else{
+        //push to head
+        this.state.widgets.unshift([widget]);
+      }
+      //if i empty, remove i
+      if(this.state.widgets[i].length == 0){
+        this.state.widgets.splice(i, 1);
+      }
     }
-    if(action == "down"){
-
+    else if(action == "down"){
+      var widget = this.state.widgets[i][j];
+      //remove i,j
+      this.state.widgets[i].splice(j, 1);
+      if(i < this.state.widgets.length - 1){
+        //push to i+1
+        this.state.widgets[i+1].unshift(widget);
+      }else{
+        //push to head
+        this.state.widgets.push([widget]);
+      }
+      //if i empty, remove i
+      if(this.state.widgets[i].length == 0){
+        this.state.widgets.splice(i, 1);
+      }
     }
-    if(action == "left"){
-
+    else if(action == "left"){
+      if(j > 0){
+        var widget = this.state.widgets[i][j];
+        //remove i,j
+        this.state.widgets[i].splice(j, 1);
+        //push to j-1
+        this.state.widgets[i].splice(j-1, 0, widget);
+      }
     }
-    if(action == "right"){
-
+    else if(action == "right"){
+      if(j < this.state.widgets[i].length-1){
+        var widget = this.state.widgets[i][j];
+        //remove i,j
+        this.state.widgets[i].splice(j, 1);
+        //push to j+1
+        this.state.widgets[i].splice(j+1, 0, widget);
+      }
     }
-    if(action == "remove"){
-
+    else if(action == "remove"){
+      //remove i,j
+      this.state.widgets[i].splice(j, 1);
+      //if i empty, remove i
+      if(this.state.widgets[i].length == 0){
+        this.state.widgets.splice(i, 1);
+      }
     }
 
     if(this.props.onEdit){
@@ -64,6 +111,7 @@ var Dashboard = React.createClass({
     }else{
       alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
     }
+
     this.refreshWidgets();
   },
 
@@ -78,6 +126,13 @@ var Dashboard = React.createClass({
 
     var rows = this.state.widgets.map((row, i) => {
 
+      var rowIndicator;
+      if (this.props.schema.editMode) {
+        rowIndicator = <p style={{margin: "5px"}}>row {i+1}</p>;
+      } else {
+        rowIndicator = null;
+      }
+
       var widgets = row.map((widget, j) => {
         var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
         var widgetHeight = widget.colSpan == "12" ? window.innerHeight/3 : window.innerHeight/4;
@@ -91,6 +146,7 @@ var Dashboard = React.createClass({
 
       return (
         <div className="row" style={rowStyle}>
+          {rowIndicator}
           {widgets}
         </div>
       );

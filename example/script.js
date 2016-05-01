@@ -8,7 +8,23 @@ app.controller('myCtrl',function($scope){
   
   $scope.editMode = false;
 
+  $scope.oriWidgets = null;
+  $scope.newWidgets = null;
+
   $scope.toggleEditMode = function(action){
+    if(action == 'edit'){
+      //copy oiginal widgets
+      $scope.oriWidgets = $.extend(true,[],[],$scope.schema.widgets);
+    }else if(action == 'save'){
+      //replace with new widgets
+      $scope.schema.widgets = $.extend(true,[],[],$scope.newWidgets);
+      //$scope.refreshDashboard();
+    }else if(action == 'cancel'){
+      //recover oiginal widgets
+      $scope.schema.widgets = $.extend(true,[],[],$scope.oriWidgets);
+      //$scope.refreshDashboard();
+    }
+
     $scope.editMode = !$scope.editMode;
     $scope.schema.editMode = $scope.editMode;
   };
@@ -33,7 +49,8 @@ app.controller('myCtrl',function($scope){
   };
 
   $scope.handleEdit = function(widgets){
-    //handle save
+    //update new widgets
+    $scope.newWidgets = widgets;
   };
 
   $scope.handleClick = function(i, j, type, value){
@@ -49,7 +66,7 @@ app.controller('myCtrl',function($scope){
     ReactDOM.render(React.createElement(ReactDashboard, {schema: $scope.schema, onClick: $scope.handleClick, onEdit: $scope.handleEdit}), document.getElementById('example'));
   };
 
-  $scope.$watch('schema', function(newValue, oldValue) {
+  $scope.$watch('schema.editMode', function(newValue, oldValue) {
     $scope.refreshDashboard();
   }, true); //3rd parameter true, watch values in object 
 });
