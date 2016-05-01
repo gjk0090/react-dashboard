@@ -75,6 +75,7 @@ var Widget = React.createClass({
           <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "right")}> <i className="glyphicon glyphicon-arrow-right"></i> </a>
           <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "enlarge")}> <i className="glyphicon glyphicon-resize-full"></i> </a>
           <a title="decrease widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "shrink")}> <i className="glyphicon glyphicon-resize-small"></i> </a>
+          <a title="decrease widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "remove")}> <i className="glyphicon glyphicon-remove"></i> </a>
         </span>
       );
     }else{

@@ -8,7 +8,7 @@ app.controller('myCtrl',function($scope){
   
   $scope.editMode = false;
 
-  $scope.toggleEditMode = function(){
+  $scope.toggleEditMode = function(action){
     $scope.editMode = !$scope.editMode;
     $scope.schema.editMode = $scope.editMode;
   };

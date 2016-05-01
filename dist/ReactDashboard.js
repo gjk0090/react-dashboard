@@ -83,8 +83,22 @@ var ReactDashboard =
 	  handleEdit: function handleEdit(i, j, action) {
 	    //modify this.state.widgets
 	    if (action == "enlarge") {
-	      this.state.widgets[i][j].colSpan++;
+	      var cols = this.state.widgets[i][j].colSpan / 1;
+	      if (cols < 12) {
+	        this.state.widgets[i][j].colSpan = cols + 1;
+	      }
 	    }
+	    if (action == "shrink") {
+	      var cols = this.state.widgets[i][j].colSpan / 1;
+	      if (cols > 1) {
+	        this.state.widgets[i][j].colSpan = cols - 1;
+	      }
+	    }
+	    if (action == "up") {}
+	    if (action == "down") {}
+	    if (action == "left") {}
+	    if (action == "right") {}
+	    if (action == "remove") {}
 
 	    if (this.props.onEdit) {
 	      this.props.onEdit(this.state.widgets);
@@ -3827,6 +3841,13 @@ var ReactDashboard =
 	          { title: 'decrease widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "shrink") },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-resize-small' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'decrease widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "remove") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-remove' }),
 	          ' '
 	        )
 	      );

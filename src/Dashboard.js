@@ -32,9 +32,33 @@ var Dashboard = React.createClass({
   handleEdit: function(i, j, action){
     //modify this.state.widgets
     if(action == "enlarge"){
-      this.state.widgets[i][j].colSpan++;
+      var cols = this.state.widgets[i][j].colSpan /1;
+      if(cols < 12){
+        this.state.widgets[i][j].colSpan = cols + 1;
+      }
     }
-    
+    if(action == "shrink"){
+      var cols = this.state.widgets[i][j].colSpan /1;
+      if(cols > 1){
+        this.state.widgets[i][j].colSpan = cols - 1;
+      }
+    }
+    if(action == "up"){
+      
+    }
+    if(action == "down"){
+
+    }
+    if(action == "left"){
+
+    }
+    if(action == "right"){
+
+    }
+    if(action == "remove"){
+
+    }
+
     if(this.props.onEdit){
       this.props.onEdit(this.state.widgets);
     }else{
