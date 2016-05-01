@@ -54,13 +54,17 @@ var ReactDashboard =
 	  displayName: 'Dashboard',
 
 
+	  getInitialState: function getInitialState() {
+	    return { widgets: this.props.schema.widgets };
+	  },
+
 	  componentWillMount: function componentWillMount() {
 
 	    if (window.google && window.google.charts) {
 	      google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] }); //should be put outside
 	      google.charts.setOnLoadCallback(this.refreshWidgets);
 	    } else {
-	      console.warn('Google Chart API not loaded, cannot use some type of widgets.');
+	      console.warn('Google Chart API not loaded, some widgets will not work.');
 	    }
 	  },
 
@@ -69,10 +73,25 @@ var ReactDashboard =
 	  },
 
 	  handleClick: function handleClick(i, j, type, value) {
-	    //alert('You clicked the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
 	    if (this.props.onClick) {
 	      this.props.onClick(i, j, type, value);
+	    } else {
+	      alert('You clicked the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
 	    }
+	  },
+
+	  handleEdit: function handleEdit(i, j, action) {
+	    //modify this.state.widgets
+	    if (action == "enlarge") {
+	      this.state.widgets[i][j].colSpan++;
+	    }
+
+	    if (this.props.onEdit) {
+	      this.props.onEdit(this.state.widgets);
+	    } else {
+	      alert('You edited the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, action is ' + action + '.');
+	    }
+	    this.refreshWidgets();
 	  },
 
 	  render: function render() {
@@ -80,11 +99,12 @@ var ReactDashboard =
 
 	    var dashboardStyle = {};
 	    var rowStyle = {
-	      //border: "1px dashed grey" //for edit mode
+	      marginTop: this.props.schema.editMode ? "5px" : null,
+	      marginBottom: this.props.schema.editMode ? "5px" : null,
+	      border: this.props.schema.editMode ? "1px dashed grey" : null
 	    };
 
-	    //todo: design layout
-	    var rows = this.props.schema.widgets.map(function (row, i) {
+	    var rows = this.state.widgets.map(function (row, i) {
 
 	      var widgets = row.map(function (widget, j) {
 	        var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
@@ -93,7 +113,7 @@ var ReactDashboard =
 	        return React.createElement(
 	          'div',
 	          { className: clazzName },
-	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, onClick: _this.handleClick.bind(_this, i, j, widget.type) })
+	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, editMode: _this.props.schema.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
 	        );
 	      });
 
@@ -114,7 +134,7 @@ var ReactDashboard =
 	});
 
 	Dashboard.defaultProps = {
-	  schema: { style: { colNum: 2 }, widgets: [] }
+	  schema: { editMode: false, style: {}, widgets: [] }
 	};
 
 	module.exports = Dashboard;
@@ -3762,6 +3782,68 @@ var ReactDashboard =
 	      height: this.props.widgetHeight
 	    };
 
+	    var headingButtons = null;
+	    if (this.props.editMode) {
+	      headingButtons = React.createElement(
+	        'span',
+	        { className: 'pull-right' },
+	        React.createElement(
+	          'a',
+	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "up") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-up' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "down") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-down' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "left") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-left' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "right") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-right' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "enlarge") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-resize-full' }),
+	          ' '
+	        ),
+	        React.createElement(
+	          'a',
+	          { title: 'decrease widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "shrink") },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-resize-small' }),
+	          ' '
+	        )
+	      );
+	    } else {
+	      headingButtons = React.createElement(
+	        'span',
+	        { className: 'pull-right' },
+	        React.createElement(
+	          'a',
+	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
+	          ' '
+	        )
+	      );
+	    }
+
 	    var DetailWidget = WidgetList[this.props.widget.type];
 	    if (!DetailWidget) {
 	      throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');
@@ -3778,17 +3860,7 @@ var ReactDashboard =
 	          'div',
 	          { className: 'panel-heading' },
 	          this.props.widget.title,
-	          React.createElement(
-	            'span',
-	            { className: 'pull-right' },
-	            React.createElement(
-	              'a',
-	              { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget },
-	              ' ',
-	              React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
-	              ' '
-	            )
-	          )
+	          headingButtons
 	        ),
 	        React.createElement(
 	          'div',

@@ -13,7 +13,9 @@
   <div class="container">
 
     <h3>ReactJS Dashboard 
-      <span class="pull-right"><a title="reload dashboard" ng-click="refreshDashboard()" style="cursor:pointer;"> <i class="glyphicon glyphicon-refresh"></i> </a></span>
+      <span class="pull-right"><a title="reload dashboard" ng-if="!editMode" ng-click="refreshDashboard()" style="cursor:pointer;"> <i class="glyphicon glyphicon-refresh"></i> </a></span>
+      <span class="pull-right"><a title="config layout" ng-if="!editMode" ng-click="toggleEditMode()" style="cursor:pointer;"> <i class="glyphicon glyphicon-cog"></i> </a></span>
+      <span class="pull-right"><a title="save config" ng-if="editMode" ng-click="toggleEditMode()" style="cursor:pointer;"> <i class="glyphicon glyphicon-floppy-disk"></i> </a></span>
     </h3>
 
     <hr>

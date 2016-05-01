@@ -3,13 +3,17 @@ var Widget = require('./Widget');
 
 var Dashboard = React.createClass({
 
+  getInitialState: function() {
+    return {widgets: this.props.schema.widgets};
+  },
+
   componentWillMount: function(){
 
     if(window.google && window.google.charts){
       google.charts.load('current', {'packages':['corechart','table','gauge']}); //should be put outside
       google.charts.setOnLoadCallback(this.refreshWidgets);
     }else{
-      console.warn('Google Chart API not loaded, cannot use some type of widgets.');
+      console.warn('Google Chart API not loaded, some widgets will not work.');
     }
   },
 
@@ -18,21 +22,37 @@ var Dashboard = React.createClass({
   },
 
   handleClick: function(i, j, type, value) {
-    //alert('You clicked the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
     if(this.props.onClick){
       this.props.onClick(i, j, type, value);
+    }else{
+      alert('You clicked the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
     }
+  },
+
+  handleEdit: function(i, j, action){
+    //modify this.state.widgets
+    if(action == "enlarge"){
+      this.state.widgets[i][j].colSpan++;
+    }
+    
+    if(this.props.onEdit){
+      this.props.onEdit(this.state.widgets);
+    }else{
+      alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
+    }
+    this.refreshWidgets();
   },
 
   render: function() {
 
     var dashboardStyle = {};
     var rowStyle = {
-      //border: "1px dashed grey" //for edit mode
+      marginTop: this.props.schema.editMode? "5px" : null,
+      marginBottom: this.props.schema.editMode? "5px" : null,
+      border: this.props.schema.editMode? "1px dashed grey" : null
     };
 
-    //todo: design layout
-    var rows = this.props.schema.widgets.map((row, i) => {
+    var rows = this.state.widgets.map((row, i) => {
 
       var widgets = row.map((widget, j) => {
         var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
@@ -40,7 +60,7 @@ var Dashboard = React.createClass({
 
         return (
           <div className={clazzName}>
-            <Widget widget={widget} widgetHeight={widgetHeight} onClick={this.handleClick.bind(this, i, j, widget.type)}></Widget>
+            <Widget widget={widget} widgetHeight={widgetHeight} editMode={this.props.schema.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
           </div>
         );
       });
@@ -63,7 +83,7 @@ var Dashboard = React.createClass({
 });
 
 Dashboard.defaultProps = {
-  schema      : {style:{colNum:2}, widgets:[]}
+  schema      : {editMode:false, style:{}, widgets:[]}
 };
 
 module.exports = Dashboard;

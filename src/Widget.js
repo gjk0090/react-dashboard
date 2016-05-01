@@ -50,7 +50,7 @@ var Widget = React.createClass({
       this.setState({data: data});
     }
   },
-  
+
   render: function() {
 
     var widgetStyle = {};
@@ -65,6 +65,26 @@ var Widget = React.createClass({
       height: this.props.widgetHeight
     };
 
+    var headingButtons = null;
+    if(this.props.editMode){
+      headingButtons = (
+        <span className="pull-right">
+          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "up")}> <i className="glyphicon glyphicon-arrow-up"></i> </a>
+          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "down")}> <i className="glyphicon glyphicon-arrow-down"></i> </a>
+          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "left")}> <i className="glyphicon glyphicon-arrow-left"></i> </a>
+          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "right")}> <i className="glyphicon glyphicon-arrow-right"></i> </a>
+          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "enlarge")}> <i className="glyphicon glyphicon-resize-full"></i> </a>
+          <a title="decrease widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "shrink")}> <i className="glyphicon glyphicon-resize-small"></i> </a>
+        </span>
+      );
+    }else{
+      headingButtons = (
+        <span className="pull-right">
+          <a title="reload widget content" style={aTagStyle} onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a>
+        </span>
+      );
+    }
+
     var DetailWidget = WidgetList[this.props.widget.type];
     if (!DetailWidget) {throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');}
 
@@ -74,7 +94,7 @@ var Widget = React.createClass({
           <div className="panel panel-default">
             <div className="panel-heading">
               {this.props.widget.title}
-              <span className="pull-right"><a title="reload widget content" style={aTagStyle} onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a></span>
+              {headingButtons}
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>

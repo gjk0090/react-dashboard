@@ -20,6 +20,7 @@
 * drag and drop (react-dnd)
 * update other widgets similar to PieChart
 * wrap widget with grid for dnd
+* edit mode
 
 ###### google charts
 * Google Chart from npm
