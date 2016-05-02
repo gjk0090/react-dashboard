@@ -10,12 +10,12 @@
 ### TODO
 ---
 ###### core
-* learn css, implement auto height
+* auto height
 * use propTypes
 * learn Flux
 * extract style to class
-* tabs
-* add widget in edit mode
+* encapsulate example buttons?
+* add widget
 * individual config modal
 * drag and drop (react-dnd)
 * wrap widget with grid for dnd
