@@ -1,5 +1,5 @@
 var React = require('react');
-var Modal = require('react-bootstrap/lib/Modal');
+//var Modal = require('react-bootstrap/lib/Modal');
 var WidgetList = require('./widgets');
 
 var Widget = React.createClass({
