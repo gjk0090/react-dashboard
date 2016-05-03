@@ -40,6 +40,10 @@
 * [DOM Event Listener](https://facebook.github.io/react/tips/dom-event-listeners.html)
 * [Load Initial Data via AJAX](https://facebook.github.io/react/tips/initial-ajax.html)
 
-componentDidMount in Dashboard
-if (window.google && window.google.visualization && window.google.visualization.PieChart) 
-if (this.state.chart)
+### bug
+* componentDidMount in Dashboard
+* use flag gc_ready
+* if (nextProps.gc_ready)
+* else message
+* if (this.state.chart)
+* params:[{name:"", type:"date", value:"", configurable:true},{}]
