@@ -1,5 +1,5 @@
 {
-  "name": "AngularReact",
+  "name": "ReactDashboard",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,6 +8,7 @@
     "react-dom": "^15.0.1"
   },
   "devDependencies": {
+    "react-bootstrap": "^0.29.3",
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
     "babel-preset-react": "^6.3.13",
