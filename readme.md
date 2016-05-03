@@ -39,3 +39,7 @@
 * [Component API](https://facebook.github.io/react/docs/component-api.html)
 * [DOM Event Listener](https://facebook.github.io/react/tips/dom-event-listeners.html)
 * [Load Initial Data via AJAX](https://facebook.github.io/react/tips/initial-ajax.html)
+
+componentDidMount in Dashboard
+if (window.google && window.google.visualization && window.google.visualization.PieChart) 
+if (this.state.chart)
