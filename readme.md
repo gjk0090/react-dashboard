@@ -40,10 +40,12 @@
 * [DOM Event Listener](https://facebook.github.io/react/tips/dom-event-listeners.html)
 * [Load Initial Data via AJAX](https://facebook.github.io/react/tips/initial-ajax.html)
 
-### bug
+### todo to9t
+---
 * componentDidMount in Dashboard
 * use flag gc_ready
 * if (nextProps.gc_ready)
 * else message
 * if (this.state.chart)
 * params:[{name:"", type:"date", value:"", configurable:true},{}]
+* update defaultprops
