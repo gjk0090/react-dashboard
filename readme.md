@@ -49,3 +49,7 @@
 * if (this.state.chart)
 * params:[{name:"", type:"date", value:"", configurable:true},{}]
 * update defaultprops
+* externals: {
+ 'react': 'React',
+ 'react-dom' : 'ReactDOM'
+}
