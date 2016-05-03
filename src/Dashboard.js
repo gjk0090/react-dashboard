@@ -10,7 +10,7 @@ var Dashboard = React.createClass({
   componentWillMount: function(){
 
     if(window.google && window.google.charts){
-      google.charts.load('current', {'packages':['corechart','table','gauge']}); //should be put outside
+      google.charts.load('current', {'packages':['corechart','table','gauge']});
       google.charts.setOnLoadCallback(this.refreshWidgets);
     }else{
       console.warn('Google Chart API not loaded, some widgets will not work.');
