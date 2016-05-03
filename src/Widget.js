@@ -34,7 +34,7 @@ var Widget = React.createClass({
   },
 
   getRemoteData: function(url){
-    if(url == null && url == ""){return null;}
+    if(url == null || url == ""){return null;}
 
     var returnData;
     $.ajaxSetup({async: false});

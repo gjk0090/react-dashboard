@@ -3828,7 +3828,7 @@ var ReactDashboard =
 	  componentWillUnmount: function componentWillUnmount() {},
 
 	  getRemoteData: function getRemoteData(url) {
-	    if (url == null && url == "") {
+	    if (url == null || url == "") {
 	      return null;
 	    }
 
