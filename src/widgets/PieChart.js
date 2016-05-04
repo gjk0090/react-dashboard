@@ -6,6 +6,7 @@ var PieChart = React.createClass({
     return {id : "pie_chart_"+Math.floor(Math.random() * 1000000)}; //id for google chart element //todo : this.id
   },
 
+  //no need for this
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.gc_ready){
 
@@ -24,8 +25,11 @@ var PieChart = React.createClass({
       this.setState({options: options});
     }
   },
-
+  
+  //componentDidMount do same thing as below
+  
   componentDidUpdate: function(){
+    //create this.chart if null
     if (!!this.state.chart){
       this.state.chart.draw(this.state.gc_data, this.state.options);
     }
