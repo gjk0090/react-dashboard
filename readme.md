@@ -22,9 +22,10 @@
 * static function for widgets to return template for add new
 * this.id for gc widgets
 * encapsulate example buttons
+* config for widget title
 
 ###### google charts
-* Google Chart from npm
+* Google Chart from npm (react-google-charts )
 * Google Chart responsive
 
 ###### project
