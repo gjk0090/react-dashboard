@@ -17,12 +17,12 @@
 * extract style to class
 * drag and drop (react-dnd)
 * wrap widget with grid for dnd
-* refine AJAX -- Urgent
 * add widget, Expose function: get widget list -- Urgent
 * static function for widgets to return template for add new -- Urgent
-* this.id, this.chart for gc widgets (var id outside component) -- Urgent
+* refine AJAX -- Urgent
 * encapsulate example buttons -- Urgent
 * config for widget title -- Urgent
+* this.id, this.chart for gc widgets (var id outside component) -- Urgent
 * why not refreshing in edit mode (componentDidMount&componentDidUpdate) / update gc error message -- Urgent
 * because left/right ==> chart init, widget not init; up/down ==> both init
 
