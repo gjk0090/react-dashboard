@@ -24,6 +24,7 @@
 * encapsulate example buttons -- Urgent
 * config for widget title -- Urgent
 * why not refreshing in edit mode (componentDidMount&componentDidUpdate) / update gc error message -- Urgent
+* because left/right ==> chart init, widget not init; up/down ==> both init
 
 ###### google charts
 * Google Chart responsive
