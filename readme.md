@@ -20,10 +20,11 @@
 * refine AJAX
 * add widget, Expose function: get widget list
 * static function for widgets to return template for add new
-* this.id for gc widgets
+* this.id for gc widgets (var id outside component)
 * encapsulate example buttons
 * config for widget title
-* update gc error message use else
+* update gc error message
+* why not refreshing in edit mode
 
 ###### google charts
 * Google Chart from npm (react-google-charts )
