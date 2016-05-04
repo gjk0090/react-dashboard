@@ -24,7 +24,6 @@
 * config for widget title -- Urgent
 * this.id, this.chart for gc widgets (var id outside component) -- Urgent
 * why not refreshing in edit mode (componentDidMount&componentDidUpdate) / update gc error message -- Urgent
-* because left/right ==> chart init, widget not init; up/down ==> both init
 
 ###### google charts
 * Google Chart responsive
