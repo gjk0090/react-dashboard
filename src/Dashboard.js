@@ -4,14 +4,14 @@ var Widget = require('./Widget');
 var Dashboard = React.createClass({
 
   getInitialState: function() {
-    return {widgets: this.props.schema.widgets};
+    return {widgets: this.props.schema.widgets, gc_ready: false};
   },
 
-  componentWillMount: function(){
+  componentDidMount: function(){
 
     if(window.google && window.google.charts){
       google.charts.load('current', {'packages':['corechart','table','gauge']});
-      google.charts.setOnLoadCallback(this.refreshWidgets);
+      google.charts.setOnLoadCallback(this.googleChartReady);
     }else{
       console.warn('Google Chart API not loaded, some widgets will not work.');
     }
@@ -19,6 +19,10 @@ var Dashboard = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     this.setState({widgets: this.props.schema.widgets});
+  },
+
+  googleChartReady: function(){
+    this.setState({gc_ready: true});
   },
 
   refreshWidgets: function(){
@@ -33,7 +37,7 @@ var Dashboard = React.createClass({
     }
   },
 
-  handleEdit: function(i, j, action){
+  handleEdit: function(i, j, action, doRefresh, value){
     //modify this.state.widgets
     if(action == "enlarge"){
       var cols = this.state.widgets[i][j].colSpan /1;
@@ -105,6 +109,9 @@ var Dashboard = React.createClass({
         this.state.widgets.splice(i, 1);
       }
     }
+    else if(action == "update_params"){
+      this.state.widgets[i][j].params = value;
+    }
 
     if(this.props.onEdit){
       this.props.onEdit(this.state.widgets); //pass widget out for custom operation
@@ -112,7 +119,9 @@ var Dashboard = React.createClass({
       alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
     }
 
-    this.refreshWidgets();
+    if(doRefresh){
+      this.refreshWidgets();
+    }
   },
 
   render: function() {
@@ -138,14 +147,14 @@ var Dashboard = React.createClass({
         var widgetHeight = widget.colSpan == "12" ? window.innerHeight/3 : window.innerHeight/4;
 
         return (
-          <div className={clazzName}>
-            <Widget widget={widget} widgetHeight={widgetHeight} editMode={this.props.schema.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
+          <div className={clazzName} key={"row_widget_"+Math.floor(Math.random() * 10000)}>
+            <Widget widget={widget} widgetHeight={widgetHeight} gc_ready={this.state.gc_ready} editMode={this.props.schema.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
           </div>
         );
       });
 
       return (
-        <div className="row" style={rowStyle}>
+        <div className="row" key={"dashboard_row_"+Math.floor(Math.random() * 10000)} style={rowStyle}>
           {rowIndicator}
           {widgets}
         </div>

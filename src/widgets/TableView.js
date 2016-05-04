@@ -7,7 +7,7 @@ var TableView = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    if(window.google && window.google.visualization){
+    if (nextProps.gc_ready){
 
       if(!this.state.chart){
         var chart = new google.visualization.Table(document.getElementById(this.state.id));
@@ -26,7 +26,7 @@ var TableView = React.createClass({
   },
 
   componentDidUpdate: function(){
-    if(window.google && window.google.visualization){
+    if (!!this.state.chart){
       this.state.chart.draw(this.state.gc_data, this.state.options);
     }
   },
@@ -53,7 +53,7 @@ var TableView = React.createClass({
 
     return (
       <div style={chartWrapStyle}>
-        <div style={chartStyle} id={this.state.id}></div>
+        <div style={chartStyle} id={this.state.id}>Sorry, Google Chart is not properly loaded.</div>
       </div>
     );
   }
@@ -62,6 +62,7 @@ var TableView = React.createClass({
 
 TableView.defaultProps = {
   data      : {data:[], options:{}},
+  gc_ready  : false,
   onClick   : undefined
 };
 

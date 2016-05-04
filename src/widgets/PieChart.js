@@ -3,11 +3,11 @@ var React = require('react');
 var PieChart = React.createClass({
 
   getInitialState: function(){
-    return {id : "pie_chart_"+Math.floor(Math.random() * 1000000)}; //id for google chart element //todo : id from parent?
+    return {id : "pie_chart_"+Math.floor(Math.random() * 1000000)}; //id for google chart element //todo : this.id
   },
 
   componentWillReceiveProps: function(nextProps) {
-    if(window.google && window.google.visualization){
+    if (nextProps.gc_ready){
 
       if(!this.state.chart){
         var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
@@ -26,7 +26,7 @@ var PieChart = React.createClass({
   },
 
   componentDidUpdate: function(){
-    if(window.google && window.google.visualization){
+    if (!!this.state.chart){
       this.state.chart.draw(this.state.gc_data, this.state.options);
     }
   },
@@ -53,7 +53,7 @@ var PieChart = React.createClass({
 
     return (
       <div style={chartWrapStyle}>
-        <div style={chartStyle} id={this.state.id}></div>
+        <div style={chartStyle} id={this.state.id}>Sorry, Google Chart is not properly loaded.</div>
       </div>
     );
   }
@@ -62,6 +62,7 @@ var PieChart = React.createClass({
 
 PieChart.defaultProps = {
   data      : {data:[], options:{}},
+  gc_ready  : false,
   onClick   : undefined
 };
 

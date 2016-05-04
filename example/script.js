@@ -27,7 +27,7 @@ app.controller('myCtrl',function($scope){
   };
 
   $scope.addWidget = function(){ //todo : open a modal to choose
-    $scope.schema.widgets.push([{colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", data:"testData"}]);
+    $scope.schema.widgets.push([{colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}]);
   };
 
   $scope.schema = {
@@ -35,16 +35,16 @@ app.controller('myCtrl',function($scope){
     style: {},
     widgets: [
       [
-        {colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", data:"testData"}, //url has higher priority than data
-        {colSpan:"6", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", data:"testData"}
+        {colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}, //url has higher priority than data
+        {colSpan:"6", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}
       ],
       [
-        {colSpan:"12", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", data:"testData"}
+        {colSpan:"12", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:false}], data:"testData"}
       ],
       [
-        {colSpan:"4", type:"TableView", title:"Table", url:"testdata/TableView.json", data:"testData"},
-        {colSpan:"4", type:"ScatterChart", title:"Scatter Chart", url:"testdata/ScatterChart.json", data:"testData"},
-        {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", data:"testData"}
+        {colSpan:"4", type:"TableView", title:"Table", url:"testdata/TableView.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true},{name:"paramB", type:"string", value:"efg", configurable:true}], data:"testData"},
+        {colSpan:"4", type:"ScatterChart", title:"Scatter Chart", url:"testdata/ScatterChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"},
+        {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", params:[{name:"paramA", type:"string", value:"abc", configurable:false},{name:"paramB", type:"string", value:"efg", configurable:true}], data:"testData"}
       ]
     ]
   };
@@ -68,7 +68,7 @@ app.controller('myCtrl',function($scope){
     ReactDOM.render(React.createElement(ReactDashboard, {schema: $scope.schema, onClick: $scope.handleClick, onEdit: $scope.handleEdit}), document.getElementById('example'));
   };
 
-  $scope.$watch('schema', function(newValue, oldValue) {
+  $scope.$watch('schema.editMode', function(newValue, oldValue) {
     $scope.refreshDashboard();
   }, true); //3rd parameter true, watch values in object 
 });

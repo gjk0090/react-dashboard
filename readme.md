@@ -6,6 +6,7 @@
 * Run the example by double clicking example/index.html, it uses pure js.
 * Use webpack to build source code, it reads the webpack.config.js file and outputs dist/ReactDashboard.js.
 * Try the example page [here](http://gjk0090.github.io/ReactDashboard "ReactDashboard Example").
+* Minimun IE 9.
 
 ### TODO
 ---
@@ -14,12 +15,14 @@
 * use propTypes
 * learn Flux
 * extract style to class
-* encapsulate example buttons?
-* add widget
+* encapsulate example buttons
 * individual config modal
 * drag and drop (react-dnd)
 * wrap widget with grid for dnd
-* more widget
+* add widget, Expose function: get widget list
+* refine AJAX
+* static function for widgets to return template for add new
+* this.id
 
 ###### google charts
 * Google Chart from npm
@@ -27,7 +30,8 @@
 
 ###### project
 * tests
-* update webpack
+* learn webpack
+* learn package.json
 * minify and map
 * beautiful readme
 * versioning, use branch
@@ -39,18 +43,3 @@
 * [Component API](https://facebook.github.io/react/docs/component-api.html)
 * [DOM Event Listener](https://facebook.github.io/react/tips/dom-event-listeners.html)
 * [Load Initial Data via AJAX](https://facebook.github.io/react/tips/initial-ajax.html)
-
-### todo to9t
----
-* componentDidMount in Dashboard
-* use flag gc_ready
-* if (nextProps.gc_ready)
-* else message
-* if (this.state.chart)
-* params:[{name:"", type:"date", value:"", configurable:true},{}]
-* update defaultprops
-* externals: {
- 'react': 'React',
- 'react-dom' : 'ReactDOM',
- 'react-bootstrap' : '??'
-}

@@ -7,6 +7,11 @@ module.exports = {
         libraryTarget: "var",
         library: "ReactDashboard"
     },
+    externals: {
+     'react': 'React',
+     'react-dom' : 'ReactDOM',
+     'react-bootstrap' : 'ReactBootstrap'
+    },
     module: {
         loaders: [{
             test: /\.js$/,

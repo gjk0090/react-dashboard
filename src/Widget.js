@@ -1,23 +1,31 @@
 var React = require('react');
-//var Modal = require('react-bootstrap/lib/Modal');
+var cloneDeep = require('lodash/fp/cloneDeep');
+var Modal = require('react-bootstrap').Modal;
 var WidgetList = require('./widgets');
+
 
 var Widget = React.createClass({
 
-  getInitialState: function() {
-    return {data: this.props.widget.data};
+  tempParams: [],
+
+  getInitialState: function() {alert("init");
+    this.tempParams = cloneDeep(this.props.widget.params);
+    var configurable = this.getConfigurable(this.props.widget.params);
+    return {data: this.props.widget.data, params: this.props.widget.params, configurable: configurable};
   },
 
-  componentWillMount: function(){
+  componentWillMount: function(){alert("will mount");
   },
 
   componentDidMount: function(){
-    this.refreshWidget();
+    this.refreshWidget();alert("did mount");
   },
 
   //this function triggers before render except first time
   //this functoin can set state safely
+  //this is only triggered when updated from outside
   componentWillReceiveProps: function(nextProps) {
+    alert("componentWillReceiveProps");
     this.refreshWidget();
   },
 
@@ -34,7 +42,7 @@ var Widget = React.createClass({
   componentWillUnmount: function(){
   },
 
-  getRemoteData: function(url){
+  getRemoteData: function(url, params){
     if(url == null || url == ""){return null;}
 
     var returnData;
@@ -46,18 +54,38 @@ var Widget = React.createClass({
   },
 
   refreshWidget: function() {
-    var data = this.getRemoteData(this.props.widget.url);
+    var params = this.state.params; //todo : format params
+    var data = this.getRemoteData(this.props.widget.url, params);
     if(data != null){
       this.setState({data: data});
     }
+  },
+
+  getConfigurable: function(params){
+    for(var i=0; i<params.length; i++){
+      if(params[i].configurable){return true;}
+    }
+    return false;
   },
 
   openConfigModal: function(){
     this.setState({ showModal: true });
   },
 
-  closeConfigModal: function() {
+  closeConfigModal: function(action) {
+    if(action == "save"){
+      this.setState({params: cloneDeep(this.tempParams)});
+      this.props.onEdit("update_params", false, this.tempParams);
+      this.refreshWidget();//remove when fix init bug
+    }else{
+      this.tempParams = cloneDeep(this.state.params);
+    }
     this.setState({ showModal: false });
+  },
+
+  configParamsChanged: function(i,event){
+    this.tempParams[i].value = event.target.value;
+    //alert(i+event.target.value);
   },
 
   render: function() {
@@ -78,19 +106,23 @@ var Widget = React.createClass({
     if(this.props.editMode){
       headingButtons = (
         <span className="pull-right">
-          <a title="move widget up" style={aTagStyle} onClick={this.props.onEdit.bind(this, "up")}> <i className="glyphicon glyphicon-arrow-up"></i> </a>
-          <a title="move widget down" style={aTagStyle} onClick={this.props.onEdit.bind(this, "down")}> <i className="glyphicon glyphicon-arrow-down"></i> </a>
-          <a title="move widget left" style={aTagStyle} onClick={this.props.onEdit.bind(this, "left")}> <i className="glyphicon glyphicon-arrow-left"></i> </a>
-          <a title="move widget right" style={aTagStyle} onClick={this.props.onEdit.bind(this, "right")}> <i className="glyphicon glyphicon-arrow-right"></i> </a>
-          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "enlarge")}> <i className="glyphicon glyphicon-resize-full"></i> </a>
-          <a title="decrease widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "shrink")}> <i className="glyphicon glyphicon-resize-small"></i> </a>
-          <a title="remove widget" style={aTagStyle} onClick={this.props.onEdit.bind(this, "remove")}> <i className="glyphicon glyphicon-remove"></i> </a>
+          <a title="move widget up" style={aTagStyle} onClick={this.props.onEdit.bind(this, "up", true)}> <i className="glyphicon glyphicon-arrow-up"></i> </a>
+          <a title="move widget down" style={aTagStyle} onClick={this.props.onEdit.bind(this, "down", true)}> <i className="glyphicon glyphicon-arrow-down"></i> </a>
+          <a title="move widget left" style={aTagStyle} onClick={this.props.onEdit.bind(this, "left", true)}> <i className="glyphicon glyphicon-arrow-left"></i> </a>
+          <a title="move widget right" style={aTagStyle} onClick={this.props.onEdit.bind(this, "right", true)}> <i className="glyphicon glyphicon-arrow-right"></i> </a>
+          <a title="increase widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "enlarge", true)}> <i className="glyphicon glyphicon-resize-full"></i> </a>
+          <a title="decrease widget width" style={aTagStyle} onClick={this.props.onEdit.bind(this, "shrink", true)}> <i className="glyphicon glyphicon-resize-small"></i> </a>
+          <a title="remove widget" style={aTagStyle} onClick={this.props.onEdit.bind(this, "remove", true)}> <i className="glyphicon glyphicon-remove"></i> </a>
         </span>
       );
     }else{
       headingButtons = (
         <span className="pull-right">
-          <a title="reload widget content" style={aTagStyle} onClick={this.openConfigModal}> <i className="glyphicon glyphicon-cog"></i> </a>
+          {(() => {
+            if(this.state.configurable){
+              return (<a title="edit widget params" style={aTagStyle} onClick={this.openConfigModal}> <i className="glyphicon glyphicon-cog"></i> </a>);
+            }
+          })()}
           <a title="reload widget content" style={aTagStyle} onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a>
         </span>
       );
@@ -98,6 +130,16 @@ var Widget = React.createClass({
 
     var DetailWidget = WidgetList[this.props.widget.type];
     if (!DetailWidget) {throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');}
+
+    var configParamsList = this.state.params.map((param, i) => {
+      if(!param.configurable){return;}
+      return(
+        <div className="row" key={"config_param_"+Math.floor(Math.random() * 10000)}>
+        <p className="col-xs-6">{param.name}</p>
+        <input  className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
+        </div>
+      );
+    });
 
     //bootstrap classes : default/primary/success/info/warning/danger
     return (
@@ -109,37 +151,27 @@ var Widget = React.createClass({
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>
-                <DetailWidget data={this.state.data} onClick={this.props.onClick}></DetailWidget>
+                <DetailWidget data={this.state.data} gc_ready={this.props.gc_ready} onClick={this.props.onClick}></DetailWidget>
               </div>
             </div>
           </div>
 
-          {/*
+          
           <Modal show={this.state.showModal} onHide={this.closeConfigModal}>
             <Modal.Header closeButton>
-              <Modal.Title>Modal heading</Modal.Title>
+              <Modal.Title>Config</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <h4>Text in a modal</h4>
-              <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula.</p>
-              <hr />
-
-              <h4>Overflowing text to show scroll behavior</h4>
-              <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
-              <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
-              <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
-              <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
-              <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
-              <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
+              <div style={{padding:"10px 20px"}}>
+                {configParamsList}
+              </div>
             </Modal.Body>
             <Modal.Footer>
-              <button onClick={this.closeConfigModal}>Close</button>
+              <button className="btn btn-default" onClick={this.closeConfigModal}>Close</button>
+              <button className="btn btn-primary" onClick={this.closeConfigModal.bind(this, "save")}>Save</button>
             </Modal.Footer>
           </Modal>
-          */}
+          
 
       </div>
     );
@@ -148,7 +180,8 @@ var Widget = React.createClass({
 });
 
 Widget.defaultProps = {
-  widget      : {colSpan:"", type:"", title:"", url:"", data:""},
+  widget      : {colSpan:"", type:"", title:"", url:"", params:[], data:""},
+  gc_ready    : false,
   onClick     : undefined
 };
 
