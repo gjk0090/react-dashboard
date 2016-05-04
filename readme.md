@@ -15,14 +15,13 @@
 * use propTypes
 * learn Flux
 * extract style to class
-* encapsulate example buttons
-* individual config modal
 * drag and drop (react-dnd)
 * wrap widget with grid for dnd
-* add widget, Expose function: get widget list
 * refine AJAX
+* add widget, Expose function: get widget list
 * static function for widgets to return template for add new
-* this.id
+* this.id for gc widgets
+* encapsulate example buttons
 
 ###### google charts
 * Google Chart from npm
