@@ -17,18 +17,17 @@
 * extract style to class
 * drag and drop (react-dnd)
 * wrap widget with grid for dnd
-* refine AJAX
-* add widget, Expose function: get widget list
-* static function for widgets to return template for add new
-* this.id for gc widgets (var id outside component)
-* encapsulate example buttons
-* config for widget title
-* update gc error message
-* why not refreshing in edit mode
+* refine AJAX -- Urgent
+* add widget, Expose function: get widget list -- Urgent
+* static function for widgets to return template for add new -- Urgent
+* this.id for gc widgets (var id outside component) -- Urgent
+* encapsulate example buttons -- Urgent
+* config for widget title -- Urgent
+* why not refreshing in edit mode (componentDidMount&componentDidUpdate) / update gc error message -- Urgent
 
 ###### google charts
-* Google Chart from npm (react-google-charts )
 * Google Chart responsive
+* smarter initial loading (react-google-charts: GoogleChartLoader.js) -- Urgent
 
 ###### project
 * tests
