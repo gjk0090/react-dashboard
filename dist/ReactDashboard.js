@@ -198,14 +198,14 @@ var ReactDashboard =
 
 	        return React.createElement(
 	          'div',
-	          { className: clazzName, key: "row_widget_" + Math.floor(Math.random() * 10000) },
+	          { className: clazzName, key: "row_widget_" + j },
 	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, gc_ready: _this.state.gc_ready, editMode: _this.props.schema.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
 	        );
 	      });
 
 	      return React.createElement(
 	        'div',
-	        { className: 'row', key: "dashboard_row_" + Math.floor(Math.random() * 10000), style: rowStyle },
+	        { className: 'row', key: "dashboard_row_" + i, style: rowStyle },
 	        rowIndicator,
 	        widgets
 	      );
@@ -239,9 +239,9 @@ var ReactDashboard =
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var cloneDeep = __webpack_require__(14);
-	var Modal = __webpack_require__(6).Modal;
-	var WidgetList = __webpack_require__(7);
+	var cloneDeep = __webpack_require__(3);
+	var Modal = __webpack_require__(176).Modal;
+	var WidgetList = __webpack_require__(177);
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -250,25 +250,21 @@ var ReactDashboard =
 	  tempParams: [],
 
 	  getInitialState: function getInitialState() {
-	    alert("init");
 	    this.tempParams = cloneDeep(this.props.widget.params);
 	    var configurable = this.getConfigurable(this.props.widget.params);
 	    return { data: this.props.widget.data, params: this.props.widget.params, configurable: configurable };
 	  },
 
-	  componentWillMount: function componentWillMount() {
-	    alert("will mount");
-	  },
+	  componentWillMount: function componentWillMount() {},
 
 	  componentDidMount: function componentDidMount() {
-	    this.refreshWidget();alert("did mount");
+	    this.refreshWidget();
 	  },
 
 	  //this function triggers before render except first time
 	  //this functoin can set state safely
 	  //this is only triggered when updated from outside
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    alert("componentWillReceiveProps");
 	    this.refreshWidget();
 	  },
 
@@ -438,7 +434,7 @@ var ReactDashboard =
 	      }
 	      return React.createElement(
 	        'div',
-	        { className: 'row', key: "config_param_" + Math.floor(Math.random() * 10000) },
+	        { className: 'row', key: "config_param_" + i },
 	        React.createElement(
 	          'p',
 	          { className: 'col-xs-6' },
@@ -521,599 +517,25 @@ var ReactDashboard =
 	module.exports = Widget;
 
 /***/ },
-/* 3 */,
-/* 4 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	module.exports = function (module) {
-		if (!module.webpackPolyfill) {
-			module.deprecate = function () {};
-			module.paths = [];
-			// module.parent = undefined by default
-			module.children = [];
-			module.webpackPolyfill = 1;
-		}
-		return module;
-	};
-
-/***/ },
-/* 5 */,
-/* 6 */
-/***/ function(module, exports) {
-
-	module.exports = ReactBootstrap;
-
-/***/ },
-/* 7 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var convert = __webpack_require__(4),
+	    func = convert('cloneDeep', __webpack_require__(174), __webpack_require__(175));
 
-	var React = __webpack_require__(1);
-
-	var WidgetList = {
-	  PieChart: __webpack_require__(8),
-	  ColumnChart: __webpack_require__(9),
-	  GeoChart: __webpack_require__(10),
-	  TableView: __webpack_require__(11),
-	  ScatterChart: __webpack_require__(12),
-	  Gauge: __webpack_require__(13)
-	};
-
-	//below are for adding custom widgets
-
-	/**
-	 * Add a Widget
-	 *
-	 * @param  type      name     Name of Widget
-	 * @param  Component instance Widget Component
-	 */
-	WidgetList.addWidget = function (name, instance) {
-	  if (typeof name !== 'string') {
-	    throw new Error('ReactDashboard: First parameter of addWidget must be of type string');
-	  }
-
-	  if (!React.Component instanceof instance.constructor) {
-	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
-	  }
-
-	  WidgetList[name] = instance;
-	};
-
-	/**
-	 * Add multiple Widgets
-	 *
-	 * @param  object widgets, Widgets to add. string => Component
-	 */
-	WidgetList.addWidgets = function (widgets) {
-	  if ((typeof widgets === 'undefined' ? 'undefined' : _typeof(widgets)) !== 'object') {
-	    throw new Error('ReactDashboard: First parameter of addWidgets must be of type object');
-	  }
-
-	  for (var name in widgets) {
-	    WidgetList.addWidget(name, widgets[name]);
-	  }
-	};
-
-	module.exports = WidgetList;
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-
-	var PieChart = React.createClass({
-	  displayName: 'PieChart',
-
-
-	  getInitialState: function getInitialState() {
-	    return { id: "pie_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : this.id
-	  },
-
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (nextProps.gc_ready) {
-
-	      if (!this.state.chart) {
-	        var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
-	        this.setState({ chart: chart });
-
-	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
-	      }
-
-	      //todo : validate data
-	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
-	      this.setState({ gc_data: gc_data });
-
-	      var options = nextProps.data.options;
-	      this.setState({ options: options });
-	    }
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (!!this.state.chart) {
-	      this.state.chart.draw(this.state.gc_data, this.state.options);
-	    }
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.state.chart;
-	    var gc_data = this.state.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.state.id },
-	        'Sorry, Google Chart is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	PieChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  gc_ready: false,
-	  onClick: undefined
-	};
-
-	module.exports = PieChart;
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-
-	var ColumnChart = React.createClass({
-	  displayName: 'ColumnChart',
-
-
-	  getInitialState: function getInitialState() {
-	    return { id: "column_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
-	  },
-
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (nextProps.gc_ready) {
-
-	      if (!this.state.chart) {
-	        var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
-	        this.setState({ chart: chart });
-
-	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
-	      }
-
-	      //todo : validate data
-	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
-	      this.setState({ gc_data: gc_data });
-
-	      var options = nextProps.data.options;
-	      this.setState({ options: options });
-	    }
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (!!this.state.chart) {
-	      this.state.chart.draw(this.state.gc_data, this.state.options);
-	    }
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.state.chart;
-	    var gc_data = this.state.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.state.id },
-	        'Sorry, Google Chart is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ColumnChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  gc_ready: false,
-	  onClick: undefined
-	};
-
-	module.exports = ColumnChart;
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-
-	var GeoChart = React.createClass({
-	  displayName: 'GeoChart',
-
-
-	  getInitialState: function getInitialState() {
-	    return { id: "geo_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
-	  },
-
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (nextProps.gc_ready) {
-
-	      if (!this.state.chart) {
-	        var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
-	        this.setState({ chart: chart });
-
-	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
-	      }
-
-	      //todo : validate data
-	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
-	      this.setState({ gc_data: gc_data });
-
-	      var options = nextProps.data.options;
-	      this.setState({ options: options });
-	    }
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (!!this.state.chart) {
-	      this.state.chart.draw(this.state.gc_data, this.state.options);
-	    }
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.state.chart;
-	    var gc_data = this.state.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.state.id },
-	        'Sorry, Google Chart is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	GeoChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  gc_ready: false,
-	  onClick: undefined
-	};
-
-	module.exports = GeoChart;
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-
-	var TableView = React.createClass({
-	  displayName: 'TableView',
-
-
-	  getInitialState: function getInitialState() {
-	    return { id: "table_view_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
-	  },
-
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (nextProps.gc_ready) {
-
-	      if (!this.state.chart) {
-	        var chart = new google.visualization.Table(document.getElementById(this.state.id));
-	        this.setState({ chart: chart });
-
-	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
-	      }
-
-	      //todo : validate data
-	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
-	      this.setState({ gc_data: gc_data });
-
-	      var options = nextProps.data.options;
-	      this.setState({ options: options });
-	    }
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (!!this.state.chart) {
-	      this.state.chart.draw(this.state.gc_data, this.state.options);
-	    }
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.state.chart;
-	    var gc_data = this.state.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.state.id },
-	        'Sorry, Google Chart is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	TableView.defaultProps = {
-	  data: { data: [], options: {} },
-	  gc_ready: false,
-	  onClick: undefined
-	};
-
-	module.exports = TableView;
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-
-	var ScatterChart = React.createClass({
-	  displayName: 'ScatterChart',
-
-
-	  getInitialState: function getInitialState() {
-	    return { id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
-	  },
-
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (nextProps.gc_ready) {
-
-	      if (!this.state.chart) {
-	        var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
-	        this.setState({ chart: chart });
-
-	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
-	      }
-
-	      //todo : validate data
-	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
-	      this.setState({ gc_data: gc_data });
-
-	      var options = nextProps.data.options;
-	      this.setState({ options: options });
-	    }
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (!!this.state.chart) {
-	      this.state.chart.draw(this.state.gc_data, this.state.options);
-	    }
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.state.chart;
-	    var gc_data = this.state.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.state.id },
-	        'Sorry, Google Chart is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ScatterChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  gc_ready: false,
-	  onClick: undefined
-	};
-
-	module.exports = ScatterChart;
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-
-	var Gauge = React.createClass({
-	  displayName: 'Gauge',
-
-
-	  getInitialState: function getInitialState() {
-	    return { id: "gauge_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
-	  },
-
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (nextProps.gc_ready) {
-
-	      if (!this.state.chart) {
-	        var chart = new google.visualization.Gauge(document.getElementById(this.state.id));
-	        this.setState({ chart: chart });
-
-	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
-	      }
-
-	      //todo : validate data
-	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
-	      this.setState({ gc_data: gc_data });
-
-	      var options = nextProps.data.options;
-	      this.setState({ options: options });
-	    }
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (!!this.state.chart) {
-	      this.state.chart.draw(this.state.gc_data, this.state.options);
-	    }
-	  },
-
-	  handleSelect: function handleSelect() {
-	    //nothing selectable
-	    var chart = this.state.chart;
-	    var gc_data = this.state.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      //var value = gc_data.getValue(selected.row, 1);
-	      //this.props.onClick(value);     
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.state.id },
-	        'Sorry, Google Chart is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	Gauge.defaultProps = {
-	  data: { data: [], options: {} },
-	  gc_ready: false,
-	  onClick: undefined
-	};
-
-	module.exports = Gauge;
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var convert = __webpack_require__(15),
-	    func = convert('cloneDeep', __webpack_require__(184), __webpack_require__(185));
-
-	func.placeholder = __webpack_require__(18);
+	func.placeholder = __webpack_require__(7);
 	module.exports = func;
 
 /***/ },
-/* 15 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseConvert = __webpack_require__(16),
-	    util = __webpack_require__(19);
+	var baseConvert = __webpack_require__(5),
+	    util = __webpack_require__(8);
 
 	/**
 	 * Converts `func` of `name` to an immutable auto-curried iteratee-first data-last
@@ -1132,14 +554,14 @@ var ReactDashboard =
 	module.exports = convert;
 
 /***/ },
-/* 16 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var mapping = __webpack_require__(17),
+	var mapping = __webpack_require__(6),
 	    mutateMap = mapping.mutate,
-	    fallbackHolder = __webpack_require__(18);
+	    fallbackHolder = __webpack_require__(7);
 
 	/**
 	 * Creates a function, with an arity of `n`, that invokes `func` with the
@@ -1605,7 +1027,7 @@ var ReactDashboard =
 	module.exports = baseConvert;
 
 /***/ },
-/* 17 */
+/* 6 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1864,7 +1286,7 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 18 */
+/* 7 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1877,33 +1299,33 @@ var ReactDashboard =
 	module.exports = {};
 
 /***/ },
-/* 19 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = {
-	  'ary': __webpack_require__(20),
-	  'assign': __webpack_require__(68),
-	  'clone': __webpack_require__(86),
-	  'curry': __webpack_require__(143),
-	  'forEach': __webpack_require__(113),
-	  'isArray': __webpack_require__(53),
-	  'isFunction': __webpack_require__(28),
-	  'iteratee': __webpack_require__(144),
-	  'keys': __webpack_require__(75),
-	  'rearg': __webpack_require__(176),
-	  'spread': __webpack_require__(180),
-	  'toPath': __webpack_require__(183)
+	  'ary': __webpack_require__(9),
+	  'assign': __webpack_require__(58),
+	  'clone': __webpack_require__(76),
+	  'curry': __webpack_require__(133),
+	  'forEach': __webpack_require__(103),
+	  'isArray': __webpack_require__(43),
+	  'isFunction': __webpack_require__(17),
+	  'iteratee': __webpack_require__(134),
+	  'keys': __webpack_require__(65),
+	  'rearg': __webpack_require__(166),
+	  'spread': __webpack_require__(170),
+	  'toPath': __webpack_require__(173)
 	};
 
 /***/ },
-/* 20 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createWrapper = __webpack_require__(21);
+	var createWrapper = __webpack_require__(10);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var ARY_FLAG = 128;
@@ -1934,20 +1356,20 @@ var ReactDashboard =
 	module.exports = ary;
 
 /***/ },
-/* 21 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseSetData = __webpack_require__(22),
-	    createBaseWrapper = __webpack_require__(34),
-	    createCurryWrapper = __webpack_require__(37),
-	    createHybridWrapper = __webpack_require__(39),
-	    createPartialWrapper = __webpack_require__(63),
-	    getData = __webpack_require__(47),
-	    mergeData = __webpack_require__(64),
-	    setData = __webpack_require__(57),
-	    toInteger = __webpack_require__(65);
+	var baseSetData = __webpack_require__(11),
+	    createBaseWrapper = __webpack_require__(24),
+	    createCurryWrapper = __webpack_require__(27),
+	    createHybridWrapper = __webpack_require__(29),
+	    createPartialWrapper = __webpack_require__(53),
+	    getData = __webpack_require__(37),
+	    mergeData = __webpack_require__(54),
+	    setData = __webpack_require__(47),
+	    toInteger = __webpack_require__(55);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -2041,13 +1463,13 @@ var ReactDashboard =
 	module.exports = createWrapper;
 
 /***/ },
-/* 22 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var identity = __webpack_require__(23),
-	    metaMap = __webpack_require__(24);
+	var identity = __webpack_require__(12),
+	    metaMap = __webpack_require__(13);
 
 	/**
 	 * The base implementation of `setData` without support for hot loop detection.
@@ -2065,7 +1487,7 @@ var ReactDashboard =
 	module.exports = baseSetData;
 
 /***/ },
-/* 23 */
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2093,12 +1515,12 @@ var ReactDashboard =
 	module.exports = identity;
 
 /***/ },
-/* 24 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var WeakMap = __webpack_require__(25);
+	var WeakMap = __webpack_require__(14);
 
 	/** Used to store function metadata. */
 	var metaMap = WeakMap && new WeakMap();
@@ -2106,13 +1528,13 @@ var ReactDashboard =
 	module.exports = metaMap;
 
 /***/ },
-/* 25 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(26),
-	    root = __webpack_require__(32);
+	var getNative = __webpack_require__(15),
+	    root = __webpack_require__(21);
 
 	/* Built-in method references that are verified to be native. */
 	var WeakMap = getNative(root, 'WeakMap');
@@ -2120,12 +1542,12 @@ var ReactDashboard =
 	module.exports = WeakMap;
 
 /***/ },
-/* 26 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isNative = __webpack_require__(27);
+	var isNative = __webpack_require__(16);
 
 	/**
 	 * Gets the native function at `key` of `object`.
@@ -2143,15 +1565,15 @@ var ReactDashboard =
 	module.exports = getNative;
 
 /***/ },
-/* 27 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isFunction = __webpack_require__(28),
-	    isHostObject = __webpack_require__(30),
-	    isObject = __webpack_require__(29),
-	    toSource = __webpack_require__(31);
+	var isFunction = __webpack_require__(17),
+	    isHostObject = __webpack_require__(19),
+	    isObject = __webpack_require__(18),
+	    toSource = __webpack_require__(20);
 
 	/**
 	 * Used to match `RegExp`
@@ -2203,12 +1625,12 @@ var ReactDashboard =
 	module.exports = isNative;
 
 /***/ },
-/* 28 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isObject = __webpack_require__(29);
+	var isObject = __webpack_require__(18);
 
 	/** `Object#toString` result references. */
 	var funcTag = '[object Function]',
@@ -2253,7 +1675,7 @@ var ReactDashboard =
 	module.exports = isFunction;
 
 /***/ },
-/* 29 */
+/* 18 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2293,7 +1715,7 @@ var ReactDashboard =
 	module.exports = isObject;
 
 /***/ },
-/* 30 */
+/* 19 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2320,7 +1742,7 @@ var ReactDashboard =
 	module.exports = isHostObject;
 
 /***/ },
-/* 31 */
+/* 20 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2350,14 +1772,14 @@ var ReactDashboard =
 	module.exports = toSource;
 
 /***/ },
-/* 32 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module, global) {'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var checkGlobal = __webpack_require__(33);
+	var checkGlobal = __webpack_require__(23);
 
 	/** Used to determine if values are of the language type `Object`. */
 	var objectTypes = {
@@ -2392,10 +1814,27 @@ var ReactDashboard =
 	var root = freeGlobal || freeWindow !== (thisGlobal && thisGlobal.window) && freeWindow || freeSelf || thisGlobal || Function('return this')();
 
 	module.exports = root;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)(module), (function() { return this; }())))
 
 /***/ },
-/* 33 */
+/* 22 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	module.exports = function (module) {
+		if (!module.webpackPolyfill) {
+			module.deprecate = function () {};
+			module.paths = [];
+			// module.parent = undefined by default
+			module.children = [];
+			module.webpackPolyfill = 1;
+		}
+		return module;
+	};
+
+/***/ },
+/* 23 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2414,13 +1853,13 @@ var ReactDashboard =
 	module.exports = checkGlobal;
 
 /***/ },
-/* 34 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createCtorWrapper = __webpack_require__(35),
-	    root = __webpack_require__(32);
+	var createCtorWrapper = __webpack_require__(25),
+	    root = __webpack_require__(21);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1;
@@ -2450,13 +1889,13 @@ var ReactDashboard =
 	module.exports = createBaseWrapper;
 
 /***/ },
-/* 35 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(36),
-	    isObject = __webpack_require__(29);
+	var baseCreate = __webpack_require__(26),
+	    isObject = __webpack_require__(18);
 
 	/**
 	 * Creates a function that produces an instance of `Ctor` regardless of
@@ -2502,12 +1941,12 @@ var ReactDashboard =
 	module.exports = createCtorWrapper;
 
 /***/ },
-/* 36 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isObject = __webpack_require__(29);
+	var isObject = __webpack_require__(18);
 
 	/** Built-in value references. */
 	var objectCreate = Object.create;
@@ -2527,18 +1966,18 @@ var ReactDashboard =
 	module.exports = baseCreate;
 
 /***/ },
-/* 37 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(38),
-	    createCtorWrapper = __webpack_require__(35),
-	    createHybridWrapper = __webpack_require__(39),
-	    createRecurryWrapper = __webpack_require__(43),
-	    getPlaceholder = __webpack_require__(59),
-	    replaceHolders = __webpack_require__(62),
-	    root = __webpack_require__(32);
+	var apply = __webpack_require__(28),
+	    createCtorWrapper = __webpack_require__(25),
+	    createHybridWrapper = __webpack_require__(29),
+	    createRecurryWrapper = __webpack_require__(33),
+	    getPlaceholder = __webpack_require__(49),
+	    replaceHolders = __webpack_require__(52),
+	    root = __webpack_require__(21);
 
 	/**
 	 * Creates a function that wraps `func` to enable currying.
@@ -2577,7 +2016,7 @@ var ReactDashboard =
 	module.exports = createCurryWrapper;
 
 /***/ },
-/* 38 */
+/* 28 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2610,20 +2049,20 @@ var ReactDashboard =
 	module.exports = apply;
 
 /***/ },
-/* 39 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var composeArgs = __webpack_require__(40),
-	    composeArgsRight = __webpack_require__(41),
-	    countHolders = __webpack_require__(42),
-	    createCtorWrapper = __webpack_require__(35),
-	    createRecurryWrapper = __webpack_require__(43),
-	    getPlaceholder = __webpack_require__(59),
-	    reorder = __webpack_require__(60),
-	    replaceHolders = __webpack_require__(62),
-	    root = __webpack_require__(32);
+	var composeArgs = __webpack_require__(30),
+	    composeArgsRight = __webpack_require__(31),
+	    countHolders = __webpack_require__(32),
+	    createCtorWrapper = __webpack_require__(25),
+	    createRecurryWrapper = __webpack_require__(33),
+	    getPlaceholder = __webpack_require__(49),
+	    reorder = __webpack_require__(50),
+	    replaceHolders = __webpack_require__(52),
+	    root = __webpack_require__(21);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1,
@@ -2707,7 +2146,7 @@ var ReactDashboard =
 	module.exports = createHybridWrapper;
 
 /***/ },
-/* 40 */
+/* 30 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2753,7 +2192,7 @@ var ReactDashboard =
 	module.exports = composeArgs;
 
 /***/ },
-/* 41 */
+/* 31 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2801,7 +2240,7 @@ var ReactDashboard =
 	module.exports = composeArgsRight;
 
 /***/ },
-/* 42 */
+/* 32 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2829,13 +2268,13 @@ var ReactDashboard =
 	module.exports = countHolders;
 
 /***/ },
-/* 43 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isLaziable = __webpack_require__(44),
-	    setData = __webpack_require__(57);
+	var isLaziable = __webpack_require__(34),
+	    setData = __webpack_require__(47);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1,
@@ -2889,15 +2328,15 @@ var ReactDashboard =
 	module.exports = createRecurryWrapper;
 
 /***/ },
-/* 44 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var LazyWrapper = __webpack_require__(45),
-	    getData = __webpack_require__(47),
-	    getFuncName = __webpack_require__(49),
-	    lodash = __webpack_require__(51);
+	var LazyWrapper = __webpack_require__(35),
+	    getData = __webpack_require__(37),
+	    getFuncName = __webpack_require__(39),
+	    lodash = __webpack_require__(41);
 
 	/**
 	 * Checks if `func` has a lazy counterpart.
@@ -2924,13 +2363,13 @@ var ReactDashboard =
 	module.exports = isLaziable;
 
 /***/ },
-/* 45 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(36),
-	    baseLodash = __webpack_require__(46);
+	var baseCreate = __webpack_require__(26),
+	    baseLodash = __webpack_require__(36);
 
 	/** Used as references for the maximum length and index of an array. */
 	var MAX_ARRAY_LENGTH = 4294967295;
@@ -2959,7 +2398,7 @@ var ReactDashboard =
 	module.exports = LazyWrapper;
 
 /***/ },
-/* 46 */
+/* 36 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2976,13 +2415,13 @@ var ReactDashboard =
 	module.exports = baseLodash;
 
 /***/ },
-/* 47 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var metaMap = __webpack_require__(24),
-	    noop = __webpack_require__(48);
+	var metaMap = __webpack_require__(13),
+	    noop = __webpack_require__(38);
 
 	/**
 	 * Gets metadata for `func`.
@@ -2998,7 +2437,7 @@ var ReactDashboard =
 	module.exports = getData;
 
 /***/ },
-/* 48 */
+/* 38 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3025,12 +2464,12 @@ var ReactDashboard =
 	module.exports = noop;
 
 /***/ },
-/* 49 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var realNames = __webpack_require__(50);
+	var realNames = __webpack_require__(40);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -3063,7 +2502,7 @@ var ReactDashboard =
 	module.exports = getFuncName;
 
 /***/ },
-/* 50 */
+/* 40 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3074,17 +2513,17 @@ var ReactDashboard =
 	module.exports = realNames;
 
 /***/ },
-/* 51 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var LazyWrapper = __webpack_require__(45),
-	    LodashWrapper = __webpack_require__(52),
-	    baseLodash = __webpack_require__(46),
-	    isArray = __webpack_require__(53),
-	    isObjectLike = __webpack_require__(54),
-	    wrapperClone = __webpack_require__(55);
+	var LazyWrapper = __webpack_require__(35),
+	    LodashWrapper = __webpack_require__(42),
+	    baseLodash = __webpack_require__(36),
+	    isArray = __webpack_require__(43),
+	    isObjectLike = __webpack_require__(44),
+	    wrapperClone = __webpack_require__(45);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -3226,13 +2665,13 @@ var ReactDashboard =
 	module.exports = lodash;
 
 /***/ },
-/* 52 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(36),
-	    baseLodash = __webpack_require__(46);
+	var baseCreate = __webpack_require__(26),
+	    baseLodash = __webpack_require__(36);
 
 	/**
 	 * The base constructor for creating `lodash` wrapper objects.
@@ -3255,7 +2694,7 @@ var ReactDashboard =
 	module.exports = LodashWrapper;
 
 /***/ },
-/* 53 */
+/* 43 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3290,7 +2729,7 @@ var ReactDashboard =
 	module.exports = isArray;
 
 /***/ },
-/* 54 */
+/* 44 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3328,14 +2767,14 @@ var ReactDashboard =
 	module.exports = isObjectLike;
 
 /***/ },
-/* 55 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var LazyWrapper = __webpack_require__(45),
-	    LodashWrapper = __webpack_require__(52),
-	    copyArray = __webpack_require__(56);
+	var LazyWrapper = __webpack_require__(35),
+	    LodashWrapper = __webpack_require__(42),
+	    copyArray = __webpack_require__(46);
 
 	/**
 	 * Creates a clone of `wrapper`.
@@ -3358,7 +2797,7 @@ var ReactDashboard =
 	module.exports = wrapperClone;
 
 /***/ },
-/* 56 */
+/* 46 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3385,13 +2824,13 @@ var ReactDashboard =
 	module.exports = copyArray;
 
 /***/ },
-/* 57 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseSetData = __webpack_require__(22),
-	    now = __webpack_require__(58);
+	var baseSetData = __webpack_require__(11),
+	    now = __webpack_require__(48);
 
 	/** Used to detect hot functions by number of calls within a span of milliseconds. */
 	var HOT_COUNT = 150,
@@ -3434,7 +2873,7 @@ var ReactDashboard =
 	module.exports = setData;
 
 /***/ },
-/* 58 */
+/* 48 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3461,7 +2900,7 @@ var ReactDashboard =
 	module.exports = now;
 
 /***/ },
-/* 59 */
+/* 49 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3481,13 +2920,13 @@ var ReactDashboard =
 	module.exports = getPlaceholder;
 
 /***/ },
-/* 60 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var copyArray = __webpack_require__(56),
-	    isIndex = __webpack_require__(61);
+	var copyArray = __webpack_require__(46),
+	    isIndex = __webpack_require__(51);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMin = Math.min;
@@ -3517,7 +2956,7 @@ var ReactDashboard =
 	module.exports = reorder;
 
 /***/ },
-/* 61 */
+/* 51 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3544,7 +2983,7 @@ var ReactDashboard =
 	module.exports = isIndex;
 
 /***/ },
-/* 62 */
+/* 52 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3580,14 +3019,14 @@ var ReactDashboard =
 	module.exports = replaceHolders;
 
 /***/ },
-/* 63 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(38),
-	    createCtorWrapper = __webpack_require__(35),
-	    root = __webpack_require__(32);
+	var apply = __webpack_require__(28),
+	    createCtorWrapper = __webpack_require__(25),
+	    root = __webpack_require__(21);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1;
@@ -3631,14 +3070,14 @@ var ReactDashboard =
 	module.exports = createPartialWrapper;
 
 /***/ },
-/* 64 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var composeArgs = __webpack_require__(40),
-	    composeArgsRight = __webpack_require__(41),
-	    replaceHolders = __webpack_require__(62);
+	var composeArgs = __webpack_require__(30),
+	    composeArgsRight = __webpack_require__(31),
+	    replaceHolders = __webpack_require__(52);
 
 	/** Used as the internal argument placeholder. */
 	var PLACEHOLDER = '__lodash_placeholder__';
@@ -3725,12 +3164,12 @@ var ReactDashboard =
 	module.exports = mergeData;
 
 /***/ },
-/* 65 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var toNumber = __webpack_require__(66);
+	var toNumber = __webpack_require__(56);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0,
@@ -3778,14 +3217,14 @@ var ReactDashboard =
 	module.exports = toInteger;
 
 /***/ },
-/* 66 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isFunction = __webpack_require__(28),
-	    isObject = __webpack_require__(29),
-	    isSymbol = __webpack_require__(67);
+	var isFunction = __webpack_require__(17),
+	    isObject = __webpack_require__(18),
+	    isSymbol = __webpack_require__(57);
 
 	/** Used as references for various `Number` constants. */
 	var NAN = 0 / 0;
@@ -3850,14 +3289,14 @@ var ReactDashboard =
 	module.exports = toNumber;
 
 /***/ },
-/* 67 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var isObjectLike = __webpack_require__(54);
+	var isObjectLike = __webpack_require__(44);
 
 	/** `Object#toString` result references. */
 	var symbolTag = '[object Symbol]';
@@ -3897,13 +3336,13 @@ var ReactDashboard =
 	module.exports = isSymbol;
 
 /***/ },
-/* 68 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var copyObject = __webpack_require__(69),
-	    keys = __webpack_require__(72);
+	var copyObject = __webpack_require__(59),
+	    keys = __webpack_require__(62);
 
 	/**
 	 * The base implementation of `_.assign` without support for multiple sources
@@ -3921,12 +3360,12 @@ var ReactDashboard =
 	module.exports = baseAssign;
 
 /***/ },
-/* 69 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assignValue = __webpack_require__(70);
+	var assignValue = __webpack_require__(60);
 
 	/**
 	 * Copies properties of `source` to `object`.
@@ -3957,12 +3396,12 @@ var ReactDashboard =
 	module.exports = copyObject;
 
 /***/ },
-/* 70 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var eq = __webpack_require__(71);
+	var eq = __webpack_require__(61);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -3990,7 +3429,7 @@ var ReactDashboard =
 	module.exports = assignValue;
 
 /***/ },
-/* 71 */
+/* 61 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4034,17 +3473,17 @@ var ReactDashboard =
 	module.exports = eq;
 
 /***/ },
-/* 72 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseHas = __webpack_require__(73),
-	    baseKeys = __webpack_require__(75),
-	    indexKeys = __webpack_require__(76),
-	    isArrayLike = __webpack_require__(80),
-	    isIndex = __webpack_require__(61),
-	    isPrototype = __webpack_require__(85);
+	var baseHas = __webpack_require__(63),
+	    baseKeys = __webpack_require__(65),
+	    indexKeys = __webpack_require__(66),
+	    isArrayLike = __webpack_require__(70),
+	    isIndex = __webpack_require__(51),
+	    isPrototype = __webpack_require__(75);
 
 	/**
 	 * Creates an array of the own enumerable property names of `object`.
@@ -4095,14 +3534,14 @@ var ReactDashboard =
 	module.exports = keys;
 
 /***/ },
-/* 73 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var getPrototype = __webpack_require__(74);
+	var getPrototype = __webpack_require__(64);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -4128,7 +3567,7 @@ var ReactDashboard =
 	module.exports = baseHas;
 
 /***/ },
-/* 74 */
+/* 64 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4150,7 +3589,7 @@ var ReactDashboard =
 	module.exports = getPrototype;
 
 /***/ },
-/* 75 */
+/* 65 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4173,16 +3612,16 @@ var ReactDashboard =
 	module.exports = baseKeys;
 
 /***/ },
-/* 76 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseTimes = __webpack_require__(77),
-	    isArguments = __webpack_require__(78),
-	    isArray = __webpack_require__(53),
-	    isLength = __webpack_require__(83),
-	    isString = __webpack_require__(84);
+	var baseTimes = __webpack_require__(67),
+	    isArguments = __webpack_require__(68),
+	    isArray = __webpack_require__(43),
+	    isLength = __webpack_require__(73),
+	    isString = __webpack_require__(74);
 
 	/**
 	 * Creates an array of index keys for `object` values of arrays,
@@ -4203,7 +3642,7 @@ var ReactDashboard =
 	module.exports = indexKeys;
 
 /***/ },
-/* 77 */
+/* 67 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4230,12 +3669,12 @@ var ReactDashboard =
 	module.exports = baseTimes;
 
 /***/ },
-/* 78 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArrayLikeObject = __webpack_require__(79);
+	var isArrayLikeObject = __webpack_require__(69);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]';
@@ -4282,13 +3721,13 @@ var ReactDashboard =
 	module.exports = isArguments;
 
 /***/ },
-/* 79 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArrayLike = __webpack_require__(80),
-	    isObjectLike = __webpack_require__(54);
+	var isArrayLike = __webpack_require__(70),
+	    isObjectLike = __webpack_require__(44);
 
 	/**
 	 * This method is like `_.isArrayLike` except that it also checks if `value`
@@ -4322,14 +3761,14 @@ var ReactDashboard =
 	module.exports = isArrayLikeObject;
 
 /***/ },
-/* 80 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getLength = __webpack_require__(81),
-	    isFunction = __webpack_require__(28),
-	    isLength = __webpack_require__(83);
+	var getLength = __webpack_require__(71),
+	    isFunction = __webpack_require__(17),
+	    isLength = __webpack_require__(73);
 
 	/**
 	 * Checks if `value` is array-like. A value is considered array-like if it's
@@ -4363,12 +3802,12 @@ var ReactDashboard =
 	module.exports = isArrayLike;
 
 /***/ },
-/* 81 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseProperty = __webpack_require__(82);
+	var baseProperty = __webpack_require__(72);
 
 	/**
 	 * Gets the "length" property value of `object`.
@@ -4386,7 +3825,7 @@ var ReactDashboard =
 	module.exports = getLength;
 
 /***/ },
-/* 82 */
+/* 72 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4407,7 +3846,7 @@ var ReactDashboard =
 	module.exports = baseProperty;
 
 /***/ },
-/* 83 */
+/* 73 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4449,13 +3888,13 @@ var ReactDashboard =
 	module.exports = isLength;
 
 /***/ },
-/* 84 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArray = __webpack_require__(53),
-	    isObjectLike = __webpack_require__(54);
+	var isArray = __webpack_require__(43),
+	    isObjectLike = __webpack_require__(44);
 
 	/** `Object#toString` result references. */
 	var stringTag = '[object String]';
@@ -4495,7 +3934,7 @@ var ReactDashboard =
 	module.exports = isString;
 
 /***/ },
-/* 85 */
+/* 75 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4520,12 +3959,12 @@ var ReactDashboard =
 	module.exports = isPrototype;
 
 /***/ },
-/* 86 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseClone = __webpack_require__(87);
+	var baseClone = __webpack_require__(77);
 
 	/**
 	 * Creates a shallow clone of `value`.
@@ -4560,28 +3999,28 @@ var ReactDashboard =
 	module.exports = clone;
 
 /***/ },
-/* 87 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stack = __webpack_require__(88),
-	    arrayEach = __webpack_require__(113),
-	    assignValue = __webpack_require__(70),
-	    baseAssign = __webpack_require__(68),
-	    cloneBuffer = __webpack_require__(114),
-	    copyArray = __webpack_require__(56),
-	    copySymbols = __webpack_require__(115),
-	    getAllKeys = __webpack_require__(117),
-	    getTag = __webpack_require__(120),
-	    initCloneArray = __webpack_require__(124),
-	    initCloneByTag = __webpack_require__(125),
-	    initCloneObject = __webpack_require__(140),
-	    isArray = __webpack_require__(53),
-	    isBuffer = __webpack_require__(141),
-	    isHostObject = __webpack_require__(30),
-	    isObject = __webpack_require__(29),
-	    keys = __webpack_require__(72);
+	var Stack = __webpack_require__(78),
+	    arrayEach = __webpack_require__(103),
+	    assignValue = __webpack_require__(60),
+	    baseAssign = __webpack_require__(58),
+	    cloneBuffer = __webpack_require__(104),
+	    copyArray = __webpack_require__(46),
+	    copySymbols = __webpack_require__(105),
+	    getAllKeys = __webpack_require__(107),
+	    getTag = __webpack_require__(110),
+	    initCloneArray = __webpack_require__(114),
+	    initCloneByTag = __webpack_require__(115),
+	    initCloneObject = __webpack_require__(130),
+	    isArray = __webpack_require__(43),
+	    isBuffer = __webpack_require__(131),
+	    isHostObject = __webpack_require__(19),
+	    isObject = __webpack_require__(18),
+	    keys = __webpack_require__(62);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -4695,16 +4134,16 @@ var ReactDashboard =
 	module.exports = baseClone;
 
 /***/ },
-/* 88 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var stackClear = __webpack_require__(89),
-	    stackDelete = __webpack_require__(90),
-	    stackGet = __webpack_require__(93),
-	    stackHas = __webpack_require__(95),
-	    stackSet = __webpack_require__(97);
+	var stackClear = __webpack_require__(79),
+	    stackDelete = __webpack_require__(80),
+	    stackGet = __webpack_require__(83),
+	    stackHas = __webpack_require__(85),
+	    stackSet = __webpack_require__(87);
 
 	/**
 	 * Creates a stack cache object to store key-value pairs.
@@ -4734,7 +4173,7 @@ var ReactDashboard =
 	module.exports = Stack;
 
 /***/ },
-/* 89 */
+/* 79 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4753,12 +4192,12 @@ var ReactDashboard =
 	module.exports = stackClear;
 
 /***/ },
-/* 90 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocDelete = __webpack_require__(91);
+	var assocDelete = __webpack_require__(81);
 
 	/**
 	 * Removes `key` and its value from the stack.
@@ -4779,12 +4218,12 @@ var ReactDashboard =
 	module.exports = stackDelete;
 
 /***/ },
-/* 91 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(92);
+	var assocIndexOf = __webpack_require__(82);
 
 	/** Used for built-in method references. */
 	var arrayProto = Array.prototype;
@@ -4817,12 +4256,12 @@ var ReactDashboard =
 	module.exports = assocDelete;
 
 /***/ },
-/* 92 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var eq = __webpack_require__(71);
+	var eq = __webpack_require__(61);
 
 	/**
 	 * Gets the index at which the `key` is found in `array` of key-value pairs.
@@ -4845,12 +4284,12 @@ var ReactDashboard =
 	module.exports = assocIndexOf;
 
 /***/ },
-/* 93 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocGet = __webpack_require__(94);
+	var assocGet = __webpack_require__(84);
 
 	/**
 	 * Gets the stack value for `key`.
@@ -4871,12 +4310,12 @@ var ReactDashboard =
 	module.exports = stackGet;
 
 /***/ },
-/* 94 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(92);
+	var assocIndexOf = __webpack_require__(82);
 
 	/**
 	 * Gets the associative array value for `key`.
@@ -4894,12 +4333,12 @@ var ReactDashboard =
 	module.exports = assocGet;
 
 /***/ },
-/* 95 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocHas = __webpack_require__(96);
+	var assocHas = __webpack_require__(86);
 
 	/**
 	 * Checks if a stack value for `key` exists.
@@ -4920,12 +4359,12 @@ var ReactDashboard =
 	module.exports = stackHas;
 
 /***/ },
-/* 96 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(92);
+	var assocIndexOf = __webpack_require__(82);
 
 	/**
 	 * Checks if an associative array value for `key` exists.
@@ -4942,13 +4381,13 @@ var ReactDashboard =
 	module.exports = assocHas;
 
 /***/ },
-/* 97 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var MapCache = __webpack_require__(98),
-	    assocSet = __webpack_require__(111);
+	var MapCache = __webpack_require__(88),
+	    assocSet = __webpack_require__(101);
 
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -4985,16 +4424,16 @@ var ReactDashboard =
 	module.exports = stackSet;
 
 /***/ },
-/* 98 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var mapClear = __webpack_require__(99),
-	    mapDelete = __webpack_require__(103),
-	    mapGet = __webpack_require__(107),
-	    mapHas = __webpack_require__(109),
-	    mapSet = __webpack_require__(110);
+	var mapClear = __webpack_require__(89),
+	    mapDelete = __webpack_require__(93),
+	    mapGet = __webpack_require__(97),
+	    mapHas = __webpack_require__(99),
+	    mapSet = __webpack_require__(100);
 
 	/**
 	 * Creates a map cache object to store key-value pairs.
@@ -5024,13 +4463,13 @@ var ReactDashboard =
 	module.exports = MapCache;
 
 /***/ },
-/* 99 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Hash = __webpack_require__(100),
-	    Map = __webpack_require__(102);
+	var Hash = __webpack_require__(90),
+	    Map = __webpack_require__(92);
 
 	/**
 	 * Removes all key-value entries from the map.
@@ -5050,12 +4489,12 @@ var ReactDashboard =
 	module.exports = mapClear;
 
 /***/ },
-/* 100 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(101);
+	var nativeCreate = __webpack_require__(91);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -5075,12 +4514,12 @@ var ReactDashboard =
 	module.exports = Hash;
 
 /***/ },
-/* 101 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(26);
+	var getNative = __webpack_require__(15);
 
 	/* Built-in method references that are verified to be native. */
 	var nativeCreate = getNative(Object, 'create');
@@ -5088,13 +4527,13 @@ var ReactDashboard =
 	module.exports = nativeCreate;
 
 /***/ },
-/* 102 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(26),
-	    root = __webpack_require__(32);
+	var getNative = __webpack_require__(15),
+	    root = __webpack_require__(21);
 
 	/* Built-in method references that are verified to be native. */
 	var Map = getNative(root, 'Map');
@@ -5102,15 +4541,15 @@ var ReactDashboard =
 	module.exports = Map;
 
 /***/ },
-/* 103 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(102),
-	    assocDelete = __webpack_require__(91),
-	    hashDelete = __webpack_require__(104),
-	    isKeyable = __webpack_require__(106);
+	var Map = __webpack_require__(92),
+	    assocDelete = __webpack_require__(81),
+	    hashDelete = __webpack_require__(94),
+	    isKeyable = __webpack_require__(96);
 
 	/**
 	 * Removes `key` and its value from the map.
@@ -5132,12 +4571,12 @@ var ReactDashboard =
 	module.exports = mapDelete;
 
 /***/ },
-/* 104 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var hashHas = __webpack_require__(105);
+	var hashHas = __webpack_require__(95);
 
 	/**
 	 * Removes `key` and its value from the hash.
@@ -5154,12 +4593,12 @@ var ReactDashboard =
 	module.exports = hashDelete;
 
 /***/ },
-/* 105 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(101);
+	var nativeCreate = __webpack_require__(91);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -5182,7 +4621,7 @@ var ReactDashboard =
 	module.exports = hashHas;
 
 /***/ },
-/* 106 */
+/* 96 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5204,15 +4643,15 @@ var ReactDashboard =
 	module.exports = isKeyable;
 
 /***/ },
-/* 107 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(102),
-	    assocGet = __webpack_require__(94),
-	    hashGet = __webpack_require__(108),
-	    isKeyable = __webpack_require__(106);
+	var Map = __webpack_require__(92),
+	    assocGet = __webpack_require__(84),
+	    hashGet = __webpack_require__(98),
+	    isKeyable = __webpack_require__(96);
 
 	/**
 	 * Gets the map value for `key`.
@@ -5234,12 +4673,12 @@ var ReactDashboard =
 	module.exports = mapGet;
 
 /***/ },
-/* 108 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(101);
+	var nativeCreate = __webpack_require__(91);
 
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -5269,15 +4708,15 @@ var ReactDashboard =
 	module.exports = hashGet;
 
 /***/ },
-/* 109 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(102),
-	    assocHas = __webpack_require__(96),
-	    hashHas = __webpack_require__(105),
-	    isKeyable = __webpack_require__(106);
+	var Map = __webpack_require__(92),
+	    assocHas = __webpack_require__(86),
+	    hashHas = __webpack_require__(95),
+	    isKeyable = __webpack_require__(96);
 
 	/**
 	 * Checks if a map value for `key` exists.
@@ -5299,15 +4738,15 @@ var ReactDashboard =
 	module.exports = mapHas;
 
 /***/ },
-/* 110 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(102),
-	    assocSet = __webpack_require__(111),
-	    hashSet = __webpack_require__(112),
-	    isKeyable = __webpack_require__(106);
+	var Map = __webpack_require__(92),
+	    assocSet = __webpack_require__(101),
+	    hashSet = __webpack_require__(102),
+	    isKeyable = __webpack_require__(96);
 
 	/**
 	 * Sets the map `key` to `value`.
@@ -5334,12 +4773,12 @@ var ReactDashboard =
 	module.exports = mapSet;
 
 /***/ },
-/* 111 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(92);
+	var assocIndexOf = __webpack_require__(82);
 
 	/**
 	 * Sets the associative array `key` to `value`.
@@ -5361,12 +4800,12 @@ var ReactDashboard =
 	module.exports = assocSet;
 
 /***/ },
-/* 112 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(101);
+	var nativeCreate = __webpack_require__(91);
 
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -5386,7 +4825,7 @@ var ReactDashboard =
 	module.exports = hashSet;
 
 /***/ },
-/* 113 */
+/* 103 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5415,7 +4854,7 @@ var ReactDashboard =
 	module.exports = arrayEach;
 
 /***/ },
-/* 114 */
+/* 104 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5440,13 +4879,13 @@ var ReactDashboard =
 	module.exports = cloneBuffer;
 
 /***/ },
-/* 115 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var copyObject = __webpack_require__(69),
-	    getSymbols = __webpack_require__(116);
+	var copyObject = __webpack_require__(59),
+	    getSymbols = __webpack_require__(106);
 
 	/**
 	 * Copies own symbol properties of `source` to `object`.
@@ -5463,7 +4902,7 @@ var ReactDashboard =
 	module.exports = copySymbols;
 
 /***/ },
-/* 116 */
+/* 106 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5494,14 +4933,14 @@ var ReactDashboard =
 	module.exports = getSymbols;
 
 /***/ },
-/* 117 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseGetAllKeys = __webpack_require__(118),
-	    getSymbols = __webpack_require__(116),
-	    keys = __webpack_require__(72);
+	var baseGetAllKeys = __webpack_require__(108),
+	    getSymbols = __webpack_require__(106),
+	    keys = __webpack_require__(62);
 
 	/**
 	 * Creates an array of own enumerable property names and symbols of `object`.
@@ -5517,13 +4956,13 @@ var ReactDashboard =
 	module.exports = getAllKeys;
 
 /***/ },
-/* 118 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayPush = __webpack_require__(119),
-	    isArray = __webpack_require__(53);
+	var arrayPush = __webpack_require__(109),
+	    isArray = __webpack_require__(43);
 
 	/**
 	 * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
@@ -5544,7 +4983,7 @@ var ReactDashboard =
 	module.exports = baseGetAllKeys;
 
 /***/ },
-/* 119 */
+/* 109 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5571,17 +5010,17 @@ var ReactDashboard =
 	module.exports = arrayPush;
 
 /***/ },
-/* 120 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var DataView = __webpack_require__(121),
-	    Map = __webpack_require__(102),
-	    Promise = __webpack_require__(122),
-	    Set = __webpack_require__(123),
-	    WeakMap = __webpack_require__(25),
-	    toSource = __webpack_require__(31);
+	var DataView = __webpack_require__(111),
+	    Map = __webpack_require__(92),
+	    Promise = __webpack_require__(112),
+	    Set = __webpack_require__(113),
+	    WeakMap = __webpack_require__(14),
+	    toSource = __webpack_require__(20);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -5649,13 +5088,13 @@ var ReactDashboard =
 	module.exports = getTag;
 
 /***/ },
-/* 121 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(26),
-	    root = __webpack_require__(32);
+	var getNative = __webpack_require__(15),
+	    root = __webpack_require__(21);
 
 	/* Built-in method references that are verified to be native. */
 	var DataView = getNative(root, 'DataView');
@@ -5663,13 +5102,13 @@ var ReactDashboard =
 	module.exports = DataView;
 
 /***/ },
-/* 122 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(26),
-	    root = __webpack_require__(32);
+	var getNative = __webpack_require__(15),
+	    root = __webpack_require__(21);
 
 	/* Built-in method references that are verified to be native. */
 	var Promise = getNative(root, 'Promise');
@@ -5677,13 +5116,13 @@ var ReactDashboard =
 	module.exports = Promise;
 
 /***/ },
-/* 123 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(26),
-	    root = __webpack_require__(32);
+	var getNative = __webpack_require__(15),
+	    root = __webpack_require__(21);
 
 	/* Built-in method references that are verified to be native. */
 	var Set = getNative(root, 'Set');
@@ -5691,7 +5130,7 @@ var ReactDashboard =
 	module.exports = Set;
 
 /***/ },
-/* 124 */
+/* 114 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5724,18 +5163,18 @@ var ReactDashboard =
 	module.exports = initCloneArray;
 
 /***/ },
-/* 125 */
+/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var cloneArrayBuffer = __webpack_require__(126),
-	    cloneDataView = __webpack_require__(128),
-	    cloneMap = __webpack_require__(129),
-	    cloneRegExp = __webpack_require__(133),
-	    cloneSet = __webpack_require__(134),
-	    cloneSymbol = __webpack_require__(137),
-	    cloneTypedArray = __webpack_require__(139);
+	var cloneArrayBuffer = __webpack_require__(116),
+	    cloneDataView = __webpack_require__(118),
+	    cloneMap = __webpack_require__(119),
+	    cloneRegExp = __webpack_require__(123),
+	    cloneSet = __webpack_require__(124),
+	    cloneSymbol = __webpack_require__(127),
+	    cloneTypedArray = __webpack_require__(129);
 
 	/** `Object#toString` result references. */
 	var boolTag = '[object Boolean]',
@@ -5811,12 +5250,12 @@ var ReactDashboard =
 	module.exports = initCloneByTag;
 
 /***/ },
-/* 126 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Uint8Array = __webpack_require__(127);
+	var Uint8Array = __webpack_require__(117);
 
 	/**
 	 * Creates a clone of `arrayBuffer`.
@@ -5834,12 +5273,12 @@ var ReactDashboard =
 	module.exports = cloneArrayBuffer;
 
 /***/ },
-/* 127 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var root = __webpack_require__(32);
+	var root = __webpack_require__(21);
 
 	/** Built-in value references. */
 	var Uint8Array = root.Uint8Array;
@@ -5847,12 +5286,12 @@ var ReactDashboard =
 	module.exports = Uint8Array;
 
 /***/ },
-/* 128 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var cloneArrayBuffer = __webpack_require__(126);
+	var cloneArrayBuffer = __webpack_require__(116);
 
 	/**
 	 * Creates a clone of `dataView`.
@@ -5870,14 +5309,14 @@ var ReactDashboard =
 	module.exports = cloneDataView;
 
 /***/ },
-/* 129 */
+/* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var addMapEntry = __webpack_require__(130),
-	    arrayReduce = __webpack_require__(131),
-	    mapToArray = __webpack_require__(132);
+	var addMapEntry = __webpack_require__(120),
+	    arrayReduce = __webpack_require__(121),
+	    mapToArray = __webpack_require__(122);
 
 	/**
 	 * Creates a clone of `map`.
@@ -5896,7 +5335,7 @@ var ReactDashboard =
 	module.exports = cloneMap;
 
 /***/ },
-/* 130 */
+/* 120 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5918,7 +5357,7 @@ var ReactDashboard =
 	module.exports = addMapEntry;
 
 /***/ },
-/* 131 */
+/* 121 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5951,7 +5390,7 @@ var ReactDashboard =
 	module.exports = arrayReduce;
 
 /***/ },
-/* 132 */
+/* 122 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5976,7 +5415,7 @@ var ReactDashboard =
 	module.exports = mapToArray;
 
 /***/ },
-/* 133 */
+/* 123 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6000,14 +5439,14 @@ var ReactDashboard =
 	module.exports = cloneRegExp;
 
 /***/ },
-/* 134 */
+/* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var addSetEntry = __webpack_require__(135),
-	    arrayReduce = __webpack_require__(131),
-	    setToArray = __webpack_require__(136);
+	var addSetEntry = __webpack_require__(125),
+	    arrayReduce = __webpack_require__(121),
+	    setToArray = __webpack_require__(126);
 
 	/**
 	 * Creates a clone of `set`.
@@ -6026,7 +5465,7 @@ var ReactDashboard =
 	module.exports = cloneSet;
 
 /***/ },
-/* 135 */
+/* 125 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6047,7 +5486,7 @@ var ReactDashboard =
 	module.exports = addSetEntry;
 
 /***/ },
-/* 136 */
+/* 126 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6072,12 +5511,12 @@ var ReactDashboard =
 	module.exports = setToArray;
 
 /***/ },
-/* 137 */
+/* 127 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _Symbol = __webpack_require__(138);
+	var _Symbol = __webpack_require__(128);
 
 	/** Used to convert symbols to primitives and strings. */
 	var symbolProto = _Symbol ? _Symbol.prototype : undefined,
@@ -6097,12 +5536,12 @@ var ReactDashboard =
 	module.exports = cloneSymbol;
 
 /***/ },
-/* 138 */
+/* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var root = __webpack_require__(32);
+	var root = __webpack_require__(21);
 
 	/** Built-in value references. */
 	var _Symbol = root.Symbol;
@@ -6110,12 +5549,12 @@ var ReactDashboard =
 	module.exports = _Symbol;
 
 /***/ },
-/* 139 */
+/* 129 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var cloneArrayBuffer = __webpack_require__(126);
+	var cloneArrayBuffer = __webpack_require__(116);
 
 	/**
 	 * Creates a clone of `typedArray`.
@@ -6133,14 +5572,14 @@ var ReactDashboard =
 	module.exports = cloneTypedArray;
 
 /***/ },
-/* 140 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(36),
-	    getPrototype = __webpack_require__(74),
-	    isPrototype = __webpack_require__(85);
+	var baseCreate = __webpack_require__(26),
+	    getPrototype = __webpack_require__(64),
+	    isPrototype = __webpack_require__(75);
 
 	/**
 	 * Initializes an object clone.
@@ -6156,15 +5595,15 @@ var ReactDashboard =
 	module.exports = initCloneObject;
 
 /***/ },
-/* 141 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var constant = __webpack_require__(142),
-	    root = __webpack_require__(32);
+	var constant = __webpack_require__(132),
+	    root = __webpack_require__(21);
 
 	/** Used to determine if values are of the language type `Object`. */
 	var objectTypes = {
@@ -6206,10 +5645,10 @@ var ReactDashboard =
 	};
 
 	module.exports = isBuffer;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)(module)))
 
 /***/ },
-/* 142 */
+/* 132 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6240,12 +5679,12 @@ var ReactDashboard =
 	module.exports = constant;
 
 /***/ },
-/* 143 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createWrapper = __webpack_require__(21);
+	var createWrapper = __webpack_require__(10);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var CURRY_FLAG = 8;
@@ -6304,13 +5743,13 @@ var ReactDashboard =
 	module.exports = curry;
 
 /***/ },
-/* 144 */
+/* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseClone = __webpack_require__(87),
-	    baseIteratee = __webpack_require__(145);
+	var baseClone = __webpack_require__(77),
+	    baseIteratee = __webpack_require__(135);
 
 	/**
 	 * Creates a function that invokes `func` with the arguments of the created
@@ -6361,18 +5800,18 @@ var ReactDashboard =
 	module.exports = iteratee;
 
 /***/ },
-/* 145 */
+/* 135 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var baseMatches = __webpack_require__(146),
-	    baseMatchesProperty = __webpack_require__(161),
-	    identity = __webpack_require__(23),
-	    isArray = __webpack_require__(53),
-	    property = __webpack_require__(174);
+	var baseMatches = __webpack_require__(136),
+	    baseMatchesProperty = __webpack_require__(151),
+	    identity = __webpack_require__(12),
+	    isArray = __webpack_require__(43),
+	    property = __webpack_require__(164);
 
 	/**
 	 * The base implementation of `_.iteratee`.
@@ -6399,14 +5838,14 @@ var ReactDashboard =
 	module.exports = baseIteratee;
 
 /***/ },
-/* 146 */
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseIsMatch = __webpack_require__(147),
-	    getMatchData = __webpack_require__(155),
-	    matchesStrictComparable = __webpack_require__(160);
+	var baseIsMatch = __webpack_require__(137),
+	    getMatchData = __webpack_require__(145),
+	    matchesStrictComparable = __webpack_require__(150);
 
 	/**
 	 * The base implementation of `_.matches` which doesn't clone `source`.
@@ -6428,13 +5867,13 @@ var ReactDashboard =
 	module.exports = baseMatches;
 
 /***/ },
-/* 147 */
+/* 137 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stack = __webpack_require__(88),
-	    baseIsEqual = __webpack_require__(148);
+	var Stack = __webpack_require__(78),
+	    baseIsEqual = __webpack_require__(138);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -6491,14 +5930,14 @@ var ReactDashboard =
 	module.exports = baseIsMatch;
 
 /***/ },
-/* 148 */
+/* 138 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseIsEqualDeep = __webpack_require__(149),
-	    isObject = __webpack_require__(29),
-	    isObjectLike = __webpack_require__(54);
+	var baseIsEqualDeep = __webpack_require__(139),
+	    isObject = __webpack_require__(18),
+	    isObjectLike = __webpack_require__(44);
 
 	/**
 	 * The base implementation of `_.isEqual` which supports partial comparisons
@@ -6528,19 +5967,19 @@ var ReactDashboard =
 	module.exports = baseIsEqual;
 
 /***/ },
-/* 149 */
+/* 139 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stack = __webpack_require__(88),
-	    equalArrays = __webpack_require__(150),
-	    equalByTag = __webpack_require__(152),
-	    equalObjects = __webpack_require__(153),
-	    getTag = __webpack_require__(120),
-	    isArray = __webpack_require__(53),
-	    isHostObject = __webpack_require__(30),
-	    isTypedArray = __webpack_require__(154);
+	var Stack = __webpack_require__(78),
+	    equalArrays = __webpack_require__(140),
+	    equalByTag = __webpack_require__(142),
+	    equalObjects = __webpack_require__(143),
+	    getTag = __webpack_require__(110),
+	    isArray = __webpack_require__(43),
+	    isHostObject = __webpack_require__(19),
+	    isTypedArray = __webpack_require__(144);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var PARTIAL_COMPARE_FLAG = 2;
@@ -6615,12 +6054,12 @@ var ReactDashboard =
 	module.exports = baseIsEqualDeep;
 
 /***/ },
-/* 150 */
+/* 140 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arraySome = __webpack_require__(151);
+	var arraySome = __webpack_require__(141);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -6693,7 +6132,7 @@ var ReactDashboard =
 	module.exports = equalArrays;
 
 /***/ },
-/* 151 */
+/* 141 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6723,16 +6162,16 @@ var ReactDashboard =
 	module.exports = arraySome;
 
 /***/ },
-/* 152 */
+/* 142 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _Symbol = __webpack_require__(138),
-	    Uint8Array = __webpack_require__(127),
-	    equalArrays = __webpack_require__(150),
-	    mapToArray = __webpack_require__(132),
-	    setToArray = __webpack_require__(136);
+	var _Symbol = __webpack_require__(128),
+	    Uint8Array = __webpack_require__(117),
+	    equalArrays = __webpack_require__(140),
+	    mapToArray = __webpack_require__(122),
+	    setToArray = __webpack_require__(126);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -6842,13 +6281,13 @@ var ReactDashboard =
 	module.exports = equalByTag;
 
 /***/ },
-/* 153 */
+/* 143 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseHas = __webpack_require__(73),
-	    keys = __webpack_require__(72);
+	var baseHas = __webpack_require__(63),
+	    keys = __webpack_require__(62);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var PARTIAL_COMPARE_FLAG = 2;
@@ -6924,13 +6363,13 @@ var ReactDashboard =
 	module.exports = equalObjects;
 
 /***/ },
-/* 154 */
+/* 144 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isLength = __webpack_require__(83),
-	    isObjectLike = __webpack_require__(54);
+	var isLength = __webpack_require__(73),
+	    isObjectLike = __webpack_require__(44);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -6999,13 +6438,13 @@ var ReactDashboard =
 	module.exports = isTypedArray;
 
 /***/ },
-/* 155 */
+/* 145 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isStrictComparable = __webpack_require__(156),
-	    toPairs = __webpack_require__(157);
+	var isStrictComparable = __webpack_require__(146),
+	    toPairs = __webpack_require__(147);
 
 	/**
 	 * Gets the property names, values, and compare flags of `object`.
@@ -7027,12 +6466,12 @@ var ReactDashboard =
 	module.exports = getMatchData;
 
 /***/ },
-/* 156 */
+/* 146 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isObject = __webpack_require__(29);
+	var isObject = __webpack_require__(18);
 
 	/**
 	 * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
@@ -7049,13 +6488,13 @@ var ReactDashboard =
 	module.exports = isStrictComparable;
 
 /***/ },
-/* 157 */
+/* 147 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseToPairs = __webpack_require__(158),
-	    keys = __webpack_require__(72);
+	var baseToPairs = __webpack_require__(148),
+	    keys = __webpack_require__(62);
 
 	/**
 	 * Creates an array of own enumerable string keyed-value pairs for `object`
@@ -7087,12 +6526,12 @@ var ReactDashboard =
 	module.exports = toPairs;
 
 /***/ },
-/* 158 */
+/* 148 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayMap = __webpack_require__(159);
+	var arrayMap = __webpack_require__(149);
 
 	/**
 	 * The base implementation of `_.toPairs` and `_.toPairsIn` which creates an array
@@ -7112,7 +6551,7 @@ var ReactDashboard =
 	module.exports = baseToPairs;
 
 /***/ },
-/* 159 */
+/* 149 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7140,7 +6579,7 @@ var ReactDashboard =
 	module.exports = arrayMap;
 
 /***/ },
-/* 160 */
+/* 150 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7166,18 +6605,18 @@ var ReactDashboard =
 	module.exports = matchesStrictComparable;
 
 /***/ },
-/* 161 */
+/* 151 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseIsEqual = __webpack_require__(148),
-	    get = __webpack_require__(162),
-	    hasIn = __webpack_require__(171),
-	    isKey = __webpack_require__(169),
-	    isStrictComparable = __webpack_require__(156),
-	    matchesStrictComparable = __webpack_require__(160),
-	    toKey = __webpack_require__(170);
+	var baseIsEqual = __webpack_require__(138),
+	    get = __webpack_require__(152),
+	    hasIn = __webpack_require__(161),
+	    isKey = __webpack_require__(159),
+	    isStrictComparable = __webpack_require__(146),
+	    matchesStrictComparable = __webpack_require__(150),
+	    toKey = __webpack_require__(160);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -7204,12 +6643,12 @@ var ReactDashboard =
 	module.exports = baseMatchesProperty;
 
 /***/ },
-/* 162 */
+/* 152 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseGet = __webpack_require__(163);
+	var baseGet = __webpack_require__(153);
 
 	/**
 	 * Gets the value at `path` of `object`. If the resolved value is
@@ -7244,14 +6683,14 @@ var ReactDashboard =
 	module.exports = get;
 
 /***/ },
-/* 163 */
+/* 153 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var castPath = __webpack_require__(164),
-	    isKey = __webpack_require__(169),
-	    toKey = __webpack_require__(170);
+	var castPath = __webpack_require__(154),
+	    isKey = __webpack_require__(159),
+	    toKey = __webpack_require__(160);
 
 	/**
 	 * The base implementation of `_.get` without support for default values.
@@ -7276,13 +6715,13 @@ var ReactDashboard =
 	module.exports = baseGet;
 
 /***/ },
-/* 164 */
+/* 154 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArray = __webpack_require__(53),
-	    stringToPath = __webpack_require__(165);
+	var isArray = __webpack_require__(43),
+	    stringToPath = __webpack_require__(155);
 
 	/**
 	 * Casts `value` to a path array if it's not one.
@@ -7298,13 +6737,13 @@ var ReactDashboard =
 	module.exports = castPath;
 
 /***/ },
-/* 165 */
+/* 155 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var memoize = __webpack_require__(166),
-	    toString = __webpack_require__(167);
+	var memoize = __webpack_require__(156),
+	    toString = __webpack_require__(157);
 
 	/** Used to match property names within property paths. */
 	var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]/g;
@@ -7330,12 +6769,12 @@ var ReactDashboard =
 	module.exports = stringToPath;
 
 /***/ },
-/* 166 */
+/* 156 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var MapCache = __webpack_require__(98);
+	var MapCache = __webpack_require__(88);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -7410,12 +6849,12 @@ var ReactDashboard =
 	module.exports = memoize;
 
 /***/ },
-/* 167 */
+/* 157 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseToString = __webpack_require__(168);
+	var baseToString = __webpack_require__(158);
 
 	/**
 	 * Converts `value` to a string. An empty string is returned for `null`
@@ -7445,13 +6884,13 @@ var ReactDashboard =
 	module.exports = toString;
 
 /***/ },
-/* 168 */
+/* 158 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _Symbol = __webpack_require__(138),
-	    isSymbol = __webpack_require__(67);
+	var _Symbol = __webpack_require__(128),
+	    isSymbol = __webpack_require__(57);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -7483,15 +6922,15 @@ var ReactDashboard =
 	module.exports = baseToString;
 
 /***/ },
-/* 169 */
+/* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var isArray = __webpack_require__(53),
-	    isSymbol = __webpack_require__(67);
+	var isArray = __webpack_require__(43),
+	    isSymbol = __webpack_require__(57);
 
 	/** Used to match property names within property paths. */
 	var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
@@ -7519,12 +6958,12 @@ var ReactDashboard =
 	module.exports = isKey;
 
 /***/ },
-/* 170 */
+/* 160 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isSymbol = __webpack_require__(67);
+	var isSymbol = __webpack_require__(57);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -7547,13 +6986,13 @@ var ReactDashboard =
 	module.exports = toKey;
 
 /***/ },
-/* 171 */
+/* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseHasIn = __webpack_require__(172),
-	    hasPath = __webpack_require__(173);
+	var baseHasIn = __webpack_require__(162),
+	    hasPath = __webpack_require__(163);
 
 	/**
 	 * Checks if `path` is a direct or inherited property of `object`.
@@ -7588,7 +7027,7 @@ var ReactDashboard =
 	module.exports = hasIn;
 
 /***/ },
-/* 172 */
+/* 162 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7608,19 +7047,19 @@ var ReactDashboard =
 	module.exports = baseHasIn;
 
 /***/ },
-/* 173 */
+/* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var castPath = __webpack_require__(164),
-	    isArguments = __webpack_require__(78),
-	    isArray = __webpack_require__(53),
-	    isIndex = __webpack_require__(61),
-	    isKey = __webpack_require__(169),
-	    isLength = __webpack_require__(83),
-	    isString = __webpack_require__(84),
-	    toKey = __webpack_require__(170);
+	var castPath = __webpack_require__(154),
+	    isArguments = __webpack_require__(68),
+	    isArray = __webpack_require__(43),
+	    isIndex = __webpack_require__(51),
+	    isKey = __webpack_require__(159),
+	    isLength = __webpack_require__(73),
+	    isString = __webpack_require__(74),
+	    toKey = __webpack_require__(160);
 
 	/**
 	 * Checks if `path` exists on `object`.
@@ -7655,15 +7094,15 @@ var ReactDashboard =
 	module.exports = hasPath;
 
 /***/ },
-/* 174 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseProperty = __webpack_require__(82),
-	    basePropertyDeep = __webpack_require__(175),
-	    isKey = __webpack_require__(169),
-	    toKey = __webpack_require__(170);
+	var baseProperty = __webpack_require__(72),
+	    basePropertyDeep = __webpack_require__(165),
+	    isKey = __webpack_require__(159),
+	    toKey = __webpack_require__(160);
 
 	/**
 	 * Creates a function that returns the value at `path` of a given object.
@@ -7694,12 +7133,12 @@ var ReactDashboard =
 	module.exports = property;
 
 /***/ },
-/* 175 */
+/* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseGet = __webpack_require__(163);
+	var baseGet = __webpack_require__(153);
 
 	/**
 	 * A specialized version of `baseProperty` which supports deep paths.
@@ -7717,14 +7156,14 @@ var ReactDashboard =
 	module.exports = basePropertyDeep;
 
 /***/ },
-/* 176 */
+/* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseFlatten = __webpack_require__(177),
-	    createWrapper = __webpack_require__(21),
-	    rest = __webpack_require__(179);
+	var baseFlatten = __webpack_require__(167),
+	    createWrapper = __webpack_require__(10),
+	    rest = __webpack_require__(169);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var REARG_FLAG = 256;
@@ -7758,13 +7197,13 @@ var ReactDashboard =
 	module.exports = rearg;
 
 /***/ },
-/* 177 */
+/* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayPush = __webpack_require__(119),
-	    isFlattenable = __webpack_require__(178);
+	var arrayPush = __webpack_require__(109),
+	    isFlattenable = __webpack_require__(168);
 
 	/**
 	 * The base implementation of `_.flatten` with support for restricting flattening.
@@ -7803,14 +7242,14 @@ var ReactDashboard =
 	module.exports = baseFlatten;
 
 /***/ },
-/* 178 */
+/* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArguments = __webpack_require__(78),
-	    isArray = __webpack_require__(53),
-	    isArrayLikeObject = __webpack_require__(79);
+	var isArguments = __webpack_require__(68),
+	    isArray = __webpack_require__(43),
+	    isArrayLikeObject = __webpack_require__(69);
 
 	/**
 	 * Checks if `value` is a flattenable `arguments` object or array.
@@ -7826,13 +7265,13 @@ var ReactDashboard =
 	module.exports = isFlattenable;
 
 /***/ },
-/* 179 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(38),
-	    toInteger = __webpack_require__(65);
+	var apply = __webpack_require__(28),
+	    toInteger = __webpack_require__(55);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -7900,16 +7339,16 @@ var ReactDashboard =
 	module.exports = rest;
 
 /***/ },
-/* 180 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(38),
-	    arrayPush = __webpack_require__(119),
-	    castSlice = __webpack_require__(181),
-	    rest = __webpack_require__(179),
-	    toInteger = __webpack_require__(65);
+	var apply = __webpack_require__(28),
+	    arrayPush = __webpack_require__(109),
+	    castSlice = __webpack_require__(171),
+	    rest = __webpack_require__(169),
+	    toInteger = __webpack_require__(55);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -7970,12 +7409,12 @@ var ReactDashboard =
 	module.exports = spread;
 
 /***/ },
-/* 181 */
+/* 171 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseSlice = __webpack_require__(182);
+	var baseSlice = __webpack_require__(172);
 
 	/**
 	 * Casts `array` to a slice if it's needed.
@@ -7995,7 +7434,7 @@ var ReactDashboard =
 	module.exports = castSlice;
 
 /***/ },
-/* 182 */
+/* 172 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8033,17 +7472,17 @@ var ReactDashboard =
 	module.exports = baseSlice;
 
 /***/ },
-/* 183 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayMap = __webpack_require__(159),
-	    copyArray = __webpack_require__(56),
-	    isArray = __webpack_require__(53),
-	    isSymbol = __webpack_require__(67),
-	    stringToPath = __webpack_require__(165),
-	    toKey = __webpack_require__(170);
+	var arrayMap = __webpack_require__(149),
+	    copyArray = __webpack_require__(46),
+	    isArray = __webpack_require__(43),
+	    isSymbol = __webpack_require__(57),
+	    stringToPath = __webpack_require__(155),
+	    toKey = __webpack_require__(160);
 
 	/**
 	 * Converts `value` to a property path array.
@@ -8081,12 +7520,12 @@ var ReactDashboard =
 	module.exports = toPath;
 
 /***/ },
-/* 184 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseClone = __webpack_require__(87);
+	var baseClone = __webpack_require__(77);
 
 	/**
 	 * This method is like `_.clone` except that it recursively clones `value`.
@@ -8113,7 +7552,7 @@ var ReactDashboard =
 	module.exports = cloneDeep;
 
 /***/ },
-/* 185 */
+/* 175 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -8125,6 +7564,561 @@ var ReactDashboard =
 	  'immutable': false,
 	  'rearg': false
 	};
+
+/***/ },
+/* 176 */
+/***/ function(module, exports) {
+
+	module.exports = ReactBootstrap;
+
+/***/ },
+/* 177 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var React = __webpack_require__(1);
+
+	var WidgetList = {
+	  PieChart: __webpack_require__(178),
+	  ColumnChart: __webpack_require__(179),
+	  GeoChart: __webpack_require__(180),
+	  TableView: __webpack_require__(181),
+	  ScatterChart: __webpack_require__(182),
+	  Gauge: __webpack_require__(183)
+	};
+
+	//below are for adding custom widgets
+
+	/**
+	 * Add a Widget
+	 *
+	 * @param  type      name     Name of Widget
+	 * @param  Component instance Widget Component
+	 */
+	WidgetList.addWidget = function (name, instance) {
+	  if (typeof name !== 'string') {
+	    throw new Error('ReactDashboard: First parameter of addWidget must be of type string');
+	  }
+
+	  if (!React.Component instanceof instance.constructor) {
+	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
+	  }
+
+	  WidgetList[name] = instance;
+	};
+
+	/**
+	 * Add multiple Widgets
+	 *
+	 * @param  object widgets, Widgets to add. string => Component
+	 */
+	WidgetList.addWidgets = function (widgets) {
+	  if ((typeof widgets === 'undefined' ? 'undefined' : _typeof(widgets)) !== 'object') {
+	    throw new Error('ReactDashboard: First parameter of addWidgets must be of type object');
+	  }
+
+	  for (var name in widgets) {
+	    WidgetList.addWidget(name, widgets[name]);
+	  }
+	};
+
+	module.exports = WidgetList;
+
+/***/ },
+/* 178 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var PieChart = React.createClass({
+	  displayName: 'PieChart',
+
+
+	  getInitialState: function getInitialState() {
+	    return { id: "pie_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : this.id
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.gc_ready) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.PieChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (!!this.state.chart) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.state.id },
+	        'Sorry, Google Chart is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	PieChart.defaultProps = {
+	  data: { data: [], options: {} },
+	  gc_ready: false,
+	  onClick: undefined
+	};
+
+	module.exports = PieChart;
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var ColumnChart = React.createClass({
+	  displayName: 'ColumnChart',
+
+
+	  getInitialState: function getInitialState() {
+	    return { id: "column_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.gc_ready) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.ColumnChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (!!this.state.chart) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.state.id },
+	        'Sorry, Google Chart is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	ColumnChart.defaultProps = {
+	  data: { data: [], options: {} },
+	  gc_ready: false,
+	  onClick: undefined
+	};
+
+	module.exports = ColumnChart;
+
+/***/ },
+/* 180 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var GeoChart = React.createClass({
+	  displayName: 'GeoChart',
+
+
+	  getInitialState: function getInitialState() {
+	    return { id: "geo_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.gc_ready) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (!!this.state.chart) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.state.id },
+	        'Sorry, Google Chart is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	GeoChart.defaultProps = {
+	  data: { data: [], options: {} },
+	  gc_ready: false,
+	  onClick: undefined
+	};
+
+	module.exports = GeoChart;
+
+/***/ },
+/* 181 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var TableView = React.createClass({
+	  displayName: 'TableView',
+
+
+	  getInitialState: function getInitialState() {
+	    return { id: "table_view_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.gc_ready) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.Table(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (!!this.state.chart) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.state.id },
+	        'Sorry, Google Chart is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	TableView.defaultProps = {
+	  data: { data: [], options: {} },
+	  gc_ready: false,
+	  onClick: undefined
+	};
+
+	module.exports = TableView;
+
+/***/ },
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var ScatterChart = React.createClass({
+	  displayName: 'ScatterChart',
+
+
+	  getInitialState: function getInitialState() {
+	    return { id: "scatter_chart_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.gc_ready) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.ScatterChart(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (!!this.state.chart) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.state.id },
+	        'Sorry, Google Chart is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	ScatterChart.defaultProps = {
+	  data: { data: [], options: {} },
+	  gc_ready: false,
+	  onClick: undefined
+	};
+
+	module.exports = ScatterChart;
+
+/***/ },
+/* 183 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var Gauge = React.createClass({
+	  displayName: 'Gauge',
+
+
+	  getInitialState: function getInitialState() {
+	    return { id: "gauge_" + Math.floor(Math.random() * 1000000) }; //id for google chart element //todo : id from parent?
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.gc_ready) {
+
+	      if (!this.state.chart) {
+	        var chart = new google.visualization.Gauge(document.getElementById(this.state.id));
+	        this.setState({ chart: chart });
+
+	        google.visualization.events.addListener(chart, 'select', this.handleSelect);
+	      }
+
+	      //todo : validate data
+	      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
+	      this.setState({ gc_data: gc_data });
+
+	      var options = nextProps.data.options;
+	      this.setState({ options: options });
+	    }
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (!!this.state.chart) {
+	      this.state.chart.draw(this.state.gc_data, this.state.options);
+	    }
+	  },
+
+	  handleSelect: function handleSelect() {
+	    //nothing selectable
+	    var chart = this.state.chart;
+	    var gc_data = this.state.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      //var value = gc_data.getValue(selected.row, 1);
+	      //this.props.onClick(value);     
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.state.id },
+	        'Sorry, Google Chart is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	Gauge.defaultProps = {
+	  data: { data: [], options: {} },
+	  gc_ready: false,
+	  onClick: undefined
+	};
+
+	module.exports = Gauge;
 
 /***/ }
 /******/ ]);

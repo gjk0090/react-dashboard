@@ -147,14 +147,14 @@ var Dashboard = React.createClass({
         var widgetHeight = widget.colSpan == "12" ? window.innerHeight/3 : window.innerHeight/4;
 
         return (
-          <div className={clazzName} key={"row_widget_"+Math.floor(Math.random() * 10000)}>
+          <div className={clazzName} key={"row_widget_"+j}>
             <Widget widget={widget} widgetHeight={widgetHeight} gc_ready={this.state.gc_ready} editMode={this.props.schema.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
           </div>
         );
       });
 
       return (
-        <div className="row" key={"dashboard_row_"+Math.floor(Math.random() * 10000)} style={rowStyle}>
+        <div className="row" key={"dashboard_row_"+i} style={rowStyle}>
           {rowIndicator}
           {widgets}
         </div>

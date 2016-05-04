@@ -8,24 +8,23 @@ var Widget = React.createClass({
 
   tempParams: [],
 
-  getInitialState: function() {alert("init");
+  getInitialState: function() {
     this.tempParams = cloneDeep(this.props.widget.params);
     var configurable = this.getConfigurable(this.props.widget.params);
     return {data: this.props.widget.data, params: this.props.widget.params, configurable: configurable};
   },
 
-  componentWillMount: function(){alert("will mount");
+  componentWillMount: function(){
   },
 
   componentDidMount: function(){
-    this.refreshWidget();alert("did mount");
+    this.refreshWidget();
   },
 
   //this function triggers before render except first time
   //this functoin can set state safely
   //this is only triggered when updated from outside
   componentWillReceiveProps: function(nextProps) {
-    alert("componentWillReceiveProps");
     this.refreshWidget();
   },
 
@@ -134,7 +133,7 @@ var Widget = React.createClass({
     var configParamsList = this.state.params.map((param, i) => {
       if(!param.configurable){return;}
       return(
-        <div className="row" key={"config_param_"+Math.floor(Math.random() * 10000)}>
+        <div className="row" key={"config_param_"+i}>
         <p className="col-xs-6">{param.name}</p>
         <input  className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
         </div>
