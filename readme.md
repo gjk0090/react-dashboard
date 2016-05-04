@@ -23,6 +23,7 @@
 * this.id for gc widgets
 * encapsulate example buttons
 * config for widget title
+* update gc error message use else
 
 ###### google charts
 * Google Chart from npm (react-google-charts )
