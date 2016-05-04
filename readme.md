@@ -20,7 +20,7 @@
 * refine AJAX -- Urgent
 * add widget, Expose function: get widget list -- Urgent
 * static function for widgets to return template for add new -- Urgent
-* this.id for gc widgets (var id outside component) -- Urgent
+* this.id, this.chart for gc widgets (var id outside component) -- Urgent
 * encapsulate example buttons -- Urgent
 * config for widget title -- Urgent
 * why not refreshing in edit mode (componentDidMount&componentDidUpdate) / update gc error message -- Urgent
