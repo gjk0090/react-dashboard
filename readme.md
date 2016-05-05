@@ -3,10 +3,10 @@
 * A dashboard app made with ReactJS and Bootstrap.
 * Structure is like : Dashboard -> multiple Widget -> detailed widgets.
 * Schema is still under design, please refer to the example.
-* Run the example by double clicking example/index.html, it uses pure js.
-* Use webpack to build source code, it reads the webpack.config.js file and outputs dist/ReactDashboard.js.
-* Try the example page [here](http://gjk0090.github.io/ReactDashboard "ReactDashboard Example").
-* Minimun IE 9.
+* Run the example by double clicking example/index.html.
+* Use webpack to build source code, it outputs dist/ReactDashboard.js.
+* Try the demo [here](http://gjk0090.github.io/ReactDashboard "ReactDashboard Example").
+* Minimun requirement is IE 9.
 
 ### TODO
 ---
