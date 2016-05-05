@@ -56,7 +56,7 @@ var ReactDashboard =
 
 
 	  getInitialState: function getInitialState() {
-	    return { widgets: this.props.schema.widgets };
+	    return { widgets: this.props.schema.widgets, editMode: false };
 	  },
 
 	  componentDidMount: function componentDidMount() {},
@@ -67,6 +67,25 @@ var ReactDashboard =
 
 	  refreshWidgets: function refreshWidgets() {
 	    this.setState({}); //this.setState({}) will trigger a re-render
+	  },
+
+	  toggleEditMode: function toggleEditMode(action) {
+	    if (action == 'edit') {
+	      this.oldWidgets = cloneDeep(this.state.widgets);
+	      this.setState({ editMode: true });
+	    } else if (action == 'save') {
+	      if (this.props.onEdit) {
+	        this.props.onEdit(cloneDeep(this.state.widgets)); //pass widget out for custom operation
+	      }
+	      this.setState({ editMode: false });
+	    } else if (action == 'cancel') {
+	      this.setState({ widgets: cloneDeep(this.oldWidgets), editMode: false });
+	    }
+	  },
+
+	  addWidget: function addWidget() {
+	    this.state.widgets.push([{ colSpan: "6", type: "PieChart", title: "Pie Chart", url: "testdata/PieChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" }]);
+	    this.refreshWidgets();
 	  },
 
 	  handleClick: function handleClick(i, j, type, value) {
@@ -148,11 +167,7 @@ var ReactDashboard =
 	      tempWidgets[i][j].params = value;
 	    }
 
-	    if (this.props.onEdit) {
-	      this.props.onEdit(tempWidgets); //pass widget out for custom operation
-	    } else {
-	        alert('You edited the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, action is ' + action + '.');
-	      }
+	    //alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
 
 	    if (doRefresh) {
 	      this.setState({ widgets: cloneDeep(tempWidgets) });
@@ -162,17 +177,21 @@ var ReactDashboard =
 	  render: function render() {
 	    var _this = this;
 
+	    var aTagStyle = {
+	      cursor: "pointer",
+	      margin: "2px"
+	    };
 	    var dashboardStyle = {};
 	    var rowStyle = {
-	      marginTop: this.props.schema.editMode ? "15px" : null,
-	      marginBottom: this.props.schema.editMode ? "15px" : null,
-	      border: this.props.schema.editMode ? "1px dashed grey" : null
+	      marginTop: this.state.editMode ? "15px" : null,
+	      marginBottom: this.state.editMode ? "15px" : null,
+	      border: this.state.editMode ? "1px dashed grey" : null
 	    };
 
 	    var rows = this.state.widgets.map(function (row, i) {
 
 	      var rowIndicator;
-	      if (_this.props.schema.editMode) {
+	      if (_this.state.editMode) {
 	        rowIndicator = React.createElement(
 	          'h4',
 	          { style: { margin: "20px" } },
@@ -190,7 +209,7 @@ var ReactDashboard =
 	        return React.createElement(
 	          'div',
 	          { className: clazzName, key: "row_widget_" + j },
-	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, editMode: _this.props.schema.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
+	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, editMode: _this.state.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
 	        );
 	      });
 
@@ -204,15 +223,73 @@ var ReactDashboard =
 
 	    return React.createElement(
 	      'div',
-	      { style: dashboardStyle },
-	      rows
+	      null,
+	      React.createElement(
+	        'h3',
+	        null,
+	        this.props.schema.title,
+	        function () {
+	          if (!_this.state.editMode) {
+	            return React.createElement(
+	              'span',
+	              { className: 'pull-right' },
+	              React.createElement(
+	                'a',
+	                { title: 'config layout', onClick: _this.toggleEditMode.bind(_this, 'edit'), style: aTagStyle },
+	                ' ',
+	                React.createElement('i', { className: 'glyphicon glyphicon-cog' }),
+	                ' '
+	              ),
+	              React.createElement(
+	                'a',
+	                { title: 'reload dashboard', onClick: _this.refreshWidgets, style: aTagStyle },
+	                ' ',
+	                React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
+	                ' '
+	              )
+	            );
+	          } else {
+	            return React.createElement(
+	              'span',
+	              { className: 'pull-right' },
+	              React.createElement(
+	                'a',
+	                { title: 'add widget', onClick: _this.addWidget, style: aTagStyle },
+	                ' ',
+	                React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
+	                ' '
+	              ),
+	              React.createElement(
+	                'a',
+	                { title: 'cancel config', onClick: _this.toggleEditMode.bind(_this, 'cancel'), style: aTagStyle },
+	                ' ',
+	                React.createElement('i', { className: 'glyphicon glyphicon-floppy-remove' }),
+	                ' '
+	              ),
+	              React.createElement(
+	                'a',
+	                { title: 'save config', onClick: _this.toggleEditMode.bind(_this, 'save'), style: aTagStyle },
+	                ' ',
+	                React.createElement('i', { className: 'glyphicon glyphicon-floppy-disk' }),
+	                ' '
+	              )
+	            );
+	          }
+	        }()
+	      ),
+	      React.createElement('hr', null),
+	      React.createElement(
+	        'div',
+	        { style: dashboardStyle },
+	        rows
+	      )
 	    );
 	  }
 
 	});
 
 	Dashboard.defaultProps = {
-	  schema: { editMode: false, style: {}, widgets: [] }
+	  schema: { title: "ReactJS Dashboard", style: {}, widgets: [] }
 	};
 
 	module.exports = Dashboard;
@@ -7572,11 +7649,11 @@ var ReactDashboard =
 
 	var WidgetList = {
 	  PieChart: __webpack_require__(178),
-	  ColumnChart: __webpack_require__(183),
-	  GeoChart: __webpack_require__(184),
-	  TableView: __webpack_require__(185),
-	  ScatterChart: __webpack_require__(186),
-	  Gauge: __webpack_require__(187)
+	  ColumnChart: __webpack_require__(184),
+	  GeoChart: __webpack_require__(185),
+	  TableView: __webpack_require__(186),
+	  ScatterChart: __webpack_require__(187),
+	  Gauge: __webpack_require__(188)
 	};
 
 	//below are for adding custom widgets
@@ -7623,8 +7700,8 @@ var ReactDashboard =
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(188);
-	var GoogleChartLoader = __webpack_require__(179);
+	var isArray = __webpack_require__(179);
+	var GoogleChartLoader = __webpack_require__(180);
 
 	var PieChart = React.createClass({
 	  displayName: 'PieChart',
@@ -7715,10 +7792,22 @@ var ReactDashboard =
 
 	'use strict';
 
+	var convert = __webpack_require__(4),
+	    func = convert('isArray', __webpack_require__(43), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 180 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	//GoogleChartLoader Singleton
 	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
 
-	var q = __webpack_require__(180);
+	var q = __webpack_require__(181);
 
 	var GoogleChartLoader = function GoogleChartLoader() {
 
@@ -7755,7 +7844,7 @@ var ReactDashboard =
 	module.exports = new GoogleChartLoader();
 
 /***/ },
-/* 180 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, module) {"use strict";
@@ -9763,10 +9852,10 @@ var ReactDashboard =
 
 	    return Q;
 	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(181), __webpack_require__(182).setImmediate, __webpack_require__(22)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(182), __webpack_require__(183).setImmediate, __webpack_require__(22)(module)))
 
 /***/ },
-/* 181 */
+/* 182 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -9868,12 +9957,12 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 182 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {"use strict";
 
-	var nextTick = __webpack_require__(181).nextTick;
+	var nextTick = __webpack_require__(182).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -9949,17 +10038,17 @@ var ReactDashboard =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function (id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(182).setImmediate, __webpack_require__(182).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(183).setImmediate, __webpack_require__(183).clearImmediate))
 
 /***/ },
-/* 183 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(188);
-	var GoogleChartLoader = __webpack_require__(179);
+	var isArray = __webpack_require__(179);
+	var GoogleChartLoader = __webpack_require__(180);
 
 	var ColumnChart = React.createClass({
 	  displayName: 'ColumnChart',
@@ -10045,14 +10134,14 @@ var ReactDashboard =
 	module.exports = ColumnChart;
 
 /***/ },
-/* 184 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(188);
-	var GoogleChartLoader = __webpack_require__(179);
+	var isArray = __webpack_require__(179);
+	var GoogleChartLoader = __webpack_require__(180);
 
 	var GeoChart = React.createClass({
 	  displayName: 'GeoChart',
@@ -10138,14 +10227,14 @@ var ReactDashboard =
 	module.exports = GeoChart;
 
 /***/ },
-/* 185 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(188);
-	var GoogleChartLoader = __webpack_require__(179);
+	var isArray = __webpack_require__(179);
+	var GoogleChartLoader = __webpack_require__(180);
 
 	var TableView = React.createClass({
 	  displayName: 'TableView',
@@ -10231,14 +10320,14 @@ var ReactDashboard =
 	module.exports = TableView;
 
 /***/ },
-/* 186 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(188);
-	var GoogleChartLoader = __webpack_require__(179);
+	var isArray = __webpack_require__(179);
+	var GoogleChartLoader = __webpack_require__(180);
 
 	var ScatterChart = React.createClass({
 	  displayName: 'ScatterChart',
@@ -10324,14 +10413,14 @@ var ReactDashboard =
 	module.exports = ScatterChart;
 
 /***/ },
-/* 187 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(188);
-	var GoogleChartLoader = __webpack_require__(179);
+	var isArray = __webpack_require__(179);
+	var GoogleChartLoader = __webpack_require__(180);
 
 	var Gauge = React.createClass({
 	  displayName: 'Gauge',
@@ -10415,18 +10504,6 @@ var ReactDashboard =
 	};
 
 	module.exports = Gauge;
-
-/***/ },
-/* 188 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var convert = __webpack_require__(4),
-	    func = convert('isArray', __webpack_require__(43), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
 
 /***/ }
 /******/ ]);

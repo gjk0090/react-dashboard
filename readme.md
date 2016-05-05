@@ -16,7 +16,6 @@
 * add widget, Expose function: get widget list -- Urgent
 * static function for widgets to return template for add new -- Urgent
 * refine AJAX -- Urgent
-* encapsulate example buttons -- Urgent
 * config for widget title -- Urgent
 
 ###### improvement

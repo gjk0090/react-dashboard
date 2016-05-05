@@ -5,7 +5,7 @@ var cloneDeep = require('lodash/fp/cloneDeep');
 var Dashboard = React.createClass({
 
   getInitialState: function() {
-    return {widgets: this.props.schema.widgets};
+    return {widgets: this.props.schema.widgets, editMode: false};
   },
 
   componentDidMount: function(){
@@ -17,6 +17,25 @@ var Dashboard = React.createClass({
 
   refreshWidgets: function(){
     this.setState({}); //this.setState({}) will trigger a re-render
+  },
+
+  toggleEditMode: function(action){
+    if(action == 'edit'){
+      this.oldWidgets = cloneDeep(this.state.widgets);
+      this.setState({editMode: true});
+    }else if(action == 'save'){
+      if(this.props.onEdit){
+        this.props.onEdit(cloneDeep(this.state.widgets)); //pass widget out for custom operation
+      }
+      this.setState({editMode: false});
+    }else if(action == 'cancel'){
+      this.setState({widgets:cloneDeep(this.oldWidgets), editMode: false});
+    }
+  },
+
+  addWidget: function(){
+    this.state.widgets.push([{colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}]);
+    this.refreshWidgets();
   },
 
   handleClick: function(i, j, type, value) {
@@ -105,11 +124,7 @@ var Dashboard = React.createClass({
       tempWidgets[i][j].params = value;
     }
 
-    if(this.props.onEdit){
-      this.props.onEdit(tempWidgets); //pass widget out for custom operation
-    }else{
-      alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
-    }
+    //alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
 
     if(doRefresh){
       this.setState({widgets: cloneDeep(tempWidgets)});
@@ -118,17 +133,21 @@ var Dashboard = React.createClass({
 
   render: function() {
 
+    var aTagStyle = {
+      cursor : "pointer",
+      margin:"2px"
+    };
     var dashboardStyle = {};
     var rowStyle = {
-      marginTop: this.props.schema.editMode? "15px" : null,
-      marginBottom: this.props.schema.editMode? "15px" : null,
-      border: this.props.schema.editMode? "1px dashed grey" : null
+      marginTop: this.state.editMode? "15px" : null,
+      marginBottom: this.state.editMode? "15px" : null,
+      border: this.state.editMode? "1px dashed grey" : null
     };
 
     var rows = this.state.widgets.map((row, i) => {
 
       var rowIndicator;
-      if (this.props.schema.editMode) {
+      if (this.state.editMode) {
         rowIndicator = <h4 style={{margin: "20px"}}>row {i+1}</h4>;
       } else {
         rowIndicator = null;
@@ -140,7 +159,7 @@ var Dashboard = React.createClass({
 
         return (
           <div className={clazzName} key={"row_widget_"+j}>
-            <Widget widget={widget} widgetHeight={widgetHeight} editMode={this.props.schema.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
+            <Widget widget={widget} widgetHeight={widgetHeight} editMode={this.state.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
           </div>
         );
       });
@@ -155,8 +174,34 @@ var Dashboard = React.createClass({
     });
 
     return (
-      <div style={dashboardStyle}>
-        {rows}
+      <div>
+        <h3>
+          {this.props.schema.title}
+          {(() => {
+            if(!this.state.editMode){
+              return (
+                <span className="pull-right">
+                  <a title="config layout" onClick={this.toggleEditMode.bind(this,'edit')} style={aTagStyle}> <i className="glyphicon glyphicon-cog"></i> </a>
+                  <a title="reload dashboard" onClick={this.refreshWidgets} style={aTagStyle}> <i className="glyphicon glyphicon-refresh"></i> </a>
+                </span>
+              );
+            }else{
+              return (
+                <span className="pull-right">
+                  <a title="add widget" onClick={this.addWidget} style={aTagStyle}> <i className="glyphicon glyphicon-plus"></i> </a>
+                  <a title="cancel config" onClick={this.toggleEditMode.bind(this,'cancel')} style={aTagStyle}> <i className="glyphicon glyphicon-floppy-remove"></i> </a>
+                  <a title="save config" onClick={this.toggleEditMode.bind(this,'save')} style={aTagStyle}> <i className="glyphicon glyphicon-floppy-disk"></i> </a>
+                </span>
+              );
+            }
+          })()}
+        </h3>
+
+        <hr/>
+
+        <div style={dashboardStyle}>
+          {rows}
+        </div>
       </div>
     );
   }
@@ -164,7 +209,7 @@ var Dashboard = React.createClass({
 });
 
 Dashboard.defaultProps = {
-  schema      : {editMode:false, style:{}, widgets:[]}
+  schema      : {title:"ReactJS Dashboard", style:{}, widgets:[]},
 };
 
 module.exports = Dashboard;
