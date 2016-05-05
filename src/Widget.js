@@ -44,16 +44,25 @@ var Widget = React.createClass({
   getRemoteData: function(url, params){
     if(url == null || url == ""){return null;}
 
+    // $.post(url, params, function(result) {
+    //   //isEmpty()
+    //   this.setState({});
+    // }.bind(this), "json" );
+    
+    //remove below
     var returnData;
     $.ajaxSetup({async: false});
     $.getJSON(url, function(json) {
-      returnData = json; //cannot directly return, why?
+      returnData = json; 
     });
     return returnData;
   },
 
   refreshWidget: function(props) {
     var params = this.state.params; //todo : format params
+    //this.getRemoteData(props.widget.url, params);
+    
+    //remove below
     var data = this.getRemoteData(props.widget.url, params);
     if(data != null){
       this.setState({data: data});
