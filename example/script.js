@@ -20,10 +20,12 @@ app.controller('myCtrl',function($scope){
     ]
   };
 
-  $scope.handleEdit = function(widgets){alert("update");
-    //update new widgets
+  $scope.handleEdit = function(widgets){
+    
     $scope.schema.widgets = widgets;
-    $scope.$apply(); //for the ng-repeat table
+    $scope.$apply(); //for the dsplaying table
+
+    //save new config to DB
   };
 
   $scope.handleClick = function(i, j, type, value){
