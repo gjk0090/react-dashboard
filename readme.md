@@ -10,11 +10,7 @@
 
 ### TODO
 ---
-###### core
-* auto height
-* use propTypes
-* learn Flux
-* extract style to class
+###### core feature
 * drag and drop (react-dnd)
 * wrap widget with grid for dnd
 * add widget, Expose function: get widget list -- Urgent
@@ -22,12 +18,15 @@
 * refine AJAX -- Urgent
 * encapsulate example buttons -- Urgent
 * config for widget title -- Urgent
-* this.id, this.chart for gc widgets (var id outside component) -- Urgent
-* why not refreshing in edit mode (componentDidMount&componentDidUpdate) / update gc error message -- Urgent
+
+###### improvement
+* auto height
+* use propTypes
+* learn Flux
+* extract style to class
 
 ###### google charts
 * Google Chart responsive
-* smarter initial loading (react-google-charts: GoogleChartLoader.js) -- Urgent
 
 ###### project
 * tests

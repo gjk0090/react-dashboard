@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "lodash": "^4.11.2",
+    "q": "^1.4.1",
     "react": "^15.0.1",
     "react-dom": "^15.0.1"
   },

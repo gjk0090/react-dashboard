@@ -1,39 +1,49 @@
 var React = require('react');
+var isArray = require('lodash/fp/isArray');
+var GoogleChartLoader = require('../GoogleChartLoader');
 
 var GeoChart = React.createClass({
 
+  gc_id: null,
+  chart: null,
+  gc_data: null,
+  gc_options: null,
+
   getInitialState: function(){
-    return {id : "geo_chart_"+Math.floor(Math.random() * 1000000)}; //id for google chart element //todo : id from parent?
+    this.gc_id = "geo_chart_"+Math.floor(Math.random() * 1000000);
+    return null;
   },
 
-  componentWillReceiveProps: function(nextProps) {
-    if (nextProps.gc_ready){
-
-      if(!this.state.chart){
-        var chart = new google.visualization.GeoChart(document.getElementById(this.state.id));
-        this.setState({chart: chart});
-
-        google.visualization.events.addListener(chart, 'select', this.handleSelect);
-      }
-
-      //todo : validate data
-      var gc_data = google.visualization.arrayToDataTable(nextProps.data.data);
-      this.setState({gc_data: gc_data});
-
-      var options = nextProps.data.options;
-      this.setState({options: options});
-    }
+  componentDidMount: function(){
+    var self = this;
+    GoogleChartLoader.init().then(function(){
+      self.drawChart();
+    });
   },
-
+  
   componentDidUpdate: function(){
-    if (!!this.state.chart){
-      this.state.chart.draw(this.state.gc_data, this.state.options);
+    if (GoogleChartLoader.is_loaded){
+      this.drawChart();
+    };
+  },
+
+  drawChart: function(){
+    if(!this.chart){
+      this.chart = new google.visualization.GeoChart(document.getElementById(this.gc_id));
+      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
     }
+
+    if(!isArray(this.props.data.data) || this.props.data.data.length == 0){return;}
+
+    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
+    this.gc_options = this.props.data.options;
+
+    this.chart.draw(this.gc_data, this.gc_options);
   },
 
   handleSelect: function(){
-    var chart = this.state.chart;
-    var gc_data = this.state.gc_data;
+    var chart = this.chart;
+    var gc_data = this.gc_data;
     var selected = chart.getSelection()[0];
     if(selected && (selected.row || selected.row==0)){
       var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
@@ -53,7 +63,7 @@ var GeoChart = React.createClass({
 
     return (
       <div style={chartWrapStyle}>
-        <div style={chartStyle} id={this.state.id}>Sorry, Google Chart is not properly loaded.</div>
+        <div style={chartStyle} id={this.gc_id}>Sorry, Google Chart API is not properly loaded.</div>
       </div>
     );
   }
@@ -62,7 +72,6 @@ var GeoChart = React.createClass({
 
 GeoChart.defaultProps = {
   data      : {data:[], options:{}},
-  gc_ready  : false,
   onClick   : undefined
 };
 

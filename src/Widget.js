@@ -18,14 +18,14 @@ var Widget = React.createClass({
   },
 
   componentDidMount: function(){
-    this.refreshWidget();
+    this.refreshWidget(this.props);
   },
 
   //this function triggers before render except first time
   //this functoin can set state safely
   //this is only triggered when updated from outside
   componentWillReceiveProps: function(nextProps) {
-    this.refreshWidget();
+    this.refreshWidget(nextProps);
   },
 
   shouldComponentUpdate: function(){
@@ -52,9 +52,9 @@ var Widget = React.createClass({
     return returnData;
   },
 
-  refreshWidget: function() {
+  refreshWidget: function(props) {
     var params = this.state.params; //todo : format params
-    var data = this.getRemoteData(this.props.widget.url, params);
+    var data = this.getRemoteData(props.widget.url, params);
     if(data != null){
       this.setState({data: data});
     }
@@ -75,7 +75,6 @@ var Widget = React.createClass({
     if(action == "save"){
       this.setState({params: cloneDeep(this.tempParams)});
       this.props.onEdit("update_params", false, this.tempParams);
-      this.refreshWidget();//remove when fix init bug
     }else{
       this.tempParams = cloneDeep(this.state.params);
     }
@@ -150,7 +149,7 @@ var Widget = React.createClass({
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>
-                <DetailWidget data={this.state.data} gc_ready={this.props.gc_ready} onClick={this.props.onClick}></DetailWidget>
+                <DetailWidget data={this.state.data} onClick={this.props.onClick}></DetailWidget>
               </div>
             </div>
           </div>
@@ -180,7 +179,6 @@ var Widget = React.createClass({
 
 Widget.defaultProps = {
   widget      : {colSpan:"", type:"", title:"", url:"", params:[], data:""},
-  gc_ready    : false,
   onClick     : undefined
 };
 
