@@ -13,6 +13,7 @@
 ###### core feature
 * drag and drop (react-dnd)
 * wrap widget with grid for dnd
+* get rid of React-Bootstrap
 * add widget, Expose function: get widget list -- Urgent
 * static function for widgets to return template for add new -- Urgent
 * refine AJAX -- Urgent
