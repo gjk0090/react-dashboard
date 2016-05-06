@@ -1,6 +1,9 @@
 var React = require('react');
 var Widget = require('./Widget');
 var cloneDeep = require('lodash/fp/cloneDeep');
+var isEmpty = require('lodash/fp/isEmpty');
+var isFunction = require('lodash/fp/isFunction');
+var WidgetList = require('./widgets').WidgetList;
 
 var Dashboard = React.createClass({
 
@@ -33,8 +36,13 @@ var Dashboard = React.createClass({
     }
   },
 
-  addWidget: function(){
-    this.state.widgets.push([{colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}]);
+  addWidget: function(type){
+    var widget = WidgetList[type];
+    if(!isEmpty(widget)){
+      this.state.widgets.push([widget.getTemplate()]);
+    }else{
+      alert("Sorry, failed to find the widget \"" + type + "\".");
+    }
     this.refreshWidgets();
   },
 
@@ -173,6 +181,11 @@ var Dashboard = React.createClass({
 
     });
 
+    var addWidgetDropDownMenuOptions = [];
+    for (var key in WidgetList){
+      addWidgetDropDownMenuOptions.push(<li key={"addWidgetDropDownMenuOptions_"+key}><a onClick={this.addWidget.bind(this, key)}>{key}</a></li>);
+    }
+
     return (
       <div>
         <h3>
@@ -188,7 +201,17 @@ var Dashboard = React.createClass({
             }else{
               return (
                 <span className="pull-right">
-                  <a title="add widget" onClick={this.addWidget} style={aTagStyle}> <i className="glyphicon glyphicon-plus"></i> </a>
+                  <span className="dropdown">
+                    <a id="addWidgetDropDownMenu" style={aTagStyle} data-toggle="dropdown">
+                      <i className="glyphicon glyphicon-plus"></i>
+                      <span className="caret"></span>
+                    </a>
+                    <ul className="dropdown-menu" aria-labelledby="addWidgetDropDownMenu">
+                      {addWidgetDropDownMenuOptions}
+                      {/*<li role="separator" className="divider"></li>*/}
+                    </ul>
+                  </span>
+
                   <a title="cancel config" onClick={this.toggleEditMode.bind(this,'cancel')} style={aTagStyle}> <i className="glyphicon glyphicon-floppy-remove"></i> </a>
                   <a title="save config" onClick={this.toggleEditMode.bind(this,'save')} style={aTagStyle}> <i className="glyphicon glyphicon-floppy-disk"></i> </a>
                 </span>

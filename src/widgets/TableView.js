@@ -5,6 +5,12 @@ var GoogleChartLoader = require('../GoogleChartLoader');
 
 var TableView = React.createClass({
 
+  statics: {
+    getTemplate: function() {
+      return {colSpan:"4", type:"TableView", title:"Table", url:"testdata/TableView.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true},{name:"paramB", type:"string", value:"efg", configurable:true}], data:"testData"};
+    }
+  },
+
   gc_id: null,
   chart: null,
   gc_data: null,

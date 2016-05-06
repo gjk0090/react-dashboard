@@ -5,6 +5,12 @@ var GoogleChartLoader = require('../GoogleChartLoader');
 
 var ScatterChart = React.createClass({
 
+  statics: {
+    getTemplate: function() {
+      return {colSpan:"4", type:"ScatterChart", title:"Scatter Chart", url:"testdata/ScatterChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"};
+    }
+  },
+
   gc_id: null,
   chart: null,
   gc_data: null,

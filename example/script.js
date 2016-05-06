@@ -21,7 +21,7 @@ app.controller('myCtrl',function($scope){
   };
 
   $scope.handleEdit = function(widgets){
-    
+
     $scope.schema.widgets = widgets;
     $scope.$apply(); //for the dsplaying table
 
@@ -33,5 +33,7 @@ app.controller('myCtrl',function($scope){
   };
 
   ReactDOM.render(React.createElement(ReactDashboard, {schema: $scope.schema, onClick: $scope.handleClick, onEdit: $scope.handleEdit}), document.getElementById('example'));
+
+  //ReactDashboard.addWidgets({"RD":"string","RD2":"string2"});
 
 });

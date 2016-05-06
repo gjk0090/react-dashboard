@@ -5,6 +5,12 @@ var GoogleChartLoader = require('../GoogleChartLoader');
 
 var ColumnChart = React.createClass({
 
+  statics: {
+    getTemplate: function() {
+      return {colSpan:"4", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:false}], data:"testData"};
+    }
+  },
+
   gc_id: null,
   chart: null,
   gc_data: null,

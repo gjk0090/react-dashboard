@@ -5,6 +5,12 @@ var GoogleChartLoader = require('../GoogleChartLoader');
 
 var GeoChart = React.createClass({
 
+  statics: {
+    getTemplate: function() {
+      return {colSpan:"4", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"};
+    }
+  },
+
   gc_id: null,
   chart: null,
   gc_data: null,

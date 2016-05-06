@@ -5,6 +5,12 @@ var GoogleChartLoader = require('../GoogleChartLoader');
 
 var Gauge = React.createClass({
 
+  statics: {
+    getTemplate: function() {
+      return {colSpan:"4", type:"Gauge", title:"Gauge", url:"testdata/Gauge.json", params:[{name:"paramA", type:"string", value:"abc", configurable:false},{name:"paramB", type:"string", value:"efg", configurable:true}], data:"testData"};
+    }
+  },
+
   gc_id: null,
   chart: null,
   gc_data: null,

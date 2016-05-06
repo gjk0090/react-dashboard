@@ -50,6 +50,9 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
+	var isEmpty = __webpack_require__(189);
+	var isFunction = __webpack_require__(191);
+	var WidgetList = __webpack_require__(177).WidgetList;
 
 	var Dashboard = React.createClass({
 	  displayName: 'Dashboard',
@@ -83,8 +86,13 @@ var ReactDashboard =
 	    }
 	  },
 
-	  addWidget: function addWidget() {
-	    this.state.widgets.push([{ colSpan: "6", type: "PieChart", title: "Pie Chart", url: "testdata/PieChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" }]);
+	  addWidget: function addWidget(type) {
+	    var widget = WidgetList[type];
+	    if (!isEmpty(widget)) {
+	      this.state.widgets.push([widget.getTemplate()]);
+	    } else {
+	      alert("Sorry, failed to find the widget \"" + type + "\".");
+	    }
 	    this.refreshWidgets();
 	  },
 
@@ -221,6 +229,19 @@ var ReactDashboard =
 	      );
 	    });
 
+	    var addWidgetDropDownMenuOptions = [];
+	    for (var key in WidgetList) {
+	      addWidgetDropDownMenuOptions.push(React.createElement(
+	        'li',
+	        { key: "addWidgetDropDownMenuOptions_" + key },
+	        React.createElement(
+	          'a',
+	          { onClick: this.addWidget.bind(this, key) },
+	          key
+	        )
+	      ));
+	    }
+
 	    return React.createElement(
 	      'div',
 	      null,
@@ -253,11 +274,19 @@ var ReactDashboard =
 	              'span',
 	              { className: 'pull-right' },
 	              React.createElement(
-	                'a',
-	                { title: 'add widget', onClick: _this.addWidget, style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
-	                ' '
+	                'span',
+	                { className: 'dropdown' },
+	                React.createElement(
+	                  'a',
+	                  { id: 'addWidgetDropDownMenu', style: aTagStyle, 'data-toggle': 'dropdown' },
+	                  React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
+	                  React.createElement('span', { className: 'caret' })
+	                ),
+	                React.createElement(
+	                  'ul',
+	                  { className: 'dropdown-menu', 'aria-labelledby': 'addWidgetDropDownMenu' },
+	                  addWidgetDropDownMenuOptions
+	                )
 	              ),
 	              React.createElement(
 	                'a',
@@ -313,7 +342,7 @@ var ReactDashboard =
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(189);
 	var Modal = __webpack_require__(176).Modal;
-	var WidgetList = __webpack_require__(177);
+	var WidgetList = __webpack_require__(177).WidgetList;
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -334,6 +363,9 @@ var ReactDashboard =
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
+	    this.setState({ data: this.props.widget.data });
+
 	    this.refreshWidget(nextProps);
 	  },
 
@@ -7646,13 +7678,15 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 
-	var WidgetList = {
-	  PieChart: __webpack_require__(178),
-	  ColumnChart: __webpack_require__(184),
-	  GeoChart: __webpack_require__(185),
-	  TableView: __webpack_require__(186),
-	  ScatterChart: __webpack_require__(187),
-	  Gauge: __webpack_require__(188)
+	var WidgetManager = {
+	  WidgetList: {
+	    PieChart: __webpack_require__(178),
+	    ColumnChart: __webpack_require__(184),
+	    GeoChart: __webpack_require__(185),
+	    TableView: __webpack_require__(186),
+	    ScatterChart: __webpack_require__(187),
+	    Gauge: __webpack_require__(188)
+	  }
 	};
 
 	//below are for adding custom widgets
@@ -7663,16 +7697,17 @@ var ReactDashboard =
 	 * @param  type      name     Name of Widget
 	 * @param  Component instance Widget Component
 	 */
-	WidgetList.addWidget = function (name, instance) {
+	WidgetManager.addWidget = function (name, instance) {
 	  if (typeof name !== 'string') {
 	    throw new Error('ReactDashboard: First parameter of addWidget must be of type string');
 	  }
 
+	  //this validation does not work
 	  if (!React.Component instanceof instance.constructor) {
 	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
 	  }
 
-	  WidgetList[name] = instance;
+	  WidgetManager.WidgetList[name] = instance;
 	};
 
 	/**
@@ -7680,17 +7715,17 @@ var ReactDashboard =
 	 *
 	 * @param  object widgets, Widgets to add. string => Component
 	 */
-	WidgetList.addWidgets = function (widgets) {
+	WidgetManager.addWidgets = function (widgets) {
 	  if ((typeof widgets === 'undefined' ? 'undefined' : _typeof(widgets)) !== 'object') {
 	    throw new Error('ReactDashboard: First parameter of addWidgets must be of type object');
 	  }
 
 	  for (var name in widgets) {
-	    WidgetList.addWidget(name, widgets[name]);
+	    WidgetManager.addWidget(name, widgets[name]);
 	  }
 	};
 
-	module.exports = WidgetList;
+	module.exports = WidgetManager;
 
 /***/ },
 /* 178 */
@@ -7706,6 +7741,12 @@ var ReactDashboard =
 	var PieChart = React.createClass({
 	  displayName: 'PieChart',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "PieChart", title: "Pie Chart", url: "testdata/PieChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10055,6 +10096,12 @@ var ReactDashboard =
 	  displayName: 'ColumnChart',
 
 
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "ColumnChart", title: "Column Chart", url: "testdata/ColumnChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }], data: "testData" };
+	    }
+	  },
+
 	  gc_id: null,
 	  chart: null,
 	  gc_data: null,
@@ -10148,6 +10195,12 @@ var ReactDashboard =
 	var GeoChart = React.createClass({
 	  displayName: 'GeoChart',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "GeoChart", title: "Geo Chart", url: "testdata/GeoChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10243,6 +10296,12 @@ var ReactDashboard =
 	  displayName: 'TableView',
 
 
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "TableView", title: "Table", url: "testdata/TableView.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
+	    }
+	  },
+
 	  gc_id: null,
 	  chart: null,
 	  gc_data: null,
@@ -10337,6 +10396,12 @@ var ReactDashboard =
 	  displayName: 'ScatterChart',
 
 
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "ScatterChart", title: "Scatter Chart", url: "testdata/ScatterChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
+
 	  gc_id: null,
 	  chart: null,
 	  gc_data: null,
@@ -10430,6 +10495,12 @@ var ReactDashboard =
 	var Gauge = React.createClass({
 	  displayName: 'Gauge',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "Gauge", title: "Gauge", url: "testdata/Gauge.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10606,6 +10677,18 @@ var ReactDashboard =
 	}
 
 	module.exports = isEmpty;
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
 
 /***/ }
 /******/ ]);

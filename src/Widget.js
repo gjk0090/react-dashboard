@@ -2,7 +2,7 @@ var React = require('react');
 var cloneDeep = require('lodash/fp/cloneDeep');
 var isEmpty = require('lodash/fp/isEmpty');
 var Modal = require('react-bootstrap').Modal;
-var WidgetList = require('./widgets');
+var WidgetList = require('./widgets').WidgetList;
 
 
 var Widget = React.createClass({
@@ -23,6 +23,9 @@ var Widget = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
+    //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
+    this.setState({data: this.props.widget.data}); 
+
     this.refreshWidget(nextProps);
   },
 
@@ -149,7 +152,6 @@ var Widget = React.createClass({
               </div>
             </div>
           </div>
-
           
           <Modal show={this.state.showModal} onHide={this.closeConfigModal}>
             <Modal.Header closeButton>
@@ -165,7 +167,6 @@ var Widget = React.createClass({
               <button className="btn btn-primary" onClick={this.closeConfigModal.bind(this, "save")}>Save</button>
             </Modal.Footer>
           </Modal>
-          
 
       </div>
     );

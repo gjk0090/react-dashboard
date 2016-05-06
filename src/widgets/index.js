@@ -1,12 +1,14 @@
 var React = require('react');
 
-var WidgetList = {
-  PieChart : require('./PieChart'),
-  ColumnChart : require('./ColumnChart'),
-  GeoChart : require('./GeoChart'),
-  TableView : require('./TableView'),
-  ScatterChart : require('./ScatterChart'),
-  Gauge : require('./Gauge')
+var WidgetManager = {
+  WidgetList : { 
+    PieChart : require('./PieChart'),
+    ColumnChart : require('./ColumnChart'),
+    GeoChart : require('./GeoChart'),
+    TableView : require('./TableView'),
+    ScatterChart : require('./ScatterChart'),
+    Gauge : require('./Gauge')
+  }
 };
 
 
@@ -19,16 +21,17 @@ var WidgetList = {
  * @param  type      name     Name of Widget
  * @param  Component instance Widget Component
  */
-WidgetList.addWidget = (name, instance) => {
+WidgetManager.addWidget = (name, instance) => {
   if (typeof name !== 'string') {
     throw new Error('ReactDashboard: First parameter of addWidget must be of type string');
   }
 
+  //this validation does not work
   if (!React.Component instanceof instance.constructor) {
     throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
   }
 
-  WidgetList[name] = instance;
+  WidgetManager.WidgetList[name] = instance;
 };
 
 /**
@@ -36,14 +39,14 @@ WidgetList.addWidget = (name, instance) => {
  *
  * @param  object widgets, Widgets to add. string => Component
  */
-WidgetList.addWidgets = (widgets) => {
+WidgetManager.addWidgets = (widgets) => {
   if (typeof widgets !== 'object') {
     throw new Error('ReactDashboard: First parameter of addWidgets must be of type object');
   }
 
   for (var name in widgets) {
-    WidgetList.addWidget(name, widgets[name]);
+    WidgetManager.addWidget(name, widgets[name]);
   }
 };
 
-module.exports = WidgetList;
+module.exports = WidgetManager;
