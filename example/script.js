@@ -6,11 +6,11 @@ app.controller('myCtrl',function($scope){
     style: {},
     widgets: [
       [
-        {colSpan:"4", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}, //url has higher priority than data
-        {colSpan:"4", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}
+        {colSpan:"6", type:"PieChart", title:"Pie Chart", url:"testdata/PieChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}, //url has higher priority than data
+        {colSpan:"6", type:"GeoChart", title:"Geo Chart", url:"testdata/GeoChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"}
       ],
       [
-        {colSpan:"4", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:false}], data:"testData"}
+        {colSpan:"8", type:"ColumnChart", title:"Column Chart", url:"testdata/ColumnChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:false}], data:"testData"}
       ],
       [
         {colSpan:"4", type:"TableView", title:"Table", url:"testdata/TableView.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true},{name:"paramB", type:"string", value:"efg", configurable:true}], data:"testData"},
