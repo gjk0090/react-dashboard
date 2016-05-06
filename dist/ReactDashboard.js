@@ -308,6 +308,7 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var cloneDeep = __webpack_require__(3);
+	var isEmpty = __webpack_require__(189);
 	var Modal = __webpack_require__(176).Modal;
 	var WidgetList = __webpack_require__(177);
 
@@ -347,24 +348,22 @@ var ReactDashboard =
 	  componentWillUnmount: function componentWillUnmount() {},
 
 	  getRemoteData: function getRemoteData(url, params) {
-	    if (url == null || url == "") {
+	    if (isEmpty(url)) {
 	      return null;
 	    }
 
-	    var returnData;
-	    $.ajaxSetup({ async: false });
-	    $.getJSON(url, function (json) {
-	      returnData = json; //cannot directly return, why?
-	    });
-	    return returnData;
+	    $.post(url, params, function (result) {
+	      this.setState({ data: result });
+	    }.bind(this), "json");
 	  },
 
 	  refreshWidget: function refreshWidget(props) {
-	    var params = this.state.params; //todo : format params
-	    var data = this.getRemoteData(props.widget.url, params);
-	    if (data != null) {
-	      this.setState({ data: data });
+	    var params = {};
+	    for (var i = 0; i < this.state.params.length; i++) {
+	      params[this.state.params[i].name] = this.state.params[i].value;
 	    }
+
+	    this.getRemoteData(props.widget.url, params);
 	  },
 
 	  getConfigurable: function getConfigurable(params) {
@@ -482,7 +481,7 @@ var ReactDashboard =
 	        }(),
 	        React.createElement(
 	          'a',
-	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget },
+	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget.bind(this, this.props) },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
 	          ' '
@@ -7701,6 +7700,7 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var PieChart = React.createClass({
@@ -7736,7 +7736,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10048,6 +10048,7 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var ColumnChart = React.createClass({
@@ -10083,7 +10084,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10141,6 +10142,7 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var GeoChart = React.createClass({
@@ -10176,7 +10178,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10234,6 +10236,7 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var TableView = React.createClass({
@@ -10269,7 +10272,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10327,6 +10330,7 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var ScatterChart = React.createClass({
@@ -10362,7 +10366,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10420,6 +10424,7 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var Gauge = React.createClass({
@@ -10455,7 +10460,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10504,6 +10509,103 @@ var ReactDashboard =
 	};
 
 	module.exports = Gauge;
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isEmpty', __webpack_require__(190), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 190 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var getTag = __webpack_require__(110),
+	    isArguments = __webpack_require__(68),
+	    isArray = __webpack_require__(43),
+	    isArrayLike = __webpack_require__(70),
+	    isBuffer = __webpack_require__(131),
+	    isFunction = __webpack_require__(17),
+	    isObjectLike = __webpack_require__(44),
+	    isString = __webpack_require__(74),
+	    keys = __webpack_require__(62);
+
+	/** `Object#toString` result references. */
+	var mapTag = '[object Map]',
+	    setTag = '[object Set]';
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/** Built-in value references. */
+	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
+
+	/**
+	 * Checks if `value` is an empty object, collection, map, or set.
+	 *
+	 * Objects are considered empty if they have no own enumerable string keyed
+	 * properties.
+	 *
+	 * Array-like values such as `arguments` objects, arrays, buffers, strings, or
+	 * jQuery-like collections are considered empty if they have a `length` of `0`.
+	 * Similarly, maps and sets are considered empty if they have a `size` of `0`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is empty, else `false`.
+	 * @example
+	 *
+	 * _.isEmpty(null);
+	 * // => true
+	 *
+	 * _.isEmpty(true);
+	 * // => true
+	 *
+	 * _.isEmpty(1);
+	 * // => true
+	 *
+	 * _.isEmpty([1, 2, 3]);
+	 * // => false
+	 *
+	 * _.isEmpty({ 'a': 1 });
+	 * // => false
+	 */
+	function isEmpty(value) {
+	  if (isArrayLike(value) && (isArray(value) || isString(value) || isFunction(value.splice) || isArguments(value) || isBuffer(value))) {
+	    return !value.length;
+	  }
+	  if (isObjectLike(value)) {
+	    var tag = getTag(value);
+	    if (tag == mapTag || tag == setTag) {
+	      return !value.size;
+	    }
+	  }
+	  for (var key in value) {
+	    if (hasOwnProperty.call(value, key)) {
+	      return false;
+	    }
+	  }
+	  return !(nonEnumShadows && keys(value).length);
+	}
+
+	module.exports = isEmpty;
 
 /***/ }
 /******/ ]);

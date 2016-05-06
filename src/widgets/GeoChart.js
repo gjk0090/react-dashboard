@@ -1,5 +1,6 @@
 var React = require('react');
 var isArray = require('lodash/fp/isArray');
+var isEmpty = require('lodash/fp/isEmpty');
 var GoogleChartLoader = require('../GoogleChartLoader');
 
 var GeoChart = React.createClass({
@@ -33,7 +34,7 @@ var GeoChart = React.createClass({
       google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
     }
 
-    if(!isArray(this.props.data.data) || this.props.data.data.length == 0){return;}
+    if(!isArray(this.props.data.data) || isEmpty(this.props.data.data)){return;}
 
     this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
     this.gc_options = this.props.data.options;

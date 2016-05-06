@@ -1,5 +1,6 @@
 var React = require('react');
 var cloneDeep = require('lodash/fp/cloneDeep');
+var isEmpty = require('lodash/fp/isEmpty');
 var Modal = require('react-bootstrap').Modal;
 var WidgetList = require('./widgets');
 
@@ -42,31 +43,20 @@ var Widget = React.createClass({
   },
 
   getRemoteData: function(url, params){
-    if(url == null || url == ""){return null;}
+    if(isEmpty(url)){return null;}
 
-    // $.post(url, params, function(result) {
-    //   //isEmpty()
-    //   this.setState({});
-    // }.bind(this), "json" );
-    
-    //remove below
-    var returnData;
-    $.ajaxSetup({async: false});
-    $.getJSON(url, function(json) {
-      returnData = json; 
-    });
-    return returnData;
+    $.post(url, params, function(result) {
+      this.setState({data: result});
+    }.bind(this), "json" );
   },
 
   refreshWidget: function(props) {
-    var params = this.state.params; //todo : format params
-    //this.getRemoteData(props.widget.url, params);
-    
-    //remove below
-    var data = this.getRemoteData(props.widget.url, params);
-    if(data != null){
-      this.setState({data: data});
+    var params = {}; 
+    for(var i=0; i<this.state.params.length; i++){
+      params[this.state.params[i].name] = this.state.params[i].value;
     }
+
+    this.getRemoteData(props.widget.url, params);
   },
 
   getConfigurable: function(params){
@@ -130,7 +120,7 @@ var Widget = React.createClass({
               return (<a title="edit widget params" style={aTagStyle} onClick={this.openConfigModal}> <i className="glyphicon glyphicon-cog"></i> </a>);
             }
           })()}
-          <a title="reload widget content" style={aTagStyle} onClick={this.refreshWidget}> <i className="glyphicon glyphicon-refresh"></i> </a>
+          <a title="reload widget content" style={aTagStyle} onClick={this.refreshWidget.bind(this, this.props)}> <i className="glyphicon glyphicon-refresh"></i> </a>
         </span>
       );
     }

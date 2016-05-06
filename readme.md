@@ -16,9 +16,7 @@
 * get rid of React-Bootstrap
 * add widget, Expose function: get widget list -- Urgent
 * static function for widgets to return template for add new -- Urgent
-* refine AJAX -- Urgent
 * config for widget title -- Urgent
-* use isEmpty (does not work for undefined, null.*)
 
 ###### improvement
 * auto height
