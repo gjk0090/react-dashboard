@@ -50,6 +50,9 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
+	var isEmpty = __webpack_require__(189);
+	var isFunction = __webpack_require__(191);
+	var WidgetList = __webpack_require__(177).WidgetList;
 
 	var Dashboard = React.createClass({
 	  displayName: 'Dashboard',
@@ -83,8 +86,13 @@ var ReactDashboard =
 	    }
 	  },
 
-	  addWidget: function addWidget() {
-	    this.state.widgets.push([{ colSpan: "6", type: "PieChart", title: "Pie Chart", url: "testdata/PieChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" }]);
+	  addWidget: function addWidget(type) {
+	    var widget = WidgetList[type];
+	    if (!isEmpty(widget)) {
+	      this.state.widgets.push([widget.getTemplate()]);
+	    } else {
+	      alert("Sorry, failed to find the widget \"" + type + "\".");
+	    }
 	    this.refreshWidgets();
 	  },
 
@@ -221,6 +229,19 @@ var ReactDashboard =
 	      );
 	    });
 
+	    var addWidgetDropDownMenuOptions = [];
+	    for (var key in WidgetList) {
+	      addWidgetDropDownMenuOptions.push(React.createElement(
+	        'li',
+	        { key: "addWidgetDropDownMenuOptions_" + key },
+	        React.createElement(
+	          'a',
+	          { onClick: this.addWidget.bind(this, key) },
+	          key
+	        )
+	      ));
+	    }
+
 	    return React.createElement(
 	      'div',
 	      null,
@@ -253,11 +274,19 @@ var ReactDashboard =
 	              'span',
 	              { className: 'pull-right' },
 	              React.createElement(
-	                'a',
-	                { title: 'add widget', onClick: _this.addWidget, style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
-	                ' '
+	                'span',
+	                { className: 'dropdown' },
+	                React.createElement(
+	                  'a',
+	                  { id: 'addWidgetDropDownMenu', style: aTagStyle, 'data-toggle': 'dropdown' },
+	                  React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
+	                  React.createElement('span', { className: 'caret' })
+	                ),
+	                React.createElement(
+	                  'ul',
+	                  { className: 'dropdown-menu', 'aria-labelledby': 'addWidgetDropDownMenu' },
+	                  addWidgetDropDownMenuOptions
+	                )
 	              ),
 	              React.createElement(
 	                'a',
@@ -292,6 +321,9 @@ var ReactDashboard =
 	  schema: { title: "ReactJS Dashboard", style: {}, widgets: [] }
 	};
 
+	Dashboard.addWidget = __webpack_require__(177).addWidget;
+	Dashboard.addWidgets = __webpack_require__(177).addWidgets;
+
 	module.exports = Dashboard;
 
 /***/ },
@@ -308,8 +340,9 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var cloneDeep = __webpack_require__(3);
+	var isEmpty = __webpack_require__(189);
 	var Modal = __webpack_require__(176).Modal;
-	var WidgetList = __webpack_require__(177);
+	var WidgetList = __webpack_require__(177).WidgetList;
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -329,10 +362,10 @@ var ReactDashboard =
 	    this.refreshWidget(this.props);
 	  },
 
-	  //this function triggers before render except first time
-	  //this functoin can set state safely
-	  //this is only triggered when updated from outside
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
+	    this.setState({ data: this.props.widget.data });
+
 	    this.refreshWidget(nextProps);
 	  },
 
@@ -347,24 +380,22 @@ var ReactDashboard =
 	  componentWillUnmount: function componentWillUnmount() {},
 
 	  getRemoteData: function getRemoteData(url, params) {
-	    if (url == null || url == "") {
+	    if (isEmpty(url)) {
 	      return null;
 	    }
 
-	    var returnData;
-	    $.ajaxSetup({ async: false });
-	    $.getJSON(url, function (json) {
-	      returnData = json; //cannot directly return, why?
-	    });
-	    return returnData;
+	    $.post(url, params, function (result) {
+	      this.setState({ data: result });
+	    }.bind(this), "json");
 	  },
 
 	  refreshWidget: function refreshWidget(props) {
-	    var params = this.state.params; //todo : format params
-	    var data = this.getRemoteData(props.widget.url, params);
-	    if (data != null) {
-	      this.setState({ data: data });
+	    var params = {};
+	    for (var i = 0; i < this.state.params.length; i++) {
+	      params[this.state.params[i].name] = this.state.params[i].value;
 	    }
+
+	    this.getRemoteData(props.widget.url, params);
 	  },
 
 	  getConfigurable: function getConfigurable(params) {
@@ -482,7 +513,7 @@ var ReactDashboard =
 	        }(),
 	        React.createElement(
 	          'a',
-	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget },
+	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget.bind(this, this.props) },
 	          ' ',
 	          React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
 	          ' '
@@ -7647,7 +7678,9 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 
-	var WidgetList = {
+	var WidgetManager = {};
+
+	WidgetManager.WidgetList = {
 	  PieChart: __webpack_require__(178),
 	  ColumnChart: __webpack_require__(184),
 	  GeoChart: __webpack_require__(185),
@@ -7656,24 +7689,23 @@ var ReactDashboard =
 	  Gauge: __webpack_require__(188)
 	};
 
-	//below are for adding custom widgets
-
 	/**
 	 * Add a Widget
 	 *
 	 * @param  type      name     Name of Widget
 	 * @param  Component instance Widget Component
 	 */
-	WidgetList.addWidget = function (name, instance) {
+	WidgetManager.addWidget = function (name, instance) {
 	  if (typeof name !== 'string') {
 	    throw new Error('ReactDashboard: First parameter of addWidget must be of type string');
 	  }
 
+	  //this validation does not work
 	  if (!React.Component instanceof instance.constructor) {
 	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
 	  }
 
-	  WidgetList[name] = instance;
+	  WidgetManager.WidgetList[name] = instance;
 	};
 
 	/**
@@ -7681,17 +7713,17 @@ var ReactDashboard =
 	 *
 	 * @param  object widgets, Widgets to add. string => Component
 	 */
-	WidgetList.addWidgets = function (widgets) {
+	WidgetManager.addWidgets = function (widgets) {
 	  if ((typeof widgets === 'undefined' ? 'undefined' : _typeof(widgets)) !== 'object') {
 	    throw new Error('ReactDashboard: First parameter of addWidgets must be of type object');
 	  }
 
 	  for (var name in widgets) {
-	    WidgetList.addWidget(name, widgets[name]);
+	    WidgetManager.addWidget(name, widgets[name]);
 	  }
 	};
 
-	module.exports = WidgetList;
+	module.exports = WidgetManager;
 
 /***/ },
 /* 178 */
@@ -7701,11 +7733,18 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var PieChart = React.createClass({
 	  displayName: 'PieChart',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "PieChart", title: "Pie Chart", url: "testdata/PieChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -7736,7 +7775,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10048,11 +10087,18 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var ColumnChart = React.createClass({
 	  displayName: 'ColumnChart',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "ColumnChart", title: "Column Chart", url: "testdata/ColumnChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10083,7 +10129,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10141,11 +10187,18 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var GeoChart = React.createClass({
 	  displayName: 'GeoChart',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "GeoChart", title: "Geo Chart", url: "testdata/GeoChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10176,7 +10229,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10234,11 +10287,18 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var TableView = React.createClass({
 	  displayName: 'TableView',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "TableView", title: "Table", url: "testdata/TableView.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10269,7 +10329,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10327,11 +10387,18 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var ScatterChart = React.createClass({
 	  displayName: 'ScatterChart',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "ScatterChart", title: "Scatter Chart", url: "testdata/ScatterChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10362,7 +10429,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10420,11 +10487,18 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(179);
+	var isEmpty = __webpack_require__(189);
 	var GoogleChartLoader = __webpack_require__(180);
 
 	var Gauge = React.createClass({
 	  displayName: 'Gauge',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "Gauge", title: "Gauge", url: "testdata/Gauge.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
+	    }
+	  },
 
 	  gc_id: null,
 	  chart: null,
@@ -10455,7 +10529,7 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || this.props.data.data.length == 0) {
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
 	      return;
 	    }
 
@@ -10504,6 +10578,115 @@ var ReactDashboard =
 	};
 
 	module.exports = Gauge;
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isEmpty', __webpack_require__(190), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 190 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var getTag = __webpack_require__(110),
+	    isArguments = __webpack_require__(68),
+	    isArray = __webpack_require__(43),
+	    isArrayLike = __webpack_require__(70),
+	    isBuffer = __webpack_require__(131),
+	    isFunction = __webpack_require__(17),
+	    isObjectLike = __webpack_require__(44),
+	    isString = __webpack_require__(74),
+	    keys = __webpack_require__(62);
+
+	/** `Object#toString` result references. */
+	var mapTag = '[object Map]',
+	    setTag = '[object Set]';
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/** Built-in value references. */
+	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
+
+	/**
+	 * Checks if `value` is an empty object, collection, map, or set.
+	 *
+	 * Objects are considered empty if they have no own enumerable string keyed
+	 * properties.
+	 *
+	 * Array-like values such as `arguments` objects, arrays, buffers, strings, or
+	 * jQuery-like collections are considered empty if they have a `length` of `0`.
+	 * Similarly, maps and sets are considered empty if they have a `size` of `0`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is empty, else `false`.
+	 * @example
+	 *
+	 * _.isEmpty(null);
+	 * // => true
+	 *
+	 * _.isEmpty(true);
+	 * // => true
+	 *
+	 * _.isEmpty(1);
+	 * // => true
+	 *
+	 * _.isEmpty([1, 2, 3]);
+	 * // => false
+	 *
+	 * _.isEmpty({ 'a': 1 });
+	 * // => false
+	 */
+	function isEmpty(value) {
+	  if (isArrayLike(value) && (isArray(value) || isString(value) || isFunction(value.splice) || isArguments(value) || isBuffer(value))) {
+	    return !value.length;
+	  }
+	  if (isObjectLike(value)) {
+	    var tag = getTag(value);
+	    if (tag == mapTag || tag == setTag) {
+	      return !value.size;
+	    }
+	  }
+	  for (var key in value) {
+	    if (hasOwnProperty.call(value, key)) {
+	      return false;
+	    }
+	  }
+	  return !(nonEnumShadows && keys(value).length);
+	}
+
+	module.exports = isEmpty;
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
 
 /***/ }
 /******/ ]);
