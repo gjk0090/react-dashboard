@@ -292,6 +292,9 @@ var ReactDashboard =
 	  schema: { title: "ReactJS Dashboard", style: {}, widgets: [] }
 	};
 
+	Dashboard.addWidget = __webpack_require__(177).addWidget;
+	Dashboard.addWidgets = __webpack_require__(177).addWidgets;
+
 	module.exports = Dashboard;
 
 /***/ },
@@ -330,9 +333,6 @@ var ReactDashboard =
 	    this.refreshWidget(this.props);
 	  },
 
-	  //this function triggers before render except first time
-	  //this functoin can set state safely
-	  //this is only triggered when updated from outside
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    this.refreshWidget(nextProps);
 	  },

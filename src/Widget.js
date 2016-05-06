@@ -22,9 +22,6 @@ var Widget = React.createClass({
     this.refreshWidget(this.props);
   },
 
-  //this function triggers before render except first time
-  //this functoin can set state safely
-  //this is only triggered when updated from outside
   componentWillReceiveProps: function(nextProps) {
     this.refreshWidget(nextProps);
   },

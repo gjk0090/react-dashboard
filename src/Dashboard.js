@@ -212,4 +212,7 @@ Dashboard.defaultProps = {
   schema      : {title:"ReactJS Dashboard", style:{}, widgets:[]},
 };
 
+Dashboard.addWidget = require('./widgets').addWidget;
+Dashboard.addWidgets = require('./widgets').addWidgets;
+
 module.exports = Dashboard;
