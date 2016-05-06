@@ -1,19 +1,15 @@
 var React = require('react');
 
-var WidgetManager = {
-  WidgetList : { 
+var WidgetManager = {};
+
+WidgetManager.WidgetList = { 
     PieChart : require('./PieChart'),
     ColumnChart : require('./ColumnChart'),
     GeoChart : require('./GeoChart'),
     TableView : require('./TableView'),
     ScatterChart : require('./ScatterChart'),
     Gauge : require('./Gauge')
-  }
 };
-
-
-
-//below are for adding custom widgets
 
 /**
  * Add a Widget

@@ -7678,18 +7678,16 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 
-	var WidgetManager = {
-	  WidgetList: {
-	    PieChart: __webpack_require__(178),
-	    ColumnChart: __webpack_require__(184),
-	    GeoChart: __webpack_require__(185),
-	    TableView: __webpack_require__(186),
-	    ScatterChart: __webpack_require__(187),
-	    Gauge: __webpack_require__(188)
-	  }
-	};
+	var WidgetManager = {};
 
-	//below are for adding custom widgets
+	WidgetManager.WidgetList = {
+	  PieChart: __webpack_require__(178),
+	  ColumnChart: __webpack_require__(184),
+	  GeoChart: __webpack_require__(185),
+	  TableView: __webpack_require__(186),
+	  ScatterChart: __webpack_require__(187),
+	  Gauge: __webpack_require__(188)
+	};
 
 	/**
 	 * Add a Widget
