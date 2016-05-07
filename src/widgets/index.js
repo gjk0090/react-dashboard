@@ -23,7 +23,7 @@ WidgetManager.addWidget = (name, instance) => {
   }
 
   //this validation does not work
-  if (!React.isValidElement(instance)) {
+  if (!React.Component instanceof instance.constructor) {
     throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
   }
 
