@@ -1,7 +1,6 @@
 var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
-var GoogleChartLoader = require('../GoogleChartLoader');
 
 var Gauge = React.createClass({
 
@@ -23,13 +22,13 @@ var Gauge = React.createClass({
 
   componentDidMount: function(){
     var self = this;
-    GoogleChartLoader.init().then(function(){
+    ReactDashboard.GoogleChartLoader.init().then(function(){
       self.drawChart();
     });
   },
   
   componentDidUpdate: function(){
-    if (GoogleChartLoader.is_loaded){
+    if (ReactDashboard.GoogleChartLoader.is_loaded){
       this.drawChart();
     };
   },

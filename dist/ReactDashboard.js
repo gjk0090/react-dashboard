@@ -50,9 +50,9 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
-	var isEmpty = __webpack_require__(189);
+	var isEmpty = __webpack_require__(176);
 	var isFunction = __webpack_require__(191);
-	var WidgetList = __webpack_require__(177).WidgetList;
+	var WidgetList = __webpack_require__(179).WidgetList;
 
 	var Dashboard = React.createClass({
 	  displayName: 'Dashboard',
@@ -321,8 +321,9 @@ var ReactDashboard =
 	  schema: { title: "ReactJS Dashboard", style: {}, widgets: [] }
 	};
 
-	Dashboard.addWidget = __webpack_require__(177).addWidget;
-	Dashboard.addWidgets = __webpack_require__(177).addWidgets;
+	Dashboard.addWidget = __webpack_require__(179).addWidget;
+	Dashboard.addWidgets = __webpack_require__(179).addWidgets;
+	Dashboard.GoogleChartLoader = __webpack_require__(182);
 
 	module.exports = Dashboard;
 
@@ -340,9 +341,9 @@ var ReactDashboard =
 
 	var React = __webpack_require__(1);
 	var cloneDeep = __webpack_require__(3);
-	var isEmpty = __webpack_require__(189);
-	var Modal = __webpack_require__(176).Modal;
-	var WidgetList = __webpack_require__(177).WidgetList;
+	var isEmpty = __webpack_require__(176);
+	var Modal = __webpack_require__(178).Modal;
+	var WidgetList = __webpack_require__(179).WidgetList;
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -7664,12 +7665,109 @@ var ReactDashboard =
 
 /***/ },
 /* 176 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isEmpty', __webpack_require__(177), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 177 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var getTag = __webpack_require__(110),
+	    isArguments = __webpack_require__(68),
+	    isArray = __webpack_require__(43),
+	    isArrayLike = __webpack_require__(70),
+	    isBuffer = __webpack_require__(131),
+	    isFunction = __webpack_require__(17),
+	    isObjectLike = __webpack_require__(44),
+	    isString = __webpack_require__(74),
+	    keys = __webpack_require__(62);
+
+	/** `Object#toString` result references. */
+	var mapTag = '[object Map]',
+	    setTag = '[object Set]';
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/** Built-in value references. */
+	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
+
+	/**
+	 * Checks if `value` is an empty object, collection, map, or set.
+	 *
+	 * Objects are considered empty if they have no own enumerable string keyed
+	 * properties.
+	 *
+	 * Array-like values such as `arguments` objects, arrays, buffers, strings, or
+	 * jQuery-like collections are considered empty if they have a `length` of `0`.
+	 * Similarly, maps and sets are considered empty if they have a `size` of `0`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is empty, else `false`.
+	 * @example
+	 *
+	 * _.isEmpty(null);
+	 * // => true
+	 *
+	 * _.isEmpty(true);
+	 * // => true
+	 *
+	 * _.isEmpty(1);
+	 * // => true
+	 *
+	 * _.isEmpty([1, 2, 3]);
+	 * // => false
+	 *
+	 * _.isEmpty({ 'a': 1 });
+	 * // => false
+	 */
+	function isEmpty(value) {
+	  if (isArrayLike(value) && (isArray(value) || isString(value) || isFunction(value.splice) || isArguments(value) || isBuffer(value))) {
+	    return !value.length;
+	  }
+	  if (isObjectLike(value)) {
+	    var tag = getTag(value);
+	    if (tag == mapTag || tag == setTag) {
+	      return !value.size;
+	    }
+	  }
+	  for (var key in value) {
+	    if (hasOwnProperty.call(value, key)) {
+	      return false;
+	    }
+	  }
+	  return !(nonEnumShadows && keys(value).length);
+	}
+
+	module.exports = isEmpty;
+
+/***/ },
+/* 178 */
 /***/ function(module, exports) {
 
 	module.exports = ReactBootstrap;
 
 /***/ },
-/* 177 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7681,12 +7779,12 @@ var ReactDashboard =
 	var WidgetManager = {};
 
 	WidgetManager.WidgetList = {
-	  PieChart: __webpack_require__(178),
-	  ColumnChart: __webpack_require__(184),
-	  GeoChart: __webpack_require__(185),
-	  TableView: __webpack_require__(186),
-	  ScatterChart: __webpack_require__(187),
-	  Gauge: __webpack_require__(188)
+	  PieChart: __webpack_require__(180),
+	  ColumnChart: __webpack_require__(186),
+	  GeoChart: __webpack_require__(187),
+	  TableView: __webpack_require__(188),
+	  ScatterChart: __webpack_require__(189),
+	  Gauge: __webpack_require__(190)
 	};
 
 	/**
@@ -7726,15 +7824,14 @@ var ReactDashboard =
 	module.exports = WidgetManager;
 
 /***/ },
-/* 178 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(179);
-	var isEmpty = __webpack_require__(189);
-	var GoogleChartLoader = __webpack_require__(180);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
 
 	var PieChart = React.createClass({
 	  displayName: 'PieChart',
@@ -7758,13 +7855,13 @@ var ReactDashboard =
 
 	  componentDidMount: function componentDidMount() {
 	    var self = this;
-	    GoogleChartLoader.init().then(function () {
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
 	      self.drawChart();
 	    });
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    if (GoogleChartLoader.is_loaded) {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
 	      this.drawChart();
 	    };
 	  },
@@ -7826,7 +7923,7 @@ var ReactDashboard =
 	module.exports = PieChart;
 
 /***/ },
-/* 179 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7838,7 +7935,7 @@ var ReactDashboard =
 	module.exports = func;
 
 /***/ },
-/* 180 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7846,7 +7943,7 @@ var ReactDashboard =
 	//GoogleChartLoader Singleton
 	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
 
-	var q = __webpack_require__(181);
+	var q = __webpack_require__(183);
 
 	var GoogleChartLoader = function GoogleChartLoader() {
 
@@ -7883,7 +7980,7 @@ var ReactDashboard =
 	module.exports = new GoogleChartLoader();
 
 /***/ },
-/* 181 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, module) {"use strict";
@@ -9891,10 +9988,10 @@ var ReactDashboard =
 
 	    return Q;
 	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(182), __webpack_require__(183).setImmediate, __webpack_require__(22)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(184), __webpack_require__(185).setImmediate, __webpack_require__(22)(module)))
 
 /***/ },
-/* 182 */
+/* 184 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -9996,12 +10093,12 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 183 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {"use strict";
 
-	var nextTick = __webpack_require__(182).nextTick;
+	var nextTick = __webpack_require__(184).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -10077,18 +10174,17 @@ var ReactDashboard =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function (id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(183).setImmediate, __webpack_require__(183).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(185).setImmediate, __webpack_require__(185).clearImmediate))
 
 /***/ },
-/* 184 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(179);
-	var isEmpty = __webpack_require__(189);
-	var GoogleChartLoader = __webpack_require__(180);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
 
 	var ColumnChart = React.createClass({
 	  displayName: 'ColumnChart',
@@ -10112,13 +10208,13 @@ var ReactDashboard =
 
 	  componentDidMount: function componentDidMount() {
 	    var self = this;
-	    GoogleChartLoader.init().then(function () {
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
 	      self.drawChart();
 	    });
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    if (GoogleChartLoader.is_loaded) {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
 	      this.drawChart();
 	    };
 	  },
@@ -10180,15 +10276,14 @@ var ReactDashboard =
 	module.exports = ColumnChart;
 
 /***/ },
-/* 185 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(179);
-	var isEmpty = __webpack_require__(189);
-	var GoogleChartLoader = __webpack_require__(180);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
 
 	var GeoChart = React.createClass({
 	  displayName: 'GeoChart',
@@ -10212,13 +10307,13 @@ var ReactDashboard =
 
 	  componentDidMount: function componentDidMount() {
 	    var self = this;
-	    GoogleChartLoader.init().then(function () {
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
 	      self.drawChart();
 	    });
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    if (GoogleChartLoader.is_loaded) {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
 	      this.drawChart();
 	    };
 	  },
@@ -10280,15 +10375,14 @@ var ReactDashboard =
 	module.exports = GeoChart;
 
 /***/ },
-/* 186 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(179);
-	var isEmpty = __webpack_require__(189);
-	var GoogleChartLoader = __webpack_require__(180);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
 
 	var TableView = React.createClass({
 	  displayName: 'TableView',
@@ -10312,13 +10406,13 @@ var ReactDashboard =
 
 	  componentDidMount: function componentDidMount() {
 	    var self = this;
-	    GoogleChartLoader.init().then(function () {
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
 	      self.drawChart();
 	    });
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    if (GoogleChartLoader.is_loaded) {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
 	      this.drawChart();
 	    };
 	  },
@@ -10380,15 +10474,14 @@ var ReactDashboard =
 	module.exports = TableView;
 
 /***/ },
-/* 187 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(179);
-	var isEmpty = __webpack_require__(189);
-	var GoogleChartLoader = __webpack_require__(180);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
 
 	var ScatterChart = React.createClass({
 	  displayName: 'ScatterChart',
@@ -10412,13 +10505,13 @@ var ReactDashboard =
 
 	  componentDidMount: function componentDidMount() {
 	    var self = this;
-	    GoogleChartLoader.init().then(function () {
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
 	      self.drawChart();
 	    });
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    if (GoogleChartLoader.is_loaded) {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
 	      this.drawChart();
 	    };
 	  },
@@ -10480,15 +10573,14 @@ var ReactDashboard =
 	module.exports = ScatterChart;
 
 /***/ },
-/* 188 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(179);
-	var isEmpty = __webpack_require__(189);
-	var GoogleChartLoader = __webpack_require__(180);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
 
 	var Gauge = React.createClass({
 	  displayName: 'Gauge',
@@ -10512,13 +10604,13 @@ var ReactDashboard =
 
 	  componentDidMount: function componentDidMount() {
 	    var self = this;
-	    GoogleChartLoader.init().then(function () {
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
 	      self.drawChart();
 	    });
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    if (GoogleChartLoader.is_loaded) {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
 	      this.drawChart();
 	    };
 	  },
@@ -10578,103 +10670,6 @@ var ReactDashboard =
 	};
 
 	module.exports = Gauge;
-
-/***/ },
-/* 189 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var convert = __webpack_require__(4),
-	    func = convert('isEmpty', __webpack_require__(190), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
-
-/***/ },
-/* 190 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var getTag = __webpack_require__(110),
-	    isArguments = __webpack_require__(68),
-	    isArray = __webpack_require__(43),
-	    isArrayLike = __webpack_require__(70),
-	    isBuffer = __webpack_require__(131),
-	    isFunction = __webpack_require__(17),
-	    isObjectLike = __webpack_require__(44),
-	    isString = __webpack_require__(74),
-	    keys = __webpack_require__(62);
-
-	/** `Object#toString` result references. */
-	var mapTag = '[object Map]',
-	    setTag = '[object Set]';
-
-	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/** Built-in value references. */
-	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-
-	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
-	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
-
-	/**
-	 * Checks if `value` is an empty object, collection, map, or set.
-	 *
-	 * Objects are considered empty if they have no own enumerable string keyed
-	 * properties.
-	 *
-	 * Array-like values such as `arguments` objects, arrays, buffers, strings, or
-	 * jQuery-like collections are considered empty if they have a `length` of `0`.
-	 * Similarly, maps and sets are considered empty if they have a `size` of `0`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is empty, else `false`.
-	 * @example
-	 *
-	 * _.isEmpty(null);
-	 * // => true
-	 *
-	 * _.isEmpty(true);
-	 * // => true
-	 *
-	 * _.isEmpty(1);
-	 * // => true
-	 *
-	 * _.isEmpty([1, 2, 3]);
-	 * // => false
-	 *
-	 * _.isEmpty({ 'a': 1 });
-	 * // => false
-	 */
-	function isEmpty(value) {
-	  if (isArrayLike(value) && (isArray(value) || isString(value) || isFunction(value.splice) || isArguments(value) || isBuffer(value))) {
-	    return !value.length;
-	  }
-	  if (isObjectLike(value)) {
-	    var tag = getTag(value);
-	    if (tag == mapTag || tag == setTag) {
-	      return !value.size;
-	    }
-	  }
-	  for (var key in value) {
-	    if (hasOwnProperty.call(value, key)) {
-	      return false;
-	    }
-	  }
-	  return !(nonEnumShadows && keys(value).length);
-	}
-
-	module.exports = isEmpty;
 
 /***/ },
 /* 191 */

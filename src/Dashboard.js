@@ -237,5 +237,6 @@ Dashboard.defaultProps = {
 
 Dashboard.addWidget = require('./widgets').addWidget;
 Dashboard.addWidgets = require('./widgets').addWidgets;
+Dashboard.GoogleChartLoader = require('./GoogleChartLoader');
 
 module.exports = Dashboard;
