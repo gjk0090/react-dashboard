@@ -7799,7 +7799,7 @@ var ReactDashboard =
 	  }
 
 	  //this validation does not work
-	  if (!React.Component instanceof instance.constructor) {
+	  if (!React.isValidElement(instance)) {
 	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
 	  }
 
