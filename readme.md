@@ -29,8 +29,8 @@
 
 ###### project
 * tests
-* learn webpack
-* learn package.json
+* refine webpack.config.js
+* refine package.json
 * minify and map
 * beautiful readme
 * versioning, use branch
