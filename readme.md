@@ -15,7 +15,6 @@
 * wrap widget with grid for dnd
 * get rid of React-Bootstrap
 * fix validation in addWidget method
-* config for widget title -- Urgent
 
 ###### improvement
 * auto height

@@ -279,13 +279,13 @@ var ReactDashboard =
 	                { className: 'dropdown' },
 	                React.createElement(
 	                  'a',
-	                  { id: 'addWidgetDropDownMenu', style: aTagStyle, 'data-toggle': 'dropdown' },
+	                  { style: aTagStyle, 'data-toggle': 'dropdown' },
 	                  React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
 	                  React.createElement('span', { className: 'caret' })
 	                ),
 	                React.createElement(
 	                  'ul',
-	                  { className: 'dropdown-menu', 'aria-labelledby': 'addWidgetDropDownMenu' },
+	                  { className: 'dropdown-menu' },
 	                  addWidgetDropDownMenuOptions
 	                )
 	              ),

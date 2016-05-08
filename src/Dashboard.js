@@ -203,11 +203,11 @@ var Dashboard = React.createClass({
               return (
                 <span className="pull-right">
                   <span className="dropdown">
-                    <a id="addWidgetDropDownMenu" style={aTagStyle} data-toggle="dropdown">
+                    <a style={aTagStyle} data-toggle="dropdown">
                       <i className="glyphicon glyphicon-plus"></i>
                       <span className="caret"></span>
                     </a>
-                    <ul className="dropdown-menu" aria-labelledby="addWidgetDropDownMenu">
+                    <ul className="dropdown-menu">
                       {addWidgetDropDownMenuOptions}
                       {/*<li role="separator" className="divider"></li>*/}
                     </ul>
