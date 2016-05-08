@@ -10,6 +10,9 @@
         ["Lee",   {"v": 8000,  "f": "$7,000"},  true],
         ["Rose",   {"v": 12500,  "f": "$7,000"},  false],
         ["Yuki",   {"v": 7000,  "f": "$7,000"},  true]
-      ]
+      ],
+  	"options" : {
+        "showRowNumber": false, "width": "100%", "height": "100%"
+      }
   }
 }

@@ -7887,15 +7887,7 @@ var ReactDashboard =
 	    }
 
 	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = {
-	      title: "Hours per Day",
-	      chartArea: {
-	        left: "10%",
-	        top: "10%",
-	        height: "90%",
-	        width: "90%"
-	      }
-	    };
+	    this.gc_options = this.props.data.options;
 
 	    this.chart.draw(this.gc_data, this.gc_options);
 	  },
@@ -10248,26 +10240,7 @@ var ReactDashboard =
 	    }
 
 	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = {
-	      title: "Motivation and Energy Level Throughout the Day",
-	      colors: ["#9575cd", "#33ac71"],
-	      hAxis: {
-	        title: "Time of Day",
-	        format: "h:mm a",
-	        viewWindow: {
-	          min: [7, 30, 0],
-	          max: [17, 30, 0]
-	        }
-	      },
-	      vAxis: {
-	        title: "Rating (scale of 1-10)"
-	      },
-	      animation: {
-	        duration: 1000,
-	        easing: "out",
-	        startup: true
-	      }
-	    };
+	    this.gc_options = this.props.data.options;
 
 	    this.chart.draw(this.gc_data, this.gc_options);
 	  },
@@ -10366,7 +10339,7 @@ var ReactDashboard =
 	    }
 
 	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = {};
+	    this.gc_options = this.props.data.options;
 
 	    this.chart.draw(this.gc_data, this.gc_options);
 	  },
@@ -10465,9 +10438,7 @@ var ReactDashboard =
 	    }
 
 	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = {
-	      showRowNumber: false, width: "100%", height: "100%"
-	    };
+	    this.gc_options = this.props.data.options;
 
 	    this.chart.draw(this.gc_data, this.gc_options);
 	  },
@@ -10566,17 +10537,7 @@ var ReactDashboard =
 	    }
 
 	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = {
-	      title: "Age vs. Weight comparison",
-	      hAxis: { title: "Age", minValue: 0, maxValue: 15 },
-	      vAxis: { title: "Weight", minValue: 0, maxValue: 15 },
-	      legend: "none",
-	      animation: {
-	        duration: 1000,
-	        easing: "out",
-	        startup: true
-	      }
-	    };
+	    this.gc_options = this.props.data.options;
 
 	    this.chart.draw(this.gc_data, this.gc_options);
 	  },

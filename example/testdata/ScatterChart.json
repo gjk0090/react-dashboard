@@ -8,6 +8,17 @@
        [ 4,      5],
        [ 3,      3.5],
        [ 6.5,    7]
-    ]
+    ],
+    "options":{
+      "title": "Age vs. Weight comparison",
+      "hAxis": {"title": "Age", "minValue": 0, "maxValue": 15},
+      "vAxis": {"title": "Weight", "minValue": 0, "maxValue": 15},
+      "legend": "none",
+      "animation":{
+        "duration": 1000,
+        "easing": "out",
+        "startup": true
+      }
+    }
   }
 }

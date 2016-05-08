@@ -8,6 +8,20 @@
         ["Gym",  1],
         ["Other", 4],
         ["Sleep",    8]
-      ]
+      ],
+  	"options" : {
+  		"title": "Hours per Day",
+      "chartArea": {
+        "left": "10%",
+        "top": "10%",
+        "height": "90%",
+        "width": "90%"
+      },
+      "animation":{
+        "duration": 1000,
+        "easing": "out",
+        "startup": true
+      }
+  	}
   }
 }

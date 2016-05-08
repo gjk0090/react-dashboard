@@ -42,17 +42,7 @@ var ScatterChart = React.createClass({
     if(!isArray(this.props.data.data) || isEmpty(this.props.data.data)){return;}
 
     this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-    this.gc_options = {
-      title: "Age vs. Weight comparison",
-      hAxis: {title: "Age", minValue: 0, maxValue: 15},
-      vAxis: {title: "Weight", minValue: 0, maxValue: 15},
-      legend: "none",
-      animation:{
-        duration: 1000,
-        easing: "out",
-        startup: true
-      }
-    };
+    this.gc_options = this.props.data.options;
 
     this.chart.draw(this.gc_data, this.gc_options);
   },

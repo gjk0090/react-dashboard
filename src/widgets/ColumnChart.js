@@ -42,26 +42,7 @@ var ColumnChart = React.createClass({
     if(!isArray(this.props.data.data) || isEmpty(this.props.data.data)){return;}
 
     this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-    this.gc_options = {
-      title: "Motivation and Energy Level Throughout the Day",
-      colors: ["#9575cd", "#33ac71"],
-      hAxis: {
-        title: "Time of Day",
-        format: "h:mm a",
-        viewWindow: {
-          min: [7, 30, 0],
-          max: [17, 30, 0]
-        }
-      },
-      vAxis: {
-        title: "Rating (scale of 1-10)"
-      },
-      animation:{
-        duration: 1000,
-        easing: "out",
-        startup: true
-      }
-    };
+    this.gc_options = this.props.data.options;
 
     this.chart.draw(this.gc_data, this.gc_options);
   },
