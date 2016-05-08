@@ -391,9 +391,9 @@ var ReactDashboard =
 	      return null;
 	    }
 
-	    $.post(url, params, function (result) {
+	    $.getJson(url, function (result) {
 	      this.setState({ data: result.data });
-	    }.bind(this), "json");
+	    }.bind(this));
 	  },
 
 	  refreshWidget: function refreshWidget(props) {
