@@ -47,7 +47,7 @@ var Widget = React.createClass({
     if(isEmpty(url)){return null;}
 
     $.post(url, params, function(result) {
-      this.setState({data: result});
+      this.setState({data: result.data});
     }.bind(this), "json" );
   },
 

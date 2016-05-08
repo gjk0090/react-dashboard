@@ -392,7 +392,7 @@ var ReactDashboard =
 	    }
 
 	    $.post(url, params, function (result) {
-	      this.setState({ data: result });
+	      this.setState({ data: result.data });
 	    }.bind(this), "json");
 	  },
 
