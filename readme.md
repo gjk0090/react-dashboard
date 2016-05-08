@@ -25,6 +25,7 @@
 
 ###### google charts
 * Google Chart responsive
+* separate data & options
 
 ###### project
 * tests
