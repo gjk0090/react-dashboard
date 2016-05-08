@@ -78,9 +78,7 @@ var Widget = React.createClass({
 
   configParamsChanged: function(i,event){
     if(i == -1){
-      if(!isEmpty(event.target.value)){
-        this.tempTitle = event.target.value;
-      }
+      this.tempTitle = event.target.value;
     }else{
       this.tempParams[i].value = event.target.value;
     }
