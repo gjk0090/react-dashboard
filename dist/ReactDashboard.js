@@ -172,9 +172,8 @@ var ReactDashboard =
 	        tempWidgets.splice(i, 1);
 	      }
 	    } else if (action == "update_params") {
-	      tempWidgets[i][j].params = value;
-	    } else if (action == "update_title") {
-	      tempWidgets[i][j].title = value;
+	      tempWidgets[i][j].title = value.title;
+	      tempWidgets[i][j].params = value.params;
 	    }
 
 	    //alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
@@ -355,9 +354,9 @@ var ReactDashboard =
 	  tempParams: [],
 
 	  getInitialState: function getInitialState() {
+	    this.tempTitle = this.props.widget.title;
 	    this.tempParams = cloneDeep(this.props.widget.params);
-	    var configurable = this.getConfigurable(this.props.widget.params);
-	    return { data: this.props.widget.data, params: this.props.widget.params, configurable: configurable };
+	    return { data: this.props.widget.data, showModal: false };
 	  },
 
 	  componentWillMount: function componentWillMount() {},
@@ -368,7 +367,7 @@ var ReactDashboard =
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
-	    this.setState({ data: this.props.widget.data });
+	    this.setState({ data: this.props.widget.data, showModal: false });
 
 	    this.refreshWidget(nextProps);
 	  },
@@ -395,35 +394,26 @@ var ReactDashboard =
 
 	  refreshWidget: function refreshWidget(props) {
 	    var params = {};
-	    for (var i = 0; i < this.state.params.length; i++) {
-	      params[this.state.params[i].name] = this.state.params[i].value;
+	    for (var i = 0; i < this.props.widget.params.length; i++) {
+	      params[this.props.widget.params[i].name] = this.props.widget.params[i].value;
 	    }
 
 	    this.getRemoteData(props.widget.url, params);
 	  },
 
-	  getConfigurable: function getConfigurable(params) {
-	    for (var i = 0; i < params.length; i++) {
-	      if (params[i].configurable) {
-	        return true;
-	      }
-	    }
-	    return false;
-	  },
-
 	  openConfigModal: function openConfigModal() {
 	    this.tempTitle = this.props.widget.title;
-	    this.tempParams = cloneDeep(this.state.params);
+	    this.tempParams = cloneDeep(this.props.widget.params);
 	    this.setState({ showModal: true });
 	  },
 
 	  closeConfigModal: function closeConfigModal(action) {
 	    if (action == "save") {
-	      this.setState({ params: cloneDeep(this.tempParams) });
-	      this.props.onEdit("update_params", false, this.tempParams);
-	      this.props.onEdit("update_title", true, this.tempTitle);
-	    } else {}
-	    this.setState({ showModal: false });
+	      //this.setState({title: this.tempTitle, params: cloneDeep(this.tempParams)});
+	      this.props.onEdit("update_params", true, { title: this.tempTitle, params: this.tempParams });
+	    } else {
+	      this.setState({ showModal: false });
+	    }
 	  },
 
 	  configParamsChanged: function configParamsChanged(i, event) {
@@ -511,17 +501,13 @@ var ReactDashboard =
 	      headingButtons = React.createElement(
 	        'span',
 	        { className: 'pull-right' },
-	        function () {
-	          if (_this.state.configurable) {
-	            return React.createElement(
-	              'a',
-	              { title: 'edit widget params', style: aTagStyle, onClick: _this.openConfigModal },
-	              ' ',
-	              React.createElement('i', { className: 'glyphicon glyphicon-cog' }),
-	              ' '
-	            );
-	          }
-	        }(),
+	        React.createElement(
+	          'a',
+	          { title: 'edit widget params', style: aTagStyle, onClick: this.openConfigModal },
+	          ' ',
+	          React.createElement('i', { className: 'glyphicon glyphicon-cog' }),
+	          ' '
+	        ),
 	        React.createElement(
 	          'a',
 	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget.bind(this, this.props) },
@@ -537,7 +523,7 @@ var ReactDashboard =
 	      throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');
 	    }
 
-	    var configParamsList = this.state.params.map(function (param, i) {
+	    var configParamsList = this.props.widget.params.map(function (param, i) {
 	      if (!param.configurable) {
 	        return;
 	      }

@@ -11,9 +11,9 @@ var Widget = React.createClass({
   tempParams: [],
 
   getInitialState: function() {
+    this.tempTitle = this.props.widget.title;
     this.tempParams = cloneDeep(this.props.widget.params);
-    var configurable = this.getConfigurable(this.props.widget.params);
-    return {data: this.props.widget.data, params: this.props.widget.params, configurable: configurable};
+    return {data: this.props.widget.data, showModal: false};
   },
 
   componentWillMount: function(){
@@ -25,7 +25,7 @@ var Widget = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
-    this.setState({data: this.props.widget.data}); 
+    this.setState({data: this.props.widget.data, showModal: false}); 
 
     this.refreshWidget(nextProps);
   },
@@ -53,34 +53,27 @@ var Widget = React.createClass({
 
   refreshWidget: function(props) {
     var params = {}; 
-    for(var i=0; i<this.state.params.length; i++){
-      params[this.state.params[i].name] = this.state.params[i].value;
+    for(var i=0; i<this.props.widget.params.length; i++){
+      params[this.props.widget.params[i].name] = this.props.widget.params[i].value;
     }
 
     this.getRemoteData(props.widget.url, params);
   },
 
-  getConfigurable: function(params){
-    for(var i=0; i<params.length; i++){
-      if(params[i].configurable){return true;}
-    }
-    return false;
-  },
-
   openConfigModal: function(){
     this.tempTitle = this.props.widget.title;
-    this.tempParams = cloneDeep(this.state.params);
+    this.tempParams = cloneDeep(this.props.widget.params);
     this.setState({ showModal: true });
   },
 
   closeConfigModal: function(action) {
     if(action == "save"){
-      this.setState({params: cloneDeep(this.tempParams)});
-      this.props.onEdit("update_params", false, this.tempParams);
-      this.props.onEdit("update_title", true, this.tempTitle);
+      //this.setState({title: this.tempTitle, params: cloneDeep(this.tempParams)});
+      this.props.onEdit("update_params", true, {title: this.tempTitle, params: this.tempParams});
     }else{
+      this.setState({ showModal: false});
     }
-    this.setState({ showModal: false });
+
   },
 
   configParamsChanged: function(i,event){
@@ -124,11 +117,7 @@ var Widget = React.createClass({
     }else{
       headingButtons = (
         <span className="pull-right">
-          {(() => {
-            if(this.state.configurable){
-              return (<a title="edit widget params" style={aTagStyle} onClick={this.openConfigModal}> <i className="glyphicon glyphicon-cog"></i> </a>);
-            }
-          })()}
+          <a title="edit widget params" style={aTagStyle} onClick={this.openConfigModal}> <i className="glyphicon glyphicon-cog"></i> </a>
           <a title="reload widget content" style={aTagStyle} onClick={this.refreshWidget.bind(this, this.props)}> <i className="glyphicon glyphicon-refresh"></i> </a>
         </span>
       );
@@ -137,12 +126,12 @@ var Widget = React.createClass({
     var DetailWidget = WidgetList[this.props.widget.type];
     if (!DetailWidget) {throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');}
 
-    var configParamsList = this.state.params.map((param, i) => {
+    var configParamsList = this.props.widget.params.map((param, i) => {
       if(!param.configurable){return;}
       return(
         <div className="row" key={"config_param_"+i}>
-        <p className="col-xs-6">{param.name}</p>
-        <input className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
+          <p className="col-xs-6">{param.name}</p>
+          <input className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
         </div>
       );
     });

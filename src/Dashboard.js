@@ -129,10 +129,8 @@ var Dashboard = React.createClass({
       }
     }
     else if(action == "update_params"){
-      tempWidgets[i][j].params = value;
-    }
-    else if(action == "update_title"){
-      tempWidgets[i][j].title = value;
+      tempWidgets[i][j].title = value.title;
+      tempWidgets[i][j].params = value.params;
     }
 
     //alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
