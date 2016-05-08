@@ -42,7 +42,9 @@ var TableView = React.createClass({
     if(!isArray(this.props.data.data) || isEmpty(this.props.data.data)){return;}
 
     this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-    this.gc_options = this.props.data.options;
+    this.gc_options = {
+      showRowNumber: false, width: "100%", height: "100%"
+    };
 
     this.chart.draw(this.gc_data, this.gc_options);
   },
