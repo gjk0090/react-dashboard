@@ -1,16 +1,18 @@
-{
-	"data" : [
-    ["Label", "Value"],
-    ["Memory", 80],
-    ["CPU", 55],
-    ["Network", 68],
-    ["Disk", 30],
-    ["Battery", 99],
-    ["Temprature", 24]
-  ],
-	"options" : {
-    "redFrom": 90, "redTo": 100,
-    "yellowFrom":75, "yellowTo": 90,
-    "minorTicks": 5
-  }
+{"data" : 
+    {
+    	"data" : [
+        ["Label", "Value"],
+        ["Memory", 80],
+        ["CPU", 55],
+        ["Network", 68],
+        ["Disk", 30],
+        ["Battery", 99],
+        ["Temprature", 24]
+      ],
+    	"options" : {
+        "redFrom": 90, "redTo": 100,
+        "yellowFrom":75, "yellowTo": 90,
+        "minorTicks": 5
+      }
+    }
 }
