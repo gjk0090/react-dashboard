@@ -7,6 +7,7 @@ var WidgetList = require('./widgets').WidgetList;
 
 var Widget = React.createClass({
 
+  tempTitle: "",
   tempParams: [],
 
   getInitialState: function() {
@@ -67,6 +68,8 @@ var Widget = React.createClass({
   },
 
   openConfigModal: function(){
+    this.tempTitle = this.props.widget.title;
+    this.tempParams = cloneDeep(this.state.params);
     this.setState({ showModal: true });
   },
 
@@ -74,14 +77,20 @@ var Widget = React.createClass({
     if(action == "save"){
       this.setState({params: cloneDeep(this.tempParams)});
       this.props.onEdit("update_params", false, this.tempParams);
+      this.props.onEdit("update_title", true, this.tempTitle);
     }else{
-      this.tempParams = cloneDeep(this.state.params);
     }
     this.setState({ showModal: false });
   },
 
   configParamsChanged: function(i,event){
-    this.tempParams[i].value = event.target.value;
+    if(i == -1){
+      if(!isEmpty(event.target.value)){
+        this.tempTitle = event.target.value;
+      }
+    }else{
+      this.tempParams[i].value = event.target.value;
+    }
     //alert(i+event.target.value);
   },
 
@@ -133,7 +142,7 @@ var Widget = React.createClass({
       return(
         <div className="row" key={"config_param_"+i}>
         <p className="col-xs-6">{param.name}</p>
-        <input  className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
+        <input className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
         </div>
       );
     });
@@ -159,6 +168,10 @@ var Widget = React.createClass({
             </Modal.Header>
             <Modal.Body>
               <div style={{padding:"10px 20px"}}>
+                <div className="row">
+                  <p className="col-xs-6">Widget Title</p>
+                  <input className="col-xs-6" defaultValue={this.props.widget.title} onChange={this.configParamsChanged.bind(this, -1)}></input>
+                </div>
                 {configParamsList}
               </div>
             </Modal.Body>

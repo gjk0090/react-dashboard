@@ -173,6 +173,8 @@ var ReactDashboard =
 	      }
 	    } else if (action == "update_params") {
 	      tempWidgets[i][j].params = value;
+	    } else if (action == "update_title") {
+	      tempWidgets[i][j].title = value;
 	    }
 
 	    //alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
@@ -349,6 +351,7 @@ var ReactDashboard =
 	  displayName: 'Widget',
 
 
+	  tempTitle: "",
 	  tempParams: [],
 
 	  getInitialState: function getInitialState() {
@@ -409,6 +412,8 @@ var ReactDashboard =
 	  },
 
 	  openConfigModal: function openConfigModal() {
+	    this.tempTitle = this.props.widget.title;
+	    this.tempParams = cloneDeep(this.state.params);
 	    this.setState({ showModal: true });
 	  },
 
@@ -416,14 +421,19 @@ var ReactDashboard =
 	    if (action == "save") {
 	      this.setState({ params: cloneDeep(this.tempParams) });
 	      this.props.onEdit("update_params", false, this.tempParams);
-	    } else {
-	      this.tempParams = cloneDeep(this.state.params);
-	    }
+	      this.props.onEdit("update_title", true, this.tempTitle);
+	    } else {}
 	    this.setState({ showModal: false });
 	  },
 
 	  configParamsChanged: function configParamsChanged(i, event) {
-	    this.tempParams[i].value = event.target.value;
+	    if (i == -1) {
+	      if (!isEmpty(event.target.value)) {
+	        this.tempTitle = event.target.value;
+	      }
+	    } else {
+	      this.tempParams[i].value = event.target.value;
+	    }
 	    //alert(i+event.target.value);
 	  },
 
@@ -584,6 +594,16 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: { padding: "10px 20px" } },
+	            React.createElement(
+	              'div',
+	              { className: 'row' },
+	              React.createElement(
+	                'p',
+	                { className: 'col-xs-6' },
+	                'Widget Title'
+	              ),
+	              React.createElement('input', { className: 'col-xs-6', defaultValue: this.props.widget.title, onChange: this.configParamsChanged.bind(this, -1) })
+	            ),
 	            configParamsList
 	          )
 	        ),
