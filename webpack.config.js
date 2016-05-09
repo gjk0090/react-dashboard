@@ -26,12 +26,20 @@ module.exports = {
     }
 };
 
-
+// for custom widgets
 // module.exports = {
-//     entry: "./example/script.js",
+//     entry: "./example/customwidgets/CustomWidget.js",
 //     output: {
 //         path: __dirname,
-//         filename: "./example/build.js"
+//         filename: "./dist/CustomWidget.js",
+//         //the following 2 params exports the module as global variable
+//         libraryTarget: "var",
+//         library: "CustomWidget"
+//     },
+//     externals: {
+//      'react': 'React',
+//      'react-dom' : 'ReactDOM',
+//      'react-bootstrap' : 'ReactBootstrap'
 //     },
 //     module: {
 //         loaders: [{
