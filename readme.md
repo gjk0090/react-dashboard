@@ -18,6 +18,7 @@
 * revert the data.data thing
 * add params.widgetType = this.props.widget.type;
 * params.paramsNumber = this.props.widget.params.length; / params["param_"+i] = this.props.widget.params[i].value;
+* nextProps!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ###### improvement
 * auto height
