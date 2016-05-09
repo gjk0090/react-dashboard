@@ -28,10 +28,10 @@ module.exports = {
 
 // for custom widgets
 // module.exports = {
-//     entry: "./example/customwidgets/CustomWidget.js",
+//     entry: "./example/customwidgets/source/CustomWidget.js",
 //     output: {
 //         path: __dirname,
-//         filename: "./dist/CustomWidget.js",
+//         filename: "./example/customwidgets/build/CustomWidget.js",
 //         //the following 2 params exports the module as global variable
 //         libraryTarget: "var",
 //         library: "CustomWidget"
