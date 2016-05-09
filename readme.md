@@ -15,6 +15,8 @@
 * wrap widget with grid for dnd
 * get rid of React-Bootstrap
 * fix validation in addWidget method
+* revert the data.data thing
+* add params.widgetType = this.props.widget.type;
 
 ###### improvement
 * auto height
