@@ -47,14 +47,17 @@ var Widget = React.createClass({
     if(isEmpty(url)){return null;}
 
     $.post(url, params, function(result) {
-      this.setState({data: result.data});
+      this.setState({data: result});
     }.bind(this), "json" );
   },
 
   refreshWidget: function(props) {
     var params = {}; 
-    for(var i=0; i<this.props.widget.params.length; i++){
-      params[this.props.widget.params[i].name] = this.props.widget.params[i].value;
+    params.widgetType = this.props.widget.type;
+    params.paramsNumber = this.props.widget.params.length;
+
+    for(var i=0; i<props.widget.params.length; i++){
+      params["param_"+i] = props.widget.params[i].value;
     }
 
     this.getRemoteData(props.widget.url, params);

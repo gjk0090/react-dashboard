@@ -51,7 +51,7 @@ var ReactDashboard =
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
-	var isFunction = __webpack_require__(191);
+	var isFunction = __webpack_require__(187);
 	var WidgetList = __webpack_require__(179).WidgetList;
 
 	var Dashboard = React.createClass({
@@ -328,7 +328,7 @@ var ReactDashboard =
 
 	Dashboard.addWidget = __webpack_require__(179).addWidget;
 	Dashboard.addWidgets = __webpack_require__(179).addWidgets;
-	Dashboard.GoogleChartLoader = __webpack_require__(182);
+	Dashboard.GoogleChartLoader = __webpack_require__(188);
 
 	module.exports = Dashboard;
 
@@ -392,14 +392,17 @@ var ReactDashboard =
 	    }
 
 	    $.post(url, params, function (result) {
-	      this.setState({ data: result.data });
+	      this.setState({ data: result });
 	    }.bind(this), "json");
 	  },
 
 	  refreshWidget: function refreshWidget(props) {
 	    var params = {};
-	    for (var i = 0; i < this.props.widget.params.length; i++) {
-	      params[this.props.widget.params[i].name] = this.props.widget.params[i].value;
+	    params.widgetType = this.props.widget.type;
+	    params.paramsNumber = this.props.widget.params.length;
+
+	    for (var i = 0; i < props.widget.params.length; i++) {
+	      params["param_" + i] = props.widget.params[i].value;
 	    }
 
 	    this.getRemoteData(props.widget.url, params);
@@ -7788,11 +7791,11 @@ var ReactDashboard =
 
 	WidgetManager.WidgetList = {
 	  PieChart: __webpack_require__(180),
-	  ColumnChart: __webpack_require__(186),
-	  GeoChart: __webpack_require__(187),
-	  TableView: __webpack_require__(188),
-	  ScatterChart: __webpack_require__(189),
-	  Gauge: __webpack_require__(190)
+	  ColumnChart: __webpack_require__(182),
+	  GeoChart: __webpack_require__(183),
+	  TableView: __webpack_require__(184),
+	  ScatterChart: __webpack_require__(185),
+	  Gauge: __webpack_require__(186)
 	};
 
 	/**
@@ -7948,10 +7951,517 @@ var ReactDashboard =
 
 	'use strict';
 
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
+
+	var ColumnChart = React.createClass({
+	  displayName: 'ColumnChart',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "ColumnChart", title: "Column Chart", url: "testdata/ColumnChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }], data: "testData" };
+	    }
+	  },
+
+	  gc_id: null,
+	  chart: null,
+	  gc_data: null,
+	  gc_options: null,
+
+	  getInitialState: function getInitialState() {
+	    this.gc_id = "column_chart_" + Math.floor(Math.random() * 1000000);
+	    return null;
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var self = this;
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
+	      self.drawChart();
+	    });
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
+	      this.drawChart();
+	    };
+	  },
+
+	  drawChart: function drawChart() {
+	    if (!this.chart) {
+	      this.chart = new google.visualization.ColumnChart(document.getElementById(this.gc_id));
+	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+	    }
+
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
+	      return;
+	    }
+
+	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
+	    this.gc_options = this.props.data.options;
+
+	    this.chart.draw(this.gc_data, this.gc_options);
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.chart;
+	    var gc_data = this.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.gc_id },
+	        'Sorry, Google Chart API is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	ColumnChart.defaultProps = {
+	  data: { data: [], options: {} },
+	  onClick: undefined
+	};
+
+	module.exports = ColumnChart;
+
+/***/ },
+/* 183 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
+
+	var GeoChart = React.createClass({
+	  displayName: 'GeoChart',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "GeoChart", title: "Geo Chart", url: "testdata/GeoChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
+
+	  gc_id: null,
+	  chart: null,
+	  gc_data: null,
+	  gc_options: null,
+
+	  getInitialState: function getInitialState() {
+	    this.gc_id = "geo_chart_" + Math.floor(Math.random() * 1000000);
+	    return null;
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var self = this;
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
+	      self.drawChart();
+	    });
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
+	      this.drawChart();
+	    };
+	  },
+
+	  drawChart: function drawChart() {
+	    if (!this.chart) {
+	      this.chart = new google.visualization.GeoChart(document.getElementById(this.gc_id));
+	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+	    }
+
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
+	      return;
+	    }
+
+	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
+	    this.gc_options = this.props.data.options;
+
+	    this.chart.draw(this.gc_data, this.gc_options);
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.chart;
+	    var gc_data = this.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.gc_id },
+	        'Sorry, Google Chart API is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	GeoChart.defaultProps = {
+	  data: { data: [], options: {} },
+	  onClick: undefined
+	};
+
+	module.exports = GeoChart;
+
+/***/ },
+/* 184 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
+
+	var TableView = React.createClass({
+	  displayName: 'TableView',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "TableView", title: "Table", url: "testdata/TableView.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
+	    }
+	  },
+
+	  gc_id: null,
+	  chart: null,
+	  gc_data: null,
+	  gc_options: null,
+
+	  getInitialState: function getInitialState() {
+	    this.gc_id = "table_view_" + Math.floor(Math.random() * 1000000);
+	    return null;
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var self = this;
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
+	      self.drawChart();
+	    });
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
+	      this.drawChart();
+	    };
+	  },
+
+	  drawChart: function drawChart() {
+	    if (!this.chart) {
+	      this.chart = new google.visualization.Table(document.getElementById(this.gc_id));
+	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+	    }
+
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
+	      return;
+	    }
+
+	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
+	    this.gc_options = this.props.data.options;
+
+	    this.chart.draw(this.gc_data, this.gc_options);
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.chart;
+	    var gc_data = this.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.gc_id },
+	        'Sorry, Google Chart API is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	TableView.defaultProps = {
+	  data: { data: [], options: {} },
+	  onClick: undefined
+	};
+
+	module.exports = TableView;
+
+/***/ },
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
+
+	var ScatterChart = React.createClass({
+	  displayName: 'ScatterChart',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "ScatterChart", title: "Scatter Chart", url: "testdata/ScatterChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
+	    }
+	  },
+
+	  gc_id: null,
+	  chart: null,
+	  gc_data: null,
+	  gc_options: null,
+
+	  getInitialState: function getInitialState() {
+	    this.gc_id = "scatter_chart_" + Math.floor(Math.random() * 1000000);
+	    return null;
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var self = this;
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
+	      self.drawChart();
+	    });
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
+	      this.drawChart();
+	    };
+	  },
+
+	  drawChart: function drawChart() {
+	    if (!this.chart) {
+	      this.chart = new google.visualization.ScatterChart(document.getElementById(this.gc_id));
+	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+	    }
+
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
+	      return;
+	    }
+
+	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
+	    this.gc_options = this.props.data.options;
+
+	    this.chart.draw(this.gc_data, this.gc_options);
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.chart;
+	    var gc_data = this.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
+	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.gc_id },
+	        'Sorry, Google Chart API is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	ScatterChart.defaultProps = {
+	  data: { data: [], options: {} },
+	  onClick: undefined
+	};
+
+	module.exports = ScatterChart;
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
+
+	var Gauge = React.createClass({
+	  displayName: 'Gauge',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "4", type: "Gauge", title: "Gauge", url: "testdata/Gauge.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
+	    }
+	  },
+
+	  gc_id: null,
+	  chart: null,
+	  gc_data: null,
+	  gc_options: null,
+
+	  getInitialState: function getInitialState() {
+	    this.gc_id = "gauge_" + Math.floor(Math.random() * 1000000);
+	    return null;
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var self = this;
+	    ReactDashboard.GoogleChartLoader.init().then(function () {
+	      self.drawChart();
+	    });
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {
+	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
+	      this.drawChart();
+	    };
+	  },
+
+	  drawChart: function drawChart() {
+	    if (!this.chart) {
+	      this.chart = new google.visualization.Gauge(document.getElementById(this.gc_id));
+	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+	    }
+
+	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
+	      return;
+	    }
+
+	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
+	    this.gc_options = this.props.data.options;
+
+	    this.chart.draw(this.gc_data, this.gc_options);
+	  },
+
+	  handleSelect: function handleSelect() {
+	    var chart = this.chart;
+	    var gc_data = this.gc_data;
+	    var selected = chart.getSelection()[0];
+	    if (selected && (selected.row || selected.row == 0)) {
+	      //var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
+	      //this.props.onClick(value);     
+	    }
+	  },
+
+	  render: function render() {
+
+	    var chartWrapStyle = {};
+
+	    var chartStyle = {
+	      position: "absolute",
+	      width: "100%",
+	      height: "100%"
+	    };
+
+	    return React.createElement(
+	      'div',
+	      { style: chartWrapStyle },
+	      React.createElement(
+	        'div',
+	        { style: chartStyle, id: this.gc_id },
+	        'Sorry, Google Chart API is not properly loaded.'
+	      )
+	    );
+	  }
+
+	});
+
+	Gauge.defaultProps = {
+	  data: { data: [], options: {} },
+	  onClick: undefined
+	};
+
+	module.exports = Gauge;
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 188 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	//GoogleChartLoader Singleton
 	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
 
-	var q = __webpack_require__(183);
+	var q = __webpack_require__(189);
 
 	var GoogleChartLoader = function GoogleChartLoader() {
 
@@ -7988,7 +8498,7 @@ var ReactDashboard =
 	module.exports = new GoogleChartLoader();
 
 /***/ },
-/* 183 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, module) {"use strict";
@@ -9996,10 +10506,10 @@ var ReactDashboard =
 
 	    return Q;
 	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(184), __webpack_require__(185).setImmediate, __webpack_require__(22)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(190), __webpack_require__(191).setImmediate, __webpack_require__(22)(module)))
 
 /***/ },
-/* 184 */
+/* 190 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -10101,12 +10611,12 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 185 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {"use strict";
 
-	var nextTick = __webpack_require__(184).nextTick;
+	var nextTick = __webpack_require__(190).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -10182,514 +10692,7 @@ var ReactDashboard =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function (id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(185).setImmediate, __webpack_require__(185).clearImmediate))
-
-/***/ },
-/* 186 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var ColumnChart = React.createClass({
-	  displayName: 'ColumnChart',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "4", type: "ColumnChart", title: "Column Chart", url: "testdata/ColumnChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }], data: "testData" };
-	    }
-	  },
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "column_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ColumnChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = this.props.data.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ColumnChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ColumnChart;
-
-/***/ },
-/* 187 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var GeoChart = React.createClass({
-	  displayName: 'GeoChart',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "4", type: "GeoChart", title: "Geo Chart", url: "testdata/GeoChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
-	    }
-	  },
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "geo_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.GeoChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = this.props.data.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	GeoChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = GeoChart;
-
-/***/ },
-/* 188 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var TableView = React.createClass({
-	  displayName: 'TableView',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "4", type: "TableView", title: "Table", url: "testdata/TableView.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
-	    }
-	  },
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "table_view_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Table(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = this.props.data.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	TableView.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = TableView;
-
-/***/ },
-/* 189 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var ScatterChart = React.createClass({
-	  displayName: 'ScatterChart',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "4", type: "ScatterChart", title: "Scatter Chart", url: "testdata/ScatterChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
-	    }
-	  },
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "scatter_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ScatterChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = this.props.data.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ScatterChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ScatterChart;
-
-/***/ },
-/* 190 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var Gauge = React.createClass({
-	  displayName: 'Gauge',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "4", type: "Gauge", title: "Gauge", url: "testdata/Gauge.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: false }, { name: "paramB", type: "string", value: "efg", configurable: true }], data: "testData" };
-	    }
-	  },
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "gauge_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Gauge(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = this.props.data.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      //var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      //this.props.onClick(value);     
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	Gauge.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = Gauge;
-
-/***/ },
-/* 191 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var convert = __webpack_require__(4),
-	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(191).setImmediate, __webpack_require__(191).clearImmediate))
 
 /***/ }
 /******/ ]);
