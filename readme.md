@@ -16,6 +16,7 @@
 * get rid of React-Bootstrap
 * fix validation in addWidget method
 * config for less refresh
+* wrap basic widgets with business wrapper component
 
 ###### improvement
 * auto height
