@@ -15,6 +15,7 @@
 * wrap widget with grid for dnd
 * get rid of React-Bootstrap
 * fix validation in addWidget method
+* config for less refresh
 
 ###### improvement
 * auto height
