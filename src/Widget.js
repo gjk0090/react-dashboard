@@ -2,7 +2,7 @@ var React = require('react');
 var cloneDeep = require('lodash/fp/cloneDeep');
 var isEmpty = require('lodash/fp/isEmpty');
 var Modal = require('react-bootstrap').Modal;
-var WidgetList = require('./widgets').WidgetList;
+var WidgetList = require('./WidgetManager').WrapperWidgetList;
 
 
 var Widget = React.createClass({
@@ -57,7 +57,11 @@ var Widget = React.createClass({
     params.paramsNumber = this.props.widget.params.length;
 
     for(var i=0; i<props.widget.params.length; i++){
-      params["param_"+i] = props.widget.params[i].value;
+      if(props.widget.changeParamName){
+        params["param_"+i] = props.widget.params[i].value;
+      }else{
+        params[props.widget.params[i].name] = props.widget.params[i].value;
+      }
     }
 
     this.getRemoteData(props.widget.url, params);

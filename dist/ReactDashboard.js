@@ -51,8 +51,8 @@ var ReactDashboard =
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
-	var isFunction = __webpack_require__(187);
-	var WidgetList = __webpack_require__(179).WidgetList;
+	var isFunction = __webpack_require__(188);
+	var WidgetList = __webpack_require__(179).WrapperWidgetList;
 
 	var Dashboard = React.createClass({
 	  displayName: 'Dashboard',
@@ -328,7 +328,8 @@ var ReactDashboard =
 
 	Dashboard.addWidget = __webpack_require__(179).addWidget;
 	Dashboard.addWidgets = __webpack_require__(179).addWidgets;
-	Dashboard.GoogleChartLoader = __webpack_require__(188);
+	Dashboard.CoreWidgetList = __webpack_require__(179).CoreWidgetList;
+	Dashboard.GoogleChartLoader = __webpack_require__(189);
 
 	module.exports = Dashboard;
 
@@ -348,7 +349,7 @@ var ReactDashboard =
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
 	var Modal = __webpack_require__(178).Modal;
-	var WidgetList = __webpack_require__(179).WidgetList;
+	var WidgetList = __webpack_require__(179).WrapperWidgetList;
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -402,7 +403,11 @@ var ReactDashboard =
 	    params.paramsNumber = this.props.widget.params.length;
 
 	    for (var i = 0; i < props.widget.params.length; i++) {
-	      params["param_" + i] = props.widget.params[i].value;
+	      if (props.widget.changeParamName) {
+	        params["param_" + i] = props.widget.params[i].value;
+	      } else {
+	        params[props.widget.params[i].name] = props.widget.params[i].value;
+	      }
 	    }
 
 	    this.getRemoteData(props.widget.url, params);
@@ -7789,13 +7794,17 @@ var ReactDashboard =
 
 	var WidgetManager = {};
 
-	WidgetManager.WidgetList = {
+	WidgetManager.CoreWidgetList = {
 	  PieChart: __webpack_require__(180),
 	  ColumnChart: __webpack_require__(182),
 	  GeoChart: __webpack_require__(183),
 	  TableView: __webpack_require__(184),
 	  ScatterChart: __webpack_require__(185),
 	  Gauge: __webpack_require__(186)
+	};
+
+	WidgetManager.WrapperWidgetList = {
+	  GithubAuthor: __webpack_require__(187)
 	};
 
 	/**
@@ -7814,7 +7823,7 @@ var ReactDashboard =
 	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
 	  }
 
-	  WidgetManager.WidgetList[name] = instance;
+	  WidgetManager.WrapperWidgetList[name] = instance;
 	};
 
 	/**
@@ -7848,12 +7857,6 @@ var ReactDashboard =
 	  displayName: 'PieChart',
 
 
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "4", type: "PieChart", title: "Pie Chart", url: "testdata/PieChart.json", params: [{ name: "paramA", type: "string", value: "abc", configurable: true }], data: "testData" };
-	    }
-	  },
-
 	  gc_id: null,
 	  chart: null,
 	  gc_data: null,
@@ -7883,12 +7886,12 @@ var ReactDashboard =
 	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
 	    }
 
-	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
+	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
 	      return;
 	    }
 
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = this.props.data.options;
+	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
+	    this.gc_options = this.props.options;
 
 	    this.chart.draw(this.gc_data, this.gc_options);
 	  },
@@ -8446,11 +8449,44 @@ var ReactDashboard =
 
 	'use strict';
 
-	var convert = __webpack_require__(4),
-	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(181);
+	var isEmpty = __webpack_require__(176);
+	var PieChart = __webpack_require__(180);
 
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
+	var GithubAuthor = React.createClass({
+	  displayName: 'GithubAuthor',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "6", type: "GithubAuthor", title: "Github Author", url: "testdata/PieChart.json", params: [{ name: "project", type: "string", value: "abcabc", configurable: true }], changeParamName: false };
+	    }
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {};
+	  },
+
+	  componentDidMount: function componentDidMount() {},
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  render: function render() {
+
+	    //prepare valid data
+
+	    return React.createElement(PieChart, { data: this.props.data.data, options: this.props.data.options, onClick: this.props.onClick });
+	  }
+
+	});
+
+	GithubAuthor.defaultProps = {
+	  data: { data: [], options: {} },
+	  onClick: undefined
+	};
+
+	module.exports = GithubAuthor;
 
 /***/ },
 /* 188 */
@@ -8458,10 +8494,22 @@ var ReactDashboard =
 
 	'use strict';
 
+	var convert = __webpack_require__(4),
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	//GoogleChartLoader Singleton
 	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
 
-	var q = __webpack_require__(189);
+	var q = __webpack_require__(190);
 
 	var GoogleChartLoader = function GoogleChartLoader() {
 
@@ -8498,7 +8546,7 @@ var ReactDashboard =
 	module.exports = new GoogleChartLoader();
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, module) {"use strict";
@@ -10506,10 +10554,10 @@ var ReactDashboard =
 
 	    return Q;
 	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(190), __webpack_require__(191).setImmediate, __webpack_require__(22)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(191), __webpack_require__(192).setImmediate, __webpack_require__(22)(module)))
 
 /***/ },
-/* 190 */
+/* 191 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -10611,12 +10659,12 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 191 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {"use strict";
 
-	var nextTick = __webpack_require__(190).nextTick;
+	var nextTick = __webpack_require__(191).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -10692,7 +10740,7 @@ var ReactDashboard =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function (id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(191).setImmediate, __webpack_require__(191).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(192).setImmediate, __webpack_require__(192).clearImmediate))
 
 /***/ }
 /******/ ]);

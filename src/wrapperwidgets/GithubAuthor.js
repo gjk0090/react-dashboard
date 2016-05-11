@@ -1,13 +1,13 @@
 var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
-var PieChart = ReactDashboard.CoreWidgetList['PieChart'];
+var PieChart = require('../corewidgets/PieChart');
 
-var CustomWidget = React.createClass({
+var GithubAuthor = React.createClass({
 
   statics: {
     getTemplate: function() {
-      return {colSpan:"6", type:"CustomWidget", title:"Custom Widget", url:"testdata/PieChart.json", params:[{name:"project", type:"string", value:"abcabc", configurable:true}], changeParamName:false};
+      return {colSpan:"6", type:"GithubAuthor", title:"Github Author", url:"testdata/PieChart.json", params:[{name:"project", type:"string", value:"abcabc", configurable:true}], changeParamName:false};
     }
   },
 
@@ -32,9 +32,9 @@ var CustomWidget = React.createClass({
 
 });
 
-CustomWidget.defaultProps = {
+GithubAuthor.defaultProps = {
   data      : {data:[], options:{}},
   onClick   : undefined
 };
 
-module.exports = CustomWidget;
+module.exports = GithubAuthor;

@@ -17,6 +17,8 @@
 * fix validation in addWidget method
 * config for less refresh
 * wrap basic widgets with business wrapper component
+* param, name & displayName
+* ajax in wrapper widget?
 
 ###### improvement
 * auto height

@@ -50,95 +50,41 @@ var CustomWidget =
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(2);
 	var isEmpty = __webpack_require__(174);
+	var PieChart = ReactDashboard.CoreWidgetList['PieChart'];
 
-	var PieChart = React.createClass({
-	  displayName: 'PieChart',
+	var CustomWidget = React.createClass({
+	  displayName: 'CustomWidget',
 
 
 	  statics: {
 	    getTemplate: function getTemplate() {
-	      return { colSpan: "6", type: "PieChart", title: "Custom Widget", url: "testdata/PieChart.json", params: [{ name: "paramA", type: "string", value: "abcabc", configurable: true }], data: "testData" };
+	      return { colSpan: "6", type: "CustomWidget", title: "Custom Widget", url: "testdata/PieChart.json", params: [{ name: "project", type: "string", value: "abcabc", configurable: true }], changeParamName: false };
 	    }
 	  },
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
 
 	  getInitialState: function getInitialState() {
-	    this.gc_id = "pie_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
+	    return {};
 	  },
 
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
+	  componentDidMount: function componentDidMount() {},
 
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.PieChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data.data) || isEmpty(this.props.data.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-	    this.gc_options = this.props.data.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
+	  componentDidUpdate: function componentDidUpdate() {},
 
 	  render: function render() {
 
-	    var chartWrapStyle = {};
+	    //prepare valid data
 
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
+	    return React.createElement(PieChart, { data: this.props.data.data, options: this.props.data.options, onClick: this.props.onClick });
 	  }
 
 	});
 
-	PieChart.defaultProps = {
+	CustomWidget.defaultProps = {
 	  data: { data: [], options: {} },
 	  onClick: undefined
 	};
 
-	module.exports = PieChart;
+	module.exports = CustomWidget;
 
 /***/ },
 /* 1 */
