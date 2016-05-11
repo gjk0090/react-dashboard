@@ -58,8 +58,14 @@ var CustomWidget =
 
 	  statics: {
 	    getTemplate: function getTemplate() {
-	      return { colSpan: "6", type: "CustomWidget", title: "Custom Widget", url: "testdata/PieChart.json", params: [{ name: "project", type: "string", value: "abcabc", configurable: true }], changeParamName: false };
-	    }
+	      return { colSpan: "6", type: "CustomWidget", title: "Custom Widget", ajax: "get", params: [{ name: "paramA", type: "string", value: "ReactDashboard", displayName: "param A" }] };
+	    },
+	    prepareUrl: function prepareUrl(params) {
+	      var url = "testdata/PieChart.json";
+	      //var url = "https://api.github.com/repos/gjk0090/ReactDashboard/commits";
+	      return url;
+	    },
+	    prepareParamsForPost: function prepareParamsForPost(params) {}
 	  },
 
 	  getInitialState: function getInitialState() {
@@ -74,7 +80,10 @@ var CustomWidget =
 
 	    //prepare valid data
 
-	    return React.createElement(PieChart, { data: this.props.data.data, options: this.props.data.options, onClick: this.props.onClick });
+	    var gc_data = this.props.data.data;
+	    var gc_options = this.props.data.options;
+
+	    return React.createElement(PieChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
 	  }
 
 	});

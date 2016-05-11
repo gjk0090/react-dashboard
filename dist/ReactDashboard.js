@@ -355,10 +355,16 @@ var ReactDashboard =
 	  displayName: 'Widget',
 
 
+	  DetailWidget: undefined,
 	  tempTitle: "",
 	  tempParams: [],
 
 	  getInitialState: function getInitialState() {
+	    this.DetailWidget = WidgetList[this.props.widget.type];
+	    if (!this.DetailWidget) {
+	      throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');
+	    }
+
 	    this.tempTitle = this.props.widget.title;
 	    this.tempParams = cloneDeep(this.props.widget.params);
 	    return { data: this.props.widget.data, showModal: false };
@@ -387,30 +393,24 @@ var ReactDashboard =
 
 	  componentWillUnmount: function componentWillUnmount() {},
 
-	  getRemoteData: function getRemoteData(url, params) {
-	    if (isEmpty(url)) {
-	      return null;
-	    }
-
-	    $.post(url, params, function (result) {
-	      this.setState({ data: result });
-	    }.bind(this), "json");
-	  },
-
 	  refreshWidget: function refreshWidget(props) {
-	    var params = {};
-	    params.widgetType = this.props.widget.type;
-	    params.paramsNumber = this.props.widget.params.length;
 
-	    for (var i = 0; i < props.widget.params.length; i++) {
-	      if (props.widget.changeParamName) {
-	        params["param_" + i] = props.widget.params[i].value;
-	      } else {
-	        params[props.widget.params[i].name] = props.widget.params[i].value;
-	      }
+	    if (props.widget.ajax == "get") {
+
+	      var url = this.DetailWidget.prepareUrl(props.widget.params);
+	      $.get(url, function (result) {
+	        this.setState({ data: result });
+	      }.bind(this), "json");
+	    } else if (props.widget.ajax == "post") {
+
+	      var url = this.DetailWidget.prepareUrl(props.widget.params);;
+	      var params = this.DetailWidget.prepareParamsForPost(props.widget.params);
+	      $.post(url, params, function (result) {
+	        this.setState({ data: result });
+	      }.bind(this), "json");
+	    } else {
+	      //do nothing
 	    }
-
-	    this.getRemoteData(props.widget.url, params);
 	  },
 
 	  openConfigModal: function openConfigModal() {
@@ -528,22 +528,14 @@ var ReactDashboard =
 	      );
 	    }
 
-	    var DetailWidget = WidgetList[this.props.widget.type];
-	    if (!DetailWidget) {
-	      throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');
-	    }
-
 	    var configParamsList = this.props.widget.params.map(function (param, i) {
-	      if (!param.configurable) {
-	        return;
-	      }
 	      return React.createElement(
 	        'div',
 	        { className: 'row', key: "config_param_" + i },
 	        React.createElement(
 	          'p',
 	          { className: 'col-xs-6' },
-	          param.name
+	          param.displayName
 	        ),
 	        React.createElement('input', { className: 'col-xs-6', defaultValue: param.value, onChange: _this.configParamsChanged.bind(_this, i) })
 	      );
@@ -568,7 +560,7 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: panelBodyStyle },
-	            React.createElement(DetailWidget, { data: this.state.data, onClick: this.props.onClick })
+	            React.createElement(this.DetailWidget, { data: this.state.data, onClick: this.props.onClick })
 	          )
 	        )
 	      ),
@@ -624,7 +616,7 @@ var ReactDashboard =
 	});
 
 	Widget.defaultProps = {
-	  widget: { colSpan: "", type: "", title: "", url: "", params: [], data: "" },
+	  widget: { colSpan: "6", type: "", title: "", ajax: "none", params: [{ name: "", type: "string", value: "", displayName: "" }], data: "" },
 	  onClick: undefined
 	};
 
@@ -8460,8 +8452,15 @@ var ReactDashboard =
 
 	  statics: {
 	    getTemplate: function getTemplate() {
-	      return { colSpan: "6", type: "GithubAuthor", title: "Github Author", url: "testdata/PieChart.json", params: [{ name: "project", type: "string", value: "abcabc", configurable: true }], changeParamName: false };
-	    }
+	      //return {colSpan:"6", type:"GithubAuthor", title:"Github Author", url:"testdata/PieChart.json", params:[{name:"project", type:"string", value:"abcabc", configurable:true}], changeParamName:false};
+	      return { colSpan: "6", type: "GithubAuthor", title: "Github Author", ajax: "get", params: [{ name: "project", type: "string", value: "/gjk0090/ReactDashboard", displayName: "project path" }] };
+	    },
+	    prepareUrl: function prepareUrl(params) {
+	      var url = "testdata/PieChart.json";
+	      //var url = "https://api.github.com/repos/gjk0090/ReactDashboard/commits";
+	      return url;
+	    },
+	    prepareParamsForPost: function prepareParamsForPost(params) {}
 	  },
 
 	  getInitialState: function getInitialState() {
@@ -8475,8 +8474,53 @@ var ReactDashboard =
 	  render: function render() {
 
 	    //prepare valid data
+	    // angular.forEach(commits, function(commit){
+	    //   var day = commit.commit.author.date;
+	    //   day = day.substring(0, day.indexOf('T'));
 
-	    return React.createElement(PieChart, { data: this.props.data.data, options: this.props.data.options, onClick: this.props.onClick });
+	    //   if (data[day]){
+	    //     data[day]++;
+	    //   } else {
+	    //     data[day] = 1;
+	    //   }
+	    // });
+
+	    // var seriesData = [];
+	    // angular.forEach(data, function(count, day){
+	    //   seriesData.push([parseDate(day), count]);
+	    // });
+	    // seriesData.sort(function(a, b){
+	    //   return a[0] - b[0];
+	    // });
+
+	    // if ( commits ){
+	    //   $scope.chartConfig = {
+	    //     chart: {
+	    //       type: 'spline'
+	    //     },
+	    //     title: {
+	    //       text: 'Github commit history'
+	    //     },
+	    //     xAxis: {
+	    //       type: 'datetime'
+	    //     },
+	    //     yAxis: {
+	    //       title: {
+	    //         text: 'Commits'
+	    //       },
+	    //       min: 0
+	    //     },
+	    //     series: [{
+	    //       name: config.path,
+	    //       data: seriesData
+	    //     }]
+	    //   };
+	    // }
+
+	    var gc_data = this.props.data.data;
+	    var gc_options = this.props.data.options;
+
+	    return React.createElement(PieChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
 	  }
 
 	});

@@ -7,10 +7,14 @@ var WidgetList = require('./WidgetManager').WrapperWidgetList;
 
 var Widget = React.createClass({
 
+  DetailWidget: undefined,
   tempTitle: "",
   tempParams: [],
 
   getInitialState: function() {
+    this.DetailWidget = WidgetList[this.props.widget.type];
+    if (!this.DetailWidget) {throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');}
+
     this.tempTitle = this.props.widget.title;
     this.tempParams = cloneDeep(this.props.widget.params);
     return {data: this.props.widget.data, showModal: false};
@@ -43,28 +47,26 @@ var Widget = React.createClass({
   componentWillUnmount: function(){
   },
 
-  getRemoteData: function(url, params){
-    if(isEmpty(url)){return null;}
-
-    $.post(url, params, function(result) {
-      this.setState({data: result});
-    }.bind(this), "json" );
-  },
-
   refreshWidget: function(props) {
-    var params = {}; 
-    params.widgetType = this.props.widget.type;
-    params.paramsNumber = this.props.widget.params.length;
 
-    for(var i=0; i<props.widget.params.length; i++){
-      if(props.widget.changeParamName){
-        params["param_"+i] = props.widget.params[i].value;
-      }else{
-        params[props.widget.params[i].name] = props.widget.params[i].value;
-      }
+    if(props.widget.ajax == "get"){
+
+      var url = this.DetailWidget.prepareUrl(props.widget.params);
+      $.get(url, function(result) {
+        this.setState({data: result});
+      }.bind(this), "json" );
+
+    }else if(props.widget.ajax == "post"){
+
+      var url = this.DetailWidget.prepareUrl(props.widget.params);;
+      var params = this.DetailWidget.prepareParamsForPost(props.widget.params);
+      $.post(url, params, function(result) {
+        this.setState({data: result});
+      }.bind(this), "json" );
+
+    }else{
+      //do nothing
     }
-
-    this.getRemoteData(props.widget.url, params);
   },
 
   openConfigModal: function(){
@@ -128,14 +130,10 @@ var Widget = React.createClass({
       );
     }
 
-    var DetailWidget = WidgetList[this.props.widget.type];
-    if (!DetailWidget) {throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');}
-
     var configParamsList = this.props.widget.params.map((param, i) => {
-      if(!param.configurable){return;}
       return(
         <div className="row" key={"config_param_"+i}>
-          <p className="col-xs-6">{param.name}</p>
+          <p className="col-xs-6">{param.displayName}</p>
           <input className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
         </div>
       );
@@ -151,7 +149,7 @@ var Widget = React.createClass({
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>
-                <DetailWidget data={this.state.data} onClick={this.props.onClick}></DetailWidget>
+                <this.DetailWidget data={this.state.data} onClick={this.props.onClick}></this.DetailWidget>
               </div>
             </div>
           </div>
@@ -182,7 +180,7 @@ var Widget = React.createClass({
 });
 
 Widget.defaultProps = {
-  widget      : {colSpan:"", type:"", title:"", url:"", params:[], data:""},
+  widget      : {colSpan:"6", type:"", title:"", ajax:"none", params:[{name:"", type:"string", value:"", displayName:""}], data:""},
   onClick     : undefined
 };
 

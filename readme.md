@@ -16,9 +16,8 @@
 * get rid of React-Bootstrap
 * fix validation in addWidget method
 * config for less refresh
-* wrap basic widgets with business wrapper component
-* param, name & displayName
-* ajax in wrapper widget?
+* more wrapper widget for example
+* finish the GH commit wrapper
 
 ###### improvement
 * auto height
