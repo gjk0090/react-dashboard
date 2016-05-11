@@ -18,6 +18,7 @@
 * config for less refresh
 * more wrapper widget for example
 * finish the GH commit wrapper
+* change name for widgets folder
 
 ###### improvement
 * auto height
