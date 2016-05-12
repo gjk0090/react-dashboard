@@ -10689,7 +10689,13 @@ var ReactDashboard =
 
 	  statics: {
 	    getTemplate: function getTemplate() {
-	      return { colSpan: "6", type: "GithubAuthor", title: "Github Author", ajax: "get", params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }] };
+	      return {
+	        colSpan: "6",
+	        type: "GithubAuthor",
+	        title: "Github Author",
+	        ajax: "get",
+	        params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }]
+	      };
 	    },
 	    prepareUrl: function prepareUrl(params) {
 	      //var url = "testdata/PieChart.json";
@@ -10788,7 +10794,13 @@ var ReactDashboard =
 
 	  statics: {
 	    getTemplate: function getTemplate() {
-	      return { colSpan: "6", type: "GithubCommit", title: "Github Commit", ajax: "get", params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }] };
+	      return {
+	        colSpan: "6",
+	        type: "GithubCommit",
+	        title: "Github Commit",
+	        ajax: "get",
+	        params: [{ name: "owner", type: "string", value: "facebook", displayName: "project owner" }, { name: "project", type: "string", value: "react", displayName: "project name" }]
+	      };
 	    },
 	    prepareUrl: function prepareUrl(params) {
 

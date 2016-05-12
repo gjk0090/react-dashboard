@@ -7,7 +7,16 @@ var GithubAuthor = React.createClass({
 
   statics: {
     getTemplate: function() {
-      return {colSpan:"6", type:"GithubAuthor", title:"Github Author", ajax:"get", params:[{name:"owner", type:"string", value:"angular", displayName:"project owner"}, {name:"project", type:"string", value:"angular", displayName:"project name"}]};
+      return {
+        colSpan:"6", 
+        type:"GithubAuthor", 
+        title:"Github Author", 
+        ajax:"get", 
+        params:[
+          {name:"owner", type:"string", value:"angular", displayName:"project owner"}, 
+          {name:"project", type:"string", value:"angular", displayName:"project name"}
+        ]
+      };
     },
     prepareUrl: function(params){
       //var url = "testdata/PieChart.json";

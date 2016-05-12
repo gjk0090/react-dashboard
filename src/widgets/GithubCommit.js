@@ -7,7 +7,16 @@ var GithubCommit = React.createClass({
 
   statics: {
     getTemplate: function() {
-      return {colSpan:"6", type:"GithubCommit", title:"Github Commit", ajax:"get", params:[{name:"owner", type:"string", value:"angular", displayName:"project owner"}, {name:"project", type:"string", value:"angular", displayName:"project name"}]};
+      return {
+        colSpan:"6", 
+        type:"GithubCommit", 
+        title:"Github Commit", 
+        ajax:"get", 
+        params:[
+          {name:"owner", type:"string", value:"facebook", displayName:"project owner"}, 
+          {name:"project", type:"string", value:"react", displayName:"project name"}
+        ]
+      };
     },
     prepareUrl: function(params){
 
