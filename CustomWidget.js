@@ -1,4 +1,4 @@
-var ReactDashboard =
+var CustomWidget =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -48,290 +48,52 @@ var ReactDashboard =
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var Widget = __webpack_require__(2);
-	var cloneDeep = __webpack_require__(3);
-	var isEmpty = __webpack_require__(176);
-	var isFunction = __webpack_require__(188);
-	var WidgetList = __webpack_require__(179).WidgetList;
+	var isArray = __webpack_require__(2);
+	var isEmpty = __webpack_require__(174);
+	var PieChart = ReactDashboard.ChartComponentList['PieChart'];
 
-	var Dashboard = React.createClass({
-	  displayName: 'Dashboard',
+	var CustomWidget = React.createClass({
+	  displayName: 'CustomWidget',
 
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return { colSpan: "6", type: "CustomWidget", title: "Custom Widget", ajax: "get", params: [{ name: "paramA", type: "string", value: "ReactDashboard", displayName: "param A" }] };
+	    },
+	    prepareUrl: function prepareUrl(params) {
+	      var url = "testdata/PieChart.json";
+	      //var url = "https://api.github.com/repos/gjk0090/ReactDashboard/commits";
+	      return url;
+	    },
+	    prepareParamsForPost: function prepareParamsForPost(params) {}
+	  },
 
 	  getInitialState: function getInitialState() {
-	    return { widgets: this.props.schema.widgets, editMode: false };
+	    return {};
 	  },
 
 	  componentDidMount: function componentDidMount() {},
 
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    this.setState({ widgets: this.props.schema.widgets }); //for cancel edit
-	  },
-
-	  refreshWidgets: function refreshWidgets() {
-	    this.setState({}); //this.setState({}) will trigger a re-render
-	  },
-
-	  toggleEditMode: function toggleEditMode(action) {
-	    if (action == 'edit') {
-	      this.oldWidgets = cloneDeep(this.state.widgets);
-	      this.setState({ editMode: true });
-	    } else if (action == 'save') {
-	      if (this.props.onEdit) {
-	        this.props.onEdit(cloneDeep(this.state.widgets)); //pass widget out for custom operation
-	      }
-	      this.setState({ editMode: false });
-	    } else if (action == 'cancel') {
-	      this.setState({ widgets: cloneDeep(this.oldWidgets), editMode: false });
-	    }
-	  },
-
-	  addWidget: function addWidget(type) {
-	    var widget = WidgetList[type];
-	    if (!isEmpty(widget)) {
-	      this.state.widgets.push([widget.getTemplate()]);
-	    } else {
-	      alert("Sorry, failed to find the widget \"" + type + "\".");
-	    }
-	    this.refreshWidgets();
-	  },
-
-	  handleClick: function handleClick(i, j, type, value) {
-	    if (this.props.onClick) {
-	      this.props.onClick(i, j, type, value);
-	    } else {
-	      alert('You clicked the ' + (i + 1) + 'th row, ' + (j + 1) + 'th widget, type is ' + type + ', the value of selected section is ' + value + '.');
-	    }
-	  },
-
-	  handleEdit: function handleEdit(i, j, action, doRefresh, value) {
-
-	    var tempWidgets = cloneDeep(this.state.widgets);
-
-	    if (action == "enlarge") {
-	      var cols = tempWidgets[i][j].colSpan / 1;
-	      if (cols < 12) {
-	        tempWidgets[i][j].colSpan = cols + 1;
-	      }
-	    } else if (action == "shrink") {
-	      var cols = tempWidgets[i][j].colSpan / 1;
-	      if (cols > 1) {
-	        tempWidgets[i][j].colSpan = cols - 1;
-	      }
-	    } else if (action == "up") {
-	      var widget = tempWidgets[i][j];
-	      //remove i,j
-	      tempWidgets[i].splice(j, 1);
-	      if (i > 0) {
-	        //push to i-1
-	        tempWidgets[i - 1].push(widget);
-	      } else {
-	        //push to head
-	        tempWidgets.unshift([widget]);
-	      }
-	      //if i empty, remove i
-	      if (tempWidgets[i].length == 0) {
-	        tempWidgets.splice(i, 1);
-	      }
-	    } else if (action == "down") {
-	      var widget = tempWidgets[i][j];
-	      //remove i,j
-	      tempWidgets[i].splice(j, 1);
-	      if (i < tempWidgets.length - 1) {
-	        //push to i+1
-	        tempWidgets[i + 1].unshift(widget);
-	      } else {
-	        //push to head
-	        tempWidgets.push([widget]);
-	      }
-	      //if i empty, remove i
-	      if (tempWidgets[i].length == 0) {
-	        tempWidgets.splice(i, 1);
-	      }
-	    } else if (action == "left") {
-	      if (j > 0) {
-	        var widget = tempWidgets[i][j];
-	        //remove i,j
-	        tempWidgets[i].splice(j, 1);
-	        //push to j-1
-	        tempWidgets[i].splice(j - 1, 0, widget);
-	      }
-	    } else if (action == "right") {
-	      if (j < tempWidgets[i].length - 1) {
-	        var widget = tempWidgets[i][j];
-	        //remove i,j
-	        tempWidgets[i].splice(j, 1);
-	        //push to j+1
-	        tempWidgets[i].splice(j + 1, 0, widget);
-	      }
-	    } else if (action == "remove") {
-	      //remove i,j
-	      tempWidgets[i].splice(j, 1);
-	      //if i empty, remove i
-	      if (tempWidgets[i].length == 0) {
-	        tempWidgets.splice(i, 1);
-	      }
-	    } else if (action == "update_params") {
-	      tempWidgets[i][j].title = value.title;
-	      tempWidgets[i][j].params = value.params;
-	      //have to save the change here
-	      if (this.props.onEdit) {
-	        this.props.onEdit(cloneDeep(tempWidgets));
-	      }
-	    }
-
-	    //alert('You edited the ' + (i+1) + 'th row, '+ (j+1) + 'th widget, action is ' + action + '.');
-
-	    if (doRefresh) {
-	      this.setState({ widgets: cloneDeep(tempWidgets) });
-	    }
-	  },
+	  componentDidUpdate: function componentDidUpdate() {},
 
 	  render: function render() {
-	    var _this = this;
 
-	    var aTagStyle = {
-	      cursor: "pointer",
-	      margin: "2px"
-	    };
-	    var dashboardStyle = {};
-	    var rowStyle = {
-	      marginTop: this.state.editMode ? "15px" : null,
-	      marginBottom: this.state.editMode ? "15px" : null,
-	      border: this.state.editMode ? "1px dashed grey" : null
-	    };
+	    //prepare valid data
 
-	    var rows = this.state.widgets.map(function (row, i) {
+	    var gc_data = this.props.data.data;
+	    var gc_options = this.props.data.options;
 
-	      var rowIndicator;
-	      if (_this.state.editMode) {
-	        rowIndicator = React.createElement(
-	          'h4',
-	          { style: { margin: "20px" } },
-	          'row ',
-	          i + 1
-	        );
-	      } else {
-	        rowIndicator = null;
-	      }
-
-	      var widgets = row.map(function (widget, j) {
-	        var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
-	        var widgetHeight = widget.colSpan == "12" ? window.innerHeight / 3 : window.innerHeight / 4;
-
-	        return React.createElement(
-	          'div',
-	          { className: clazzName, key: "row_widget_" + j },
-	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, editMode: _this.state.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
-	        );
-	      });
-
-	      return React.createElement(
-	        'div',
-	        { className: 'row', key: "dashboard_row_" + i, style: rowStyle },
-	        rowIndicator,
-	        widgets
-	      );
-	    });
-
-	    var addWidgetDropDownMenuOptions = [];
-	    for (var key in WidgetList) {
-	      addWidgetDropDownMenuOptions.push(React.createElement(
-	        'li',
-	        { key: "addWidgetDropDownMenuOptions_" + key },
-	        React.createElement(
-	          'a',
-	          { onClick: this.addWidget.bind(this, key) },
-	          key
-	        )
-	      ));
-	    }
-
-	    return React.createElement(
-	      'div',
-	      null,
-	      React.createElement(
-	        'h3',
-	        null,
-	        this.props.schema.title,
-	        function () {
-	          if (!_this.state.editMode) {
-	            return React.createElement(
-	              'span',
-	              { className: 'pull-right' },
-	              React.createElement(
-	                'a',
-	                { title: 'config layout', onClick: _this.toggleEditMode.bind(_this, 'edit'), style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-cog' }),
-	                ' '
-	              ),
-	              React.createElement(
-	                'a',
-	                { title: 'reload dashboard', onClick: _this.refreshWidgets, style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
-	                ' '
-	              )
-	            );
-	          } else {
-	            return React.createElement(
-	              'span',
-	              { className: 'pull-right' },
-	              React.createElement(
-	                'span',
-	                { className: 'dropdown' },
-	                React.createElement(
-	                  'a',
-	                  { style: aTagStyle, 'data-toggle': 'dropdown' },
-	                  React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
-	                  React.createElement('span', { className: 'caret' })
-	                ),
-	                React.createElement(
-	                  'ul',
-	                  { className: 'dropdown-menu' },
-	                  addWidgetDropDownMenuOptions
-	                )
-	              ),
-	              React.createElement(
-	                'a',
-	                { title: 'cancel config', onClick: _this.toggleEditMode.bind(_this, 'cancel'), style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-floppy-remove' }),
-	                ' '
-	              ),
-	              React.createElement(
-	                'a',
-	                { title: 'save config', onClick: _this.toggleEditMode.bind(_this, 'save'), style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-floppy-disk' }),
-	                ' '
-	              )
-	            );
-	          }
-	        }()
-	      ),
-	      React.createElement('hr', null),
-	      React.createElement(
-	        'div',
-	        { style: dashboardStyle },
-	        rows
-	      )
-	    );
+	    return React.createElement(PieChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
 	  }
 
 	});
 
-	Dashboard.defaultProps = {
-	  schema: { title: "ReactJS Dashboard", style: {}, widgets: [] }
+	CustomWidget.defaultProps = {
+	  data: { data: [], options: {} },
+	  onClick: undefined
 	};
 
-	Dashboard.addWidget = __webpack_require__(179).addWidget;
-	Dashboard.addWidgets = __webpack_require__(179).addWidgets;
-	Dashboard.ChartComponentList = __webpack_require__(179).ChartComponentList;
-	Dashboard.GoogleChartLoader = __webpack_require__(201);
-
-	module.exports = Dashboard;
+	module.exports = CustomWidget;
 
 /***/ },
 /* 1 */
@@ -345,284 +107,11 @@ var ReactDashboard =
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var cloneDeep = __webpack_require__(3);
-	var isEmpty = __webpack_require__(176);
-	var Modal = __webpack_require__(178).Modal;
-	var WidgetList = __webpack_require__(179).WidgetList;
+	var convert = __webpack_require__(3),
+	    func = convert('isArray', __webpack_require__(42), __webpack_require__(173));
 
-	var Widget = React.createClass({
-	  displayName: 'Widget',
-
-
-	  DetailWidget: undefined,
-	  tempTitle: "",
-	  tempParams: [],
-
-	  getInitialState: function getInitialState() {
-	    this.DetailWidget = WidgetList[this.props.widget.type];
-	    if (!this.DetailWidget) {
-	      throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');
-	    }
-
-	    this.tempTitle = this.props.widget.title;
-	    this.tempParams = cloneDeep(this.props.widget.params);
-	    return { data: this.props.widget.data, showModal: false };
-	  },
-
-	  componentWillMount: function componentWillMount() {},
-
-	  componentDidMount: function componentDidMount() {
-	    this.refreshWidget(this.props);
-	  },
-
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    this.DetailWidget = WidgetList[nextProps.widget.type];
-
-	    //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
-	    this.setState({ data: nextProps.widget.data, showModal: false });
-
-	    this.refreshWidget(nextProps);
-	  },
-
-	  shouldComponentUpdate: function shouldComponentUpdate() {
-	    return true;
-	  },
-
-	  componentWillUpdate: function componentWillUpdate() {},
-
-	  componentDidUpdate: function componentDidUpdate() {},
-
-	  componentWillUnmount: function componentWillUnmount() {},
-
-	  refreshWidget: function refreshWidget(props) {
-
-	    if (props.widget.ajax == "get") {
-
-	      var url = this.DetailWidget.prepareUrl(props.widget.params);
-	      $.get(url, function (result) {
-	        this.setState({ data: result });
-	      }.bind(this), "json");
-	    } else if (props.widget.ajax == "post") {
-
-	      var url = this.DetailWidget.prepareUrl(props.widget.params);;
-	      var params = this.DetailWidget.prepareParamsForPost(props.widget.params);
-	      $.post(url, params, function (result) {
-	        this.setState({ data: result });
-	      }.bind(this), "json");
-	    } else {
-	      //do nothing
-	    }
-	  },
-
-	  openConfigModal: function openConfigModal() {
-	    this.tempTitle = this.props.widget.title;
-	    this.tempParams = cloneDeep(this.props.widget.params);
-	    this.setState({ showModal: true });
-	  },
-
-	  closeConfigModal: function closeConfigModal(action) {
-	    if (action == "save") {
-	      //this.setState({title: this.tempTitle, params: cloneDeep(this.tempParams)});
-	      this.props.onEdit("update_params", true, { title: this.tempTitle, params: this.tempParams });
-	    } else {
-	      this.setState({ showModal: false });
-	    }
-	  },
-
-	  configParamsChanged: function configParamsChanged(i, event) {
-	    if (i == -1) {
-	      this.tempTitle = event.target.value;
-	    } else {
-	      this.tempParams[i].value = event.target.value;
-	    }
-	    //alert(i+event.target.value);
-	  },
-
-	  render: function render() {
-	    var _this = this;
-
-	    var widgetStyle = {};
-
-	    var aTagStyle = {
-	      cursor: "pointer"
-	    };
-
-	    var panelBodyStyle = {
-	      position: "relative",
-	      //paddingBottom: this.props.widget.colSpan=="12" ? "40%" : "70%", //auto height from http://jsfiddle.net/toddlevy/c59HH/
-	      height: this.props.widgetHeight
-	    };
-
-	    var headingButtons = null;
-	    if (this.props.editMode) {
-	      headingButtons = React.createElement(
-	        'span',
-	        { className: 'pull-right' },
-	        React.createElement(
-	          'a',
-	          { title: 'move widget up', style: aTagStyle, onClick: this.props.onEdit.bind(this, "up", true) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-up' }),
-	          ' '
-	        ),
-	        React.createElement(
-	          'a',
-	          { title: 'move widget down', style: aTagStyle, onClick: this.props.onEdit.bind(this, "down", true) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-down' }),
-	          ' '
-	        ),
-	        React.createElement(
-	          'a',
-	          { title: 'move widget left', style: aTagStyle, onClick: this.props.onEdit.bind(this, "left", true) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-left' }),
-	          ' '
-	        ),
-	        React.createElement(
-	          'a',
-	          { title: 'move widget right', style: aTagStyle, onClick: this.props.onEdit.bind(this, "right", true) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-arrow-right' }),
-	          ' '
-	        ),
-	        React.createElement(
-	          'a',
-	          { title: 'increase widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "enlarge", true) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-resize-full' }),
-	          ' '
-	        ),
-	        React.createElement(
-	          'a',
-	          { title: 'decrease widget width', style: aTagStyle, onClick: this.props.onEdit.bind(this, "shrink", true) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-resize-small' }),
-	          ' '
-	        ),
-	        React.createElement(
-	          'a',
-	          { title: 'remove widget', style: aTagStyle, onClick: this.props.onEdit.bind(this, "remove", true) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-remove' }),
-	          ' '
-	        )
-	      );
-	    } else {
-	      headingButtons = React.createElement(
-	        'span',
-	        { className: 'pull-right' },
-	        React.createElement(
-	          'a',
-	          { title: 'edit widget params', style: aTagStyle, onClick: this.openConfigModal },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-cog' }),
-	          ' '
-	        ),
-	        React.createElement(
-	          'a',
-	          { title: 'reload widget content', style: aTagStyle, onClick: this.refreshWidget.bind(this, this.props) },
-	          ' ',
-	          React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
-	          ' '
-	        )
-	      );
-	    }
-
-	    var configParamsList = this.props.widget.params.map(function (param, i) {
-	      return React.createElement(
-	        'div',
-	        { className: 'row', key: "config_param_" + i },
-	        React.createElement(
-	          'p',
-	          { className: 'col-xs-6' },
-	          param.displayName
-	        ),
-	        React.createElement('input', { className: 'col-xs-6', defaultValue: param.value, onChange: _this.configParamsChanged.bind(_this, i) })
-	      );
-	    });
-
-	    //bootstrap classes : default/primary/success/info/warning/danger
-	    return React.createElement(
-	      'div',
-	      { style: widgetStyle },
-	      React.createElement(
-	        'div',
-	        { className: 'panel panel-default' },
-	        React.createElement(
-	          'div',
-	          { className: 'panel-heading' },
-	          this.props.widget.title,
-	          headingButtons
-	        ),
-	        React.createElement(
-	          'div',
-	          { className: 'panel-body' },
-	          React.createElement(
-	            'div',
-	            { style: panelBodyStyle },
-	            React.createElement(this.DetailWidget, { data: this.state.data, onClick: this.props.onClick })
-	          )
-	        )
-	      ),
-	      React.createElement(
-	        Modal,
-	        { show: this.state.showModal, onHide: this.closeConfigModal },
-	        React.createElement(
-	          Modal.Header,
-	          { closeButton: true },
-	          React.createElement(
-	            Modal.Title,
-	            null,
-	            'Config'
-	          )
-	        ),
-	        React.createElement(
-	          Modal.Body,
-	          null,
-	          React.createElement(
-	            'div',
-	            { style: { padding: "10px 20px" } },
-	            React.createElement(
-	              'div',
-	              { className: 'row' },
-	              React.createElement(
-	                'p',
-	                { className: 'col-xs-6' },
-	                'Widget Title'
-	              ),
-	              React.createElement('input', { className: 'col-xs-6', defaultValue: this.props.widget.title, onChange: this.configParamsChanged.bind(this, -1) })
-	            ),
-	            configParamsList
-	          )
-	        ),
-	        React.createElement(
-	          Modal.Footer,
-	          null,
-	          React.createElement(
-	            'button',
-	            { className: 'btn btn-default', onClick: this.closeConfigModal },
-	            'Close'
-	          ),
-	          React.createElement(
-	            'button',
-	            { className: 'btn btn-primary', onClick: this.closeConfigModal.bind(this, "save") },
-	            'Save'
-	          )
-	        )
-	      )
-	    );
-	  }
-
-	});
-
-	Widget.defaultProps = {
-	  widget: { colSpan: "6", type: "", title: "", ajax: "none", params: [{ name: "", type: "string", value: "", displayName: "" }], data: "" },
-	  onClick: undefined
-	};
-
-	module.exports = Widget;
+	func.placeholder = __webpack_require__(6);
+	module.exports = func;
 
 /***/ },
 /* 3 */
@@ -630,20 +119,8 @@ var ReactDashboard =
 
 	'use strict';
 
-	var convert = __webpack_require__(4),
-	    func = convert('cloneDeep', __webpack_require__(174), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var baseConvert = __webpack_require__(5),
-	    util = __webpack_require__(8);
+	var baseConvert = __webpack_require__(4),
+	    util = __webpack_require__(7);
 
 	/**
 	 * Converts `func` of `name` to an immutable auto-curried iteratee-first data-last
@@ -662,14 +139,14 @@ var ReactDashboard =
 	module.exports = convert;
 
 /***/ },
-/* 5 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var mapping = __webpack_require__(6),
+	var mapping = __webpack_require__(5),
 	    mutateMap = mapping.mutate,
-	    fallbackHolder = __webpack_require__(7);
+	    fallbackHolder = __webpack_require__(6);
 
 	/**
 	 * Creates a function, with an arity of `n`, that invokes `func` with the
@@ -1135,7 +612,7 @@ var ReactDashboard =
 	module.exports = baseConvert;
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1394,7 +871,7 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1407,33 +884,33 @@ var ReactDashboard =
 	module.exports = {};
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = {
-	  'ary': __webpack_require__(9),
-	  'assign': __webpack_require__(58),
-	  'clone': __webpack_require__(76),
-	  'curry': __webpack_require__(133),
-	  'forEach': __webpack_require__(103),
-	  'isArray': __webpack_require__(43),
-	  'isFunction': __webpack_require__(17),
-	  'iteratee': __webpack_require__(134),
-	  'keys': __webpack_require__(65),
-	  'rearg': __webpack_require__(166),
-	  'spread': __webpack_require__(170),
-	  'toPath': __webpack_require__(173)
+	  'ary': __webpack_require__(8),
+	  'assign': __webpack_require__(57),
+	  'clone': __webpack_require__(75),
+	  'curry': __webpack_require__(132),
+	  'forEach': __webpack_require__(102),
+	  'isArray': __webpack_require__(42),
+	  'isFunction': __webpack_require__(16),
+	  'iteratee': __webpack_require__(133),
+	  'keys': __webpack_require__(64),
+	  'rearg': __webpack_require__(165),
+	  'spread': __webpack_require__(169),
+	  'toPath': __webpack_require__(172)
 	};
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createWrapper = __webpack_require__(10);
+	var createWrapper = __webpack_require__(9);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var ARY_FLAG = 128;
@@ -1464,20 +941,20 @@ var ReactDashboard =
 	module.exports = ary;
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseSetData = __webpack_require__(11),
-	    createBaseWrapper = __webpack_require__(24),
-	    createCurryWrapper = __webpack_require__(27),
-	    createHybridWrapper = __webpack_require__(29),
-	    createPartialWrapper = __webpack_require__(53),
-	    getData = __webpack_require__(37),
-	    mergeData = __webpack_require__(54),
-	    setData = __webpack_require__(47),
-	    toInteger = __webpack_require__(55);
+	var baseSetData = __webpack_require__(10),
+	    createBaseWrapper = __webpack_require__(23),
+	    createCurryWrapper = __webpack_require__(26),
+	    createHybridWrapper = __webpack_require__(28),
+	    createPartialWrapper = __webpack_require__(52),
+	    getData = __webpack_require__(36),
+	    mergeData = __webpack_require__(53),
+	    setData = __webpack_require__(46),
+	    toInteger = __webpack_require__(54);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -1571,13 +1048,13 @@ var ReactDashboard =
 	module.exports = createWrapper;
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var identity = __webpack_require__(12),
-	    metaMap = __webpack_require__(13);
+	var identity = __webpack_require__(11),
+	    metaMap = __webpack_require__(12);
 
 	/**
 	 * The base implementation of `setData` without support for hot loop detection.
@@ -1595,7 +1072,7 @@ var ReactDashboard =
 	module.exports = baseSetData;
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1623,12 +1100,12 @@ var ReactDashboard =
 	module.exports = identity;
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var WeakMap = __webpack_require__(14);
+	var WeakMap = __webpack_require__(13);
 
 	/** Used to store function metadata. */
 	var metaMap = WeakMap && new WeakMap();
@@ -1636,13 +1113,13 @@ var ReactDashboard =
 	module.exports = metaMap;
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(15),
-	    root = __webpack_require__(21);
+	var getNative = __webpack_require__(14),
+	    root = __webpack_require__(20);
 
 	/* Built-in method references that are verified to be native. */
 	var WeakMap = getNative(root, 'WeakMap');
@@ -1650,12 +1127,12 @@ var ReactDashboard =
 	module.exports = WeakMap;
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isNative = __webpack_require__(16);
+	var isNative = __webpack_require__(15);
 
 	/**
 	 * Gets the native function at `key` of `object`.
@@ -1673,15 +1150,15 @@ var ReactDashboard =
 	module.exports = getNative;
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isFunction = __webpack_require__(17),
-	    isHostObject = __webpack_require__(19),
-	    isObject = __webpack_require__(18),
-	    toSource = __webpack_require__(20);
+	var isFunction = __webpack_require__(16),
+	    isHostObject = __webpack_require__(18),
+	    isObject = __webpack_require__(17),
+	    toSource = __webpack_require__(19);
 
 	/**
 	 * Used to match `RegExp`
@@ -1733,12 +1210,12 @@ var ReactDashboard =
 	module.exports = isNative;
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isObject = __webpack_require__(18);
+	var isObject = __webpack_require__(17);
 
 	/** `Object#toString` result references. */
 	var funcTag = '[object Function]',
@@ -1783,7 +1260,7 @@ var ReactDashboard =
 	module.exports = isFunction;
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1823,7 +1300,7 @@ var ReactDashboard =
 	module.exports = isObject;
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1850,7 +1327,7 @@ var ReactDashboard =
 	module.exports = isHostObject;
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1880,14 +1357,14 @@ var ReactDashboard =
 	module.exports = toSource;
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module, global) {'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var checkGlobal = __webpack_require__(23);
+	var checkGlobal = __webpack_require__(22);
 
 	/** Used to determine if values are of the language type `Object`. */
 	var objectTypes = {
@@ -1922,10 +1399,10 @@ var ReactDashboard =
 	var root = freeGlobal || freeWindow !== (thisGlobal && thisGlobal.window) && freeWindow || freeSelf || thisGlobal || Function('return this')();
 
 	module.exports = root;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21)(module), (function() { return this; }())))
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1942,7 +1419,7 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1961,13 +1438,13 @@ var ReactDashboard =
 	module.exports = checkGlobal;
 
 /***/ },
-/* 24 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createCtorWrapper = __webpack_require__(25),
-	    root = __webpack_require__(21);
+	var createCtorWrapper = __webpack_require__(24),
+	    root = __webpack_require__(20);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1;
@@ -1997,13 +1474,13 @@ var ReactDashboard =
 	module.exports = createBaseWrapper;
 
 /***/ },
-/* 25 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(26),
-	    isObject = __webpack_require__(18);
+	var baseCreate = __webpack_require__(25),
+	    isObject = __webpack_require__(17);
 
 	/**
 	 * Creates a function that produces an instance of `Ctor` regardless of
@@ -2049,12 +1526,12 @@ var ReactDashboard =
 	module.exports = createCtorWrapper;
 
 /***/ },
-/* 26 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isObject = __webpack_require__(18);
+	var isObject = __webpack_require__(17);
 
 	/** Built-in value references. */
 	var objectCreate = Object.create;
@@ -2074,18 +1551,18 @@ var ReactDashboard =
 	module.exports = baseCreate;
 
 /***/ },
-/* 27 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(28),
-	    createCtorWrapper = __webpack_require__(25),
-	    createHybridWrapper = __webpack_require__(29),
-	    createRecurryWrapper = __webpack_require__(33),
-	    getPlaceholder = __webpack_require__(49),
-	    replaceHolders = __webpack_require__(52),
-	    root = __webpack_require__(21);
+	var apply = __webpack_require__(27),
+	    createCtorWrapper = __webpack_require__(24),
+	    createHybridWrapper = __webpack_require__(28),
+	    createRecurryWrapper = __webpack_require__(32),
+	    getPlaceholder = __webpack_require__(48),
+	    replaceHolders = __webpack_require__(51),
+	    root = __webpack_require__(20);
 
 	/**
 	 * Creates a function that wraps `func` to enable currying.
@@ -2124,7 +1601,7 @@ var ReactDashboard =
 	module.exports = createCurryWrapper;
 
 /***/ },
-/* 28 */
+/* 27 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2157,20 +1634,20 @@ var ReactDashboard =
 	module.exports = apply;
 
 /***/ },
-/* 29 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var composeArgs = __webpack_require__(30),
-	    composeArgsRight = __webpack_require__(31),
-	    countHolders = __webpack_require__(32),
-	    createCtorWrapper = __webpack_require__(25),
-	    createRecurryWrapper = __webpack_require__(33),
-	    getPlaceholder = __webpack_require__(49),
-	    reorder = __webpack_require__(50),
-	    replaceHolders = __webpack_require__(52),
-	    root = __webpack_require__(21);
+	var composeArgs = __webpack_require__(29),
+	    composeArgsRight = __webpack_require__(30),
+	    countHolders = __webpack_require__(31),
+	    createCtorWrapper = __webpack_require__(24),
+	    createRecurryWrapper = __webpack_require__(32),
+	    getPlaceholder = __webpack_require__(48),
+	    reorder = __webpack_require__(49),
+	    replaceHolders = __webpack_require__(51),
+	    root = __webpack_require__(20);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1,
@@ -2254,7 +1731,7 @@ var ReactDashboard =
 	module.exports = createHybridWrapper;
 
 /***/ },
-/* 30 */
+/* 29 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2300,7 +1777,7 @@ var ReactDashboard =
 	module.exports = composeArgs;
 
 /***/ },
-/* 31 */
+/* 30 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2348,7 +1825,7 @@ var ReactDashboard =
 	module.exports = composeArgsRight;
 
 /***/ },
-/* 32 */
+/* 31 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2376,13 +1853,13 @@ var ReactDashboard =
 	module.exports = countHolders;
 
 /***/ },
-/* 33 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isLaziable = __webpack_require__(34),
-	    setData = __webpack_require__(47);
+	var isLaziable = __webpack_require__(33),
+	    setData = __webpack_require__(46);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1,
@@ -2436,15 +1913,15 @@ var ReactDashboard =
 	module.exports = createRecurryWrapper;
 
 /***/ },
-/* 34 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var LazyWrapper = __webpack_require__(35),
-	    getData = __webpack_require__(37),
-	    getFuncName = __webpack_require__(39),
-	    lodash = __webpack_require__(41);
+	var LazyWrapper = __webpack_require__(34),
+	    getData = __webpack_require__(36),
+	    getFuncName = __webpack_require__(38),
+	    lodash = __webpack_require__(40);
 
 	/**
 	 * Checks if `func` has a lazy counterpart.
@@ -2471,13 +1948,13 @@ var ReactDashboard =
 	module.exports = isLaziable;
 
 /***/ },
-/* 35 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(26),
-	    baseLodash = __webpack_require__(36);
+	var baseCreate = __webpack_require__(25),
+	    baseLodash = __webpack_require__(35);
 
 	/** Used as references for the maximum length and index of an array. */
 	var MAX_ARRAY_LENGTH = 4294967295;
@@ -2506,7 +1983,7 @@ var ReactDashboard =
 	module.exports = LazyWrapper;
 
 /***/ },
-/* 36 */
+/* 35 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2523,13 +2000,13 @@ var ReactDashboard =
 	module.exports = baseLodash;
 
 /***/ },
-/* 37 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var metaMap = __webpack_require__(13),
-	    noop = __webpack_require__(38);
+	var metaMap = __webpack_require__(12),
+	    noop = __webpack_require__(37);
 
 	/**
 	 * Gets metadata for `func`.
@@ -2545,7 +2022,7 @@ var ReactDashboard =
 	module.exports = getData;
 
 /***/ },
-/* 38 */
+/* 37 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2572,12 +2049,12 @@ var ReactDashboard =
 	module.exports = noop;
 
 /***/ },
-/* 39 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var realNames = __webpack_require__(40);
+	var realNames = __webpack_require__(39);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -2610,7 +2087,7 @@ var ReactDashboard =
 	module.exports = getFuncName;
 
 /***/ },
-/* 40 */
+/* 39 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2621,17 +2098,17 @@ var ReactDashboard =
 	module.exports = realNames;
 
 /***/ },
-/* 41 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var LazyWrapper = __webpack_require__(35),
-	    LodashWrapper = __webpack_require__(42),
-	    baseLodash = __webpack_require__(36),
-	    isArray = __webpack_require__(43),
-	    isObjectLike = __webpack_require__(44),
-	    wrapperClone = __webpack_require__(45);
+	var LazyWrapper = __webpack_require__(34),
+	    LodashWrapper = __webpack_require__(41),
+	    baseLodash = __webpack_require__(35),
+	    isArray = __webpack_require__(42),
+	    isObjectLike = __webpack_require__(43),
+	    wrapperClone = __webpack_require__(44);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -2773,13 +2250,13 @@ var ReactDashboard =
 	module.exports = lodash;
 
 /***/ },
-/* 42 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(26),
-	    baseLodash = __webpack_require__(36);
+	var baseCreate = __webpack_require__(25),
+	    baseLodash = __webpack_require__(35);
 
 	/**
 	 * The base constructor for creating `lodash` wrapper objects.
@@ -2802,7 +2279,7 @@ var ReactDashboard =
 	module.exports = LodashWrapper;
 
 /***/ },
-/* 43 */
+/* 42 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2837,7 +2314,7 @@ var ReactDashboard =
 	module.exports = isArray;
 
 /***/ },
-/* 44 */
+/* 43 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2875,14 +2352,14 @@ var ReactDashboard =
 	module.exports = isObjectLike;
 
 /***/ },
-/* 45 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var LazyWrapper = __webpack_require__(35),
-	    LodashWrapper = __webpack_require__(42),
-	    copyArray = __webpack_require__(46);
+	var LazyWrapper = __webpack_require__(34),
+	    LodashWrapper = __webpack_require__(41),
+	    copyArray = __webpack_require__(45);
 
 	/**
 	 * Creates a clone of `wrapper`.
@@ -2905,7 +2382,7 @@ var ReactDashboard =
 	module.exports = wrapperClone;
 
 /***/ },
-/* 46 */
+/* 45 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2932,13 +2409,13 @@ var ReactDashboard =
 	module.exports = copyArray;
 
 /***/ },
-/* 47 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseSetData = __webpack_require__(11),
-	    now = __webpack_require__(48);
+	var baseSetData = __webpack_require__(10),
+	    now = __webpack_require__(47);
 
 	/** Used to detect hot functions by number of calls within a span of milliseconds. */
 	var HOT_COUNT = 150,
@@ -2981,7 +2458,7 @@ var ReactDashboard =
 	module.exports = setData;
 
 /***/ },
-/* 48 */
+/* 47 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3008,7 +2485,7 @@ var ReactDashboard =
 	module.exports = now;
 
 /***/ },
-/* 49 */
+/* 48 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3028,13 +2505,13 @@ var ReactDashboard =
 	module.exports = getPlaceholder;
 
 /***/ },
-/* 50 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var copyArray = __webpack_require__(46),
-	    isIndex = __webpack_require__(51);
+	var copyArray = __webpack_require__(45),
+	    isIndex = __webpack_require__(50);
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeMin = Math.min;
@@ -3064,7 +2541,7 @@ var ReactDashboard =
 	module.exports = reorder;
 
 /***/ },
-/* 51 */
+/* 50 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3091,7 +2568,7 @@ var ReactDashboard =
 	module.exports = isIndex;
 
 /***/ },
-/* 52 */
+/* 51 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3127,14 +2604,14 @@ var ReactDashboard =
 	module.exports = replaceHolders;
 
 /***/ },
-/* 53 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(28),
-	    createCtorWrapper = __webpack_require__(25),
-	    root = __webpack_require__(21);
+	var apply = __webpack_require__(27),
+	    createCtorWrapper = __webpack_require__(24),
+	    root = __webpack_require__(20);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var BIND_FLAG = 1;
@@ -3178,14 +2655,14 @@ var ReactDashboard =
 	module.exports = createPartialWrapper;
 
 /***/ },
-/* 54 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var composeArgs = __webpack_require__(30),
-	    composeArgsRight = __webpack_require__(31),
-	    replaceHolders = __webpack_require__(52);
+	var composeArgs = __webpack_require__(29),
+	    composeArgsRight = __webpack_require__(30),
+	    replaceHolders = __webpack_require__(51);
 
 	/** Used as the internal argument placeholder. */
 	var PLACEHOLDER = '__lodash_placeholder__';
@@ -3272,12 +2749,12 @@ var ReactDashboard =
 	module.exports = mergeData;
 
 /***/ },
-/* 55 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var toNumber = __webpack_require__(56);
+	var toNumber = __webpack_require__(55);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0,
@@ -3325,14 +2802,14 @@ var ReactDashboard =
 	module.exports = toInteger;
 
 /***/ },
-/* 56 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isFunction = __webpack_require__(17),
-	    isObject = __webpack_require__(18),
-	    isSymbol = __webpack_require__(57);
+	var isFunction = __webpack_require__(16),
+	    isObject = __webpack_require__(17),
+	    isSymbol = __webpack_require__(56);
 
 	/** Used as references for various `Number` constants. */
 	var NAN = 0 / 0;
@@ -3397,14 +2874,14 @@ var ReactDashboard =
 	module.exports = toNumber;
 
 /***/ },
-/* 57 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var isObjectLike = __webpack_require__(44);
+	var isObjectLike = __webpack_require__(43);
 
 	/** `Object#toString` result references. */
 	var symbolTag = '[object Symbol]';
@@ -3444,13 +2921,13 @@ var ReactDashboard =
 	module.exports = isSymbol;
 
 /***/ },
-/* 58 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var copyObject = __webpack_require__(59),
-	    keys = __webpack_require__(62);
+	var copyObject = __webpack_require__(58),
+	    keys = __webpack_require__(61);
 
 	/**
 	 * The base implementation of `_.assign` without support for multiple sources
@@ -3468,12 +2945,12 @@ var ReactDashboard =
 	module.exports = baseAssign;
 
 /***/ },
-/* 59 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assignValue = __webpack_require__(60);
+	var assignValue = __webpack_require__(59);
 
 	/**
 	 * Copies properties of `source` to `object`.
@@ -3504,12 +2981,12 @@ var ReactDashboard =
 	module.exports = copyObject;
 
 /***/ },
-/* 60 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var eq = __webpack_require__(61);
+	var eq = __webpack_require__(60);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -3537,7 +3014,7 @@ var ReactDashboard =
 	module.exports = assignValue;
 
 /***/ },
-/* 61 */
+/* 60 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3581,17 +3058,17 @@ var ReactDashboard =
 	module.exports = eq;
 
 /***/ },
-/* 62 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseHas = __webpack_require__(63),
-	    baseKeys = __webpack_require__(65),
-	    indexKeys = __webpack_require__(66),
-	    isArrayLike = __webpack_require__(70),
-	    isIndex = __webpack_require__(51),
-	    isPrototype = __webpack_require__(75);
+	var baseHas = __webpack_require__(62),
+	    baseKeys = __webpack_require__(64),
+	    indexKeys = __webpack_require__(65),
+	    isArrayLike = __webpack_require__(69),
+	    isIndex = __webpack_require__(50),
+	    isPrototype = __webpack_require__(74);
 
 	/**
 	 * Creates an array of the own enumerable property names of `object`.
@@ -3642,14 +3119,14 @@ var ReactDashboard =
 	module.exports = keys;
 
 /***/ },
-/* 63 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var getPrototype = __webpack_require__(64);
+	var getPrototype = __webpack_require__(63);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -3675,7 +3152,7 @@ var ReactDashboard =
 	module.exports = baseHas;
 
 /***/ },
-/* 64 */
+/* 63 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3697,7 +3174,7 @@ var ReactDashboard =
 	module.exports = getPrototype;
 
 /***/ },
-/* 65 */
+/* 64 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3720,16 +3197,16 @@ var ReactDashboard =
 	module.exports = baseKeys;
 
 /***/ },
-/* 66 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseTimes = __webpack_require__(67),
-	    isArguments = __webpack_require__(68),
-	    isArray = __webpack_require__(43),
-	    isLength = __webpack_require__(73),
-	    isString = __webpack_require__(74);
+	var baseTimes = __webpack_require__(66),
+	    isArguments = __webpack_require__(67),
+	    isArray = __webpack_require__(42),
+	    isLength = __webpack_require__(72),
+	    isString = __webpack_require__(73);
 
 	/**
 	 * Creates an array of index keys for `object` values of arrays,
@@ -3750,7 +3227,7 @@ var ReactDashboard =
 	module.exports = indexKeys;
 
 /***/ },
-/* 67 */
+/* 66 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3777,12 +3254,12 @@ var ReactDashboard =
 	module.exports = baseTimes;
 
 /***/ },
-/* 68 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArrayLikeObject = __webpack_require__(69);
+	var isArrayLikeObject = __webpack_require__(68);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]';
@@ -3829,13 +3306,13 @@ var ReactDashboard =
 	module.exports = isArguments;
 
 /***/ },
-/* 69 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArrayLike = __webpack_require__(70),
-	    isObjectLike = __webpack_require__(44);
+	var isArrayLike = __webpack_require__(69),
+	    isObjectLike = __webpack_require__(43);
 
 	/**
 	 * This method is like `_.isArrayLike` except that it also checks if `value`
@@ -3869,14 +3346,14 @@ var ReactDashboard =
 	module.exports = isArrayLikeObject;
 
 /***/ },
-/* 70 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getLength = __webpack_require__(71),
-	    isFunction = __webpack_require__(17),
-	    isLength = __webpack_require__(73);
+	var getLength = __webpack_require__(70),
+	    isFunction = __webpack_require__(16),
+	    isLength = __webpack_require__(72);
 
 	/**
 	 * Checks if `value` is array-like. A value is considered array-like if it's
@@ -3910,12 +3387,12 @@ var ReactDashboard =
 	module.exports = isArrayLike;
 
 /***/ },
-/* 71 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseProperty = __webpack_require__(72);
+	var baseProperty = __webpack_require__(71);
 
 	/**
 	 * Gets the "length" property value of `object`.
@@ -3933,7 +3410,7 @@ var ReactDashboard =
 	module.exports = getLength;
 
 /***/ },
-/* 72 */
+/* 71 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3954,7 +3431,7 @@ var ReactDashboard =
 	module.exports = baseProperty;
 
 /***/ },
-/* 73 */
+/* 72 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3996,13 +3473,13 @@ var ReactDashboard =
 	module.exports = isLength;
 
 /***/ },
-/* 74 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArray = __webpack_require__(43),
-	    isObjectLike = __webpack_require__(44);
+	var isArray = __webpack_require__(42),
+	    isObjectLike = __webpack_require__(43);
 
 	/** `Object#toString` result references. */
 	var stringTag = '[object String]';
@@ -4042,7 +3519,7 @@ var ReactDashboard =
 	module.exports = isString;
 
 /***/ },
-/* 75 */
+/* 74 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4067,12 +3544,12 @@ var ReactDashboard =
 	module.exports = isPrototype;
 
 /***/ },
-/* 76 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseClone = __webpack_require__(77);
+	var baseClone = __webpack_require__(76);
 
 	/**
 	 * Creates a shallow clone of `value`.
@@ -4107,28 +3584,28 @@ var ReactDashboard =
 	module.exports = clone;
 
 /***/ },
-/* 77 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stack = __webpack_require__(78),
-	    arrayEach = __webpack_require__(103),
-	    assignValue = __webpack_require__(60),
-	    baseAssign = __webpack_require__(58),
-	    cloneBuffer = __webpack_require__(104),
-	    copyArray = __webpack_require__(46),
-	    copySymbols = __webpack_require__(105),
-	    getAllKeys = __webpack_require__(107),
-	    getTag = __webpack_require__(110),
-	    initCloneArray = __webpack_require__(114),
-	    initCloneByTag = __webpack_require__(115),
-	    initCloneObject = __webpack_require__(130),
-	    isArray = __webpack_require__(43),
-	    isBuffer = __webpack_require__(131),
-	    isHostObject = __webpack_require__(19),
-	    isObject = __webpack_require__(18),
-	    keys = __webpack_require__(62);
+	var Stack = __webpack_require__(77),
+	    arrayEach = __webpack_require__(102),
+	    assignValue = __webpack_require__(59),
+	    baseAssign = __webpack_require__(57),
+	    cloneBuffer = __webpack_require__(103),
+	    copyArray = __webpack_require__(45),
+	    copySymbols = __webpack_require__(104),
+	    getAllKeys = __webpack_require__(106),
+	    getTag = __webpack_require__(109),
+	    initCloneArray = __webpack_require__(113),
+	    initCloneByTag = __webpack_require__(114),
+	    initCloneObject = __webpack_require__(129),
+	    isArray = __webpack_require__(42),
+	    isBuffer = __webpack_require__(130),
+	    isHostObject = __webpack_require__(18),
+	    isObject = __webpack_require__(17),
+	    keys = __webpack_require__(61);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -4242,16 +3719,16 @@ var ReactDashboard =
 	module.exports = baseClone;
 
 /***/ },
-/* 78 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var stackClear = __webpack_require__(79),
-	    stackDelete = __webpack_require__(80),
-	    stackGet = __webpack_require__(83),
-	    stackHas = __webpack_require__(85),
-	    stackSet = __webpack_require__(87);
+	var stackClear = __webpack_require__(78),
+	    stackDelete = __webpack_require__(79),
+	    stackGet = __webpack_require__(82),
+	    stackHas = __webpack_require__(84),
+	    stackSet = __webpack_require__(86);
 
 	/**
 	 * Creates a stack cache object to store key-value pairs.
@@ -4281,7 +3758,7 @@ var ReactDashboard =
 	module.exports = Stack;
 
 /***/ },
-/* 79 */
+/* 78 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4300,12 +3777,12 @@ var ReactDashboard =
 	module.exports = stackClear;
 
 /***/ },
-/* 80 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocDelete = __webpack_require__(81);
+	var assocDelete = __webpack_require__(80);
 
 	/**
 	 * Removes `key` and its value from the stack.
@@ -4326,12 +3803,12 @@ var ReactDashboard =
 	module.exports = stackDelete;
 
 /***/ },
-/* 81 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(82);
+	var assocIndexOf = __webpack_require__(81);
 
 	/** Used for built-in method references. */
 	var arrayProto = Array.prototype;
@@ -4364,12 +3841,12 @@ var ReactDashboard =
 	module.exports = assocDelete;
 
 /***/ },
-/* 82 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var eq = __webpack_require__(61);
+	var eq = __webpack_require__(60);
 
 	/**
 	 * Gets the index at which the `key` is found in `array` of key-value pairs.
@@ -4392,12 +3869,12 @@ var ReactDashboard =
 	module.exports = assocIndexOf;
 
 /***/ },
-/* 83 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocGet = __webpack_require__(84);
+	var assocGet = __webpack_require__(83);
 
 	/**
 	 * Gets the stack value for `key`.
@@ -4418,12 +3895,12 @@ var ReactDashboard =
 	module.exports = stackGet;
 
 /***/ },
-/* 84 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(82);
+	var assocIndexOf = __webpack_require__(81);
 
 	/**
 	 * Gets the associative array value for `key`.
@@ -4441,12 +3918,12 @@ var ReactDashboard =
 	module.exports = assocGet;
 
 /***/ },
-/* 85 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocHas = __webpack_require__(86);
+	var assocHas = __webpack_require__(85);
 
 	/**
 	 * Checks if a stack value for `key` exists.
@@ -4467,12 +3944,12 @@ var ReactDashboard =
 	module.exports = stackHas;
 
 /***/ },
-/* 86 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(82);
+	var assocIndexOf = __webpack_require__(81);
 
 	/**
 	 * Checks if an associative array value for `key` exists.
@@ -4489,13 +3966,13 @@ var ReactDashboard =
 	module.exports = assocHas;
 
 /***/ },
-/* 87 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var MapCache = __webpack_require__(88),
-	    assocSet = __webpack_require__(101);
+	var MapCache = __webpack_require__(87),
+	    assocSet = __webpack_require__(100);
 
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -4532,16 +4009,16 @@ var ReactDashboard =
 	module.exports = stackSet;
 
 /***/ },
-/* 88 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var mapClear = __webpack_require__(89),
-	    mapDelete = __webpack_require__(93),
-	    mapGet = __webpack_require__(97),
-	    mapHas = __webpack_require__(99),
-	    mapSet = __webpack_require__(100);
+	var mapClear = __webpack_require__(88),
+	    mapDelete = __webpack_require__(92),
+	    mapGet = __webpack_require__(96),
+	    mapHas = __webpack_require__(98),
+	    mapSet = __webpack_require__(99);
 
 	/**
 	 * Creates a map cache object to store key-value pairs.
@@ -4571,13 +4048,13 @@ var ReactDashboard =
 	module.exports = MapCache;
 
 /***/ },
-/* 89 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Hash = __webpack_require__(90),
-	    Map = __webpack_require__(92);
+	var Hash = __webpack_require__(89),
+	    Map = __webpack_require__(91);
 
 	/**
 	 * Removes all key-value entries from the map.
@@ -4597,12 +4074,12 @@ var ReactDashboard =
 	module.exports = mapClear;
 
 /***/ },
-/* 90 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(91);
+	var nativeCreate = __webpack_require__(90);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -4622,12 +4099,12 @@ var ReactDashboard =
 	module.exports = Hash;
 
 /***/ },
-/* 91 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(15);
+	var getNative = __webpack_require__(14);
 
 	/* Built-in method references that are verified to be native. */
 	var nativeCreate = getNative(Object, 'create');
@@ -4635,13 +4112,13 @@ var ReactDashboard =
 	module.exports = nativeCreate;
 
 /***/ },
-/* 92 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(15),
-	    root = __webpack_require__(21);
+	var getNative = __webpack_require__(14),
+	    root = __webpack_require__(20);
 
 	/* Built-in method references that are verified to be native. */
 	var Map = getNative(root, 'Map');
@@ -4649,15 +4126,15 @@ var ReactDashboard =
 	module.exports = Map;
 
 /***/ },
-/* 93 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(92),
-	    assocDelete = __webpack_require__(81),
-	    hashDelete = __webpack_require__(94),
-	    isKeyable = __webpack_require__(96);
+	var Map = __webpack_require__(91),
+	    assocDelete = __webpack_require__(80),
+	    hashDelete = __webpack_require__(93),
+	    isKeyable = __webpack_require__(95);
 
 	/**
 	 * Removes `key` and its value from the map.
@@ -4679,12 +4156,12 @@ var ReactDashboard =
 	module.exports = mapDelete;
 
 /***/ },
-/* 94 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var hashHas = __webpack_require__(95);
+	var hashHas = __webpack_require__(94);
 
 	/**
 	 * Removes `key` and its value from the hash.
@@ -4701,12 +4178,12 @@ var ReactDashboard =
 	module.exports = hashDelete;
 
 /***/ },
-/* 95 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(91);
+	var nativeCreate = __webpack_require__(90);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -4729,7 +4206,7 @@ var ReactDashboard =
 	module.exports = hashHas;
 
 /***/ },
-/* 96 */
+/* 95 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4751,15 +4228,15 @@ var ReactDashboard =
 	module.exports = isKeyable;
 
 /***/ },
-/* 97 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(92),
-	    assocGet = __webpack_require__(84),
-	    hashGet = __webpack_require__(98),
-	    isKeyable = __webpack_require__(96);
+	var Map = __webpack_require__(91),
+	    assocGet = __webpack_require__(83),
+	    hashGet = __webpack_require__(97),
+	    isKeyable = __webpack_require__(95);
 
 	/**
 	 * Gets the map value for `key`.
@@ -4781,12 +4258,12 @@ var ReactDashboard =
 	module.exports = mapGet;
 
 /***/ },
-/* 98 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(91);
+	var nativeCreate = __webpack_require__(90);
 
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -4816,15 +4293,15 @@ var ReactDashboard =
 	module.exports = hashGet;
 
 /***/ },
-/* 99 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(92),
-	    assocHas = __webpack_require__(86),
-	    hashHas = __webpack_require__(95),
-	    isKeyable = __webpack_require__(96);
+	var Map = __webpack_require__(91),
+	    assocHas = __webpack_require__(85),
+	    hashHas = __webpack_require__(94),
+	    isKeyable = __webpack_require__(95);
 
 	/**
 	 * Checks if a map value for `key` exists.
@@ -4846,15 +4323,15 @@ var ReactDashboard =
 	module.exports = mapHas;
 
 /***/ },
-/* 100 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Map = __webpack_require__(92),
-	    assocSet = __webpack_require__(101),
-	    hashSet = __webpack_require__(102),
-	    isKeyable = __webpack_require__(96);
+	var Map = __webpack_require__(91),
+	    assocSet = __webpack_require__(100),
+	    hashSet = __webpack_require__(101),
+	    isKeyable = __webpack_require__(95);
 
 	/**
 	 * Sets the map `key` to `value`.
@@ -4881,12 +4358,12 @@ var ReactDashboard =
 	module.exports = mapSet;
 
 /***/ },
-/* 101 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assocIndexOf = __webpack_require__(82);
+	var assocIndexOf = __webpack_require__(81);
 
 	/**
 	 * Sets the associative array `key` to `value`.
@@ -4908,12 +4385,12 @@ var ReactDashboard =
 	module.exports = assocSet;
 
 /***/ },
-/* 102 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var nativeCreate = __webpack_require__(91);
+	var nativeCreate = __webpack_require__(90);
 
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -4933,7 +4410,7 @@ var ReactDashboard =
 	module.exports = hashSet;
 
 /***/ },
-/* 103 */
+/* 102 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4962,7 +4439,7 @@ var ReactDashboard =
 	module.exports = arrayEach;
 
 /***/ },
-/* 104 */
+/* 103 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4987,13 +4464,13 @@ var ReactDashboard =
 	module.exports = cloneBuffer;
 
 /***/ },
-/* 105 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var copyObject = __webpack_require__(59),
-	    getSymbols = __webpack_require__(106);
+	var copyObject = __webpack_require__(58),
+	    getSymbols = __webpack_require__(105);
 
 	/**
 	 * Copies own symbol properties of `source` to `object`.
@@ -5010,7 +4487,7 @@ var ReactDashboard =
 	module.exports = copySymbols;
 
 /***/ },
-/* 106 */
+/* 105 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5041,14 +4518,14 @@ var ReactDashboard =
 	module.exports = getSymbols;
 
 /***/ },
-/* 107 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseGetAllKeys = __webpack_require__(108),
-	    getSymbols = __webpack_require__(106),
-	    keys = __webpack_require__(62);
+	var baseGetAllKeys = __webpack_require__(107),
+	    getSymbols = __webpack_require__(105),
+	    keys = __webpack_require__(61);
 
 	/**
 	 * Creates an array of own enumerable property names and symbols of `object`.
@@ -5064,13 +4541,13 @@ var ReactDashboard =
 	module.exports = getAllKeys;
 
 /***/ },
-/* 108 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayPush = __webpack_require__(109),
-	    isArray = __webpack_require__(43);
+	var arrayPush = __webpack_require__(108),
+	    isArray = __webpack_require__(42);
 
 	/**
 	 * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
@@ -5091,7 +4568,7 @@ var ReactDashboard =
 	module.exports = baseGetAllKeys;
 
 /***/ },
-/* 109 */
+/* 108 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5118,17 +4595,17 @@ var ReactDashboard =
 	module.exports = arrayPush;
 
 /***/ },
-/* 110 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var DataView = __webpack_require__(111),
-	    Map = __webpack_require__(92),
-	    Promise = __webpack_require__(112),
-	    Set = __webpack_require__(113),
-	    WeakMap = __webpack_require__(14),
-	    toSource = __webpack_require__(20);
+	var DataView = __webpack_require__(110),
+	    Map = __webpack_require__(91),
+	    Promise = __webpack_require__(111),
+	    Set = __webpack_require__(112),
+	    WeakMap = __webpack_require__(13),
+	    toSource = __webpack_require__(19);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -5196,13 +4673,13 @@ var ReactDashboard =
 	module.exports = getTag;
 
 /***/ },
-/* 111 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(15),
-	    root = __webpack_require__(21);
+	var getNative = __webpack_require__(14),
+	    root = __webpack_require__(20);
 
 	/* Built-in method references that are verified to be native. */
 	var DataView = getNative(root, 'DataView');
@@ -5210,13 +4687,13 @@ var ReactDashboard =
 	module.exports = DataView;
 
 /***/ },
-/* 112 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(15),
-	    root = __webpack_require__(21);
+	var getNative = __webpack_require__(14),
+	    root = __webpack_require__(20);
 
 	/* Built-in method references that are verified to be native. */
 	var Promise = getNative(root, 'Promise');
@@ -5224,13 +4701,13 @@ var ReactDashboard =
 	module.exports = Promise;
 
 /***/ },
-/* 113 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getNative = __webpack_require__(15),
-	    root = __webpack_require__(21);
+	var getNative = __webpack_require__(14),
+	    root = __webpack_require__(20);
 
 	/* Built-in method references that are verified to be native. */
 	var Set = getNative(root, 'Set');
@@ -5238,7 +4715,7 @@ var ReactDashboard =
 	module.exports = Set;
 
 /***/ },
-/* 114 */
+/* 113 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5271,18 +4748,18 @@ var ReactDashboard =
 	module.exports = initCloneArray;
 
 /***/ },
-/* 115 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var cloneArrayBuffer = __webpack_require__(116),
-	    cloneDataView = __webpack_require__(118),
-	    cloneMap = __webpack_require__(119),
-	    cloneRegExp = __webpack_require__(123),
-	    cloneSet = __webpack_require__(124),
-	    cloneSymbol = __webpack_require__(127),
-	    cloneTypedArray = __webpack_require__(129);
+	var cloneArrayBuffer = __webpack_require__(115),
+	    cloneDataView = __webpack_require__(117),
+	    cloneMap = __webpack_require__(118),
+	    cloneRegExp = __webpack_require__(122),
+	    cloneSet = __webpack_require__(123),
+	    cloneSymbol = __webpack_require__(126),
+	    cloneTypedArray = __webpack_require__(128);
 
 	/** `Object#toString` result references. */
 	var boolTag = '[object Boolean]',
@@ -5358,12 +4835,12 @@ var ReactDashboard =
 	module.exports = initCloneByTag;
 
 /***/ },
-/* 116 */
+/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Uint8Array = __webpack_require__(117);
+	var Uint8Array = __webpack_require__(116);
 
 	/**
 	 * Creates a clone of `arrayBuffer`.
@@ -5381,12 +4858,12 @@ var ReactDashboard =
 	module.exports = cloneArrayBuffer;
 
 /***/ },
-/* 117 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var root = __webpack_require__(21);
+	var root = __webpack_require__(20);
 
 	/** Built-in value references. */
 	var Uint8Array = root.Uint8Array;
@@ -5394,12 +4871,12 @@ var ReactDashboard =
 	module.exports = Uint8Array;
 
 /***/ },
-/* 118 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var cloneArrayBuffer = __webpack_require__(116);
+	var cloneArrayBuffer = __webpack_require__(115);
 
 	/**
 	 * Creates a clone of `dataView`.
@@ -5417,14 +4894,14 @@ var ReactDashboard =
 	module.exports = cloneDataView;
 
 /***/ },
-/* 119 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var addMapEntry = __webpack_require__(120),
-	    arrayReduce = __webpack_require__(121),
-	    mapToArray = __webpack_require__(122);
+	var addMapEntry = __webpack_require__(119),
+	    arrayReduce = __webpack_require__(120),
+	    mapToArray = __webpack_require__(121);
 
 	/**
 	 * Creates a clone of `map`.
@@ -5443,7 +4920,7 @@ var ReactDashboard =
 	module.exports = cloneMap;
 
 /***/ },
-/* 120 */
+/* 119 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5465,7 +4942,7 @@ var ReactDashboard =
 	module.exports = addMapEntry;
 
 /***/ },
-/* 121 */
+/* 120 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5498,7 +4975,7 @@ var ReactDashboard =
 	module.exports = arrayReduce;
 
 /***/ },
-/* 122 */
+/* 121 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5523,7 +5000,7 @@ var ReactDashboard =
 	module.exports = mapToArray;
 
 /***/ },
-/* 123 */
+/* 122 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5547,14 +5024,14 @@ var ReactDashboard =
 	module.exports = cloneRegExp;
 
 /***/ },
-/* 124 */
+/* 123 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var addSetEntry = __webpack_require__(125),
-	    arrayReduce = __webpack_require__(121),
-	    setToArray = __webpack_require__(126);
+	var addSetEntry = __webpack_require__(124),
+	    arrayReduce = __webpack_require__(120),
+	    setToArray = __webpack_require__(125);
 
 	/**
 	 * Creates a clone of `set`.
@@ -5573,7 +5050,7 @@ var ReactDashboard =
 	module.exports = cloneSet;
 
 /***/ },
-/* 125 */
+/* 124 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5594,7 +5071,7 @@ var ReactDashboard =
 	module.exports = addSetEntry;
 
 /***/ },
-/* 126 */
+/* 125 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5619,12 +5096,12 @@ var ReactDashboard =
 	module.exports = setToArray;
 
 /***/ },
-/* 127 */
+/* 126 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _Symbol = __webpack_require__(128);
+	var _Symbol = __webpack_require__(127);
 
 	/** Used to convert symbols to primitives and strings. */
 	var symbolProto = _Symbol ? _Symbol.prototype : undefined,
@@ -5644,12 +5121,12 @@ var ReactDashboard =
 	module.exports = cloneSymbol;
 
 /***/ },
-/* 128 */
+/* 127 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var root = __webpack_require__(21);
+	var root = __webpack_require__(20);
 
 	/** Built-in value references. */
 	var _Symbol = root.Symbol;
@@ -5657,12 +5134,12 @@ var ReactDashboard =
 	module.exports = _Symbol;
 
 /***/ },
-/* 129 */
+/* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var cloneArrayBuffer = __webpack_require__(116);
+	var cloneArrayBuffer = __webpack_require__(115);
 
 	/**
 	 * Creates a clone of `typedArray`.
@@ -5680,14 +5157,14 @@ var ReactDashboard =
 	module.exports = cloneTypedArray;
 
 /***/ },
-/* 130 */
+/* 129 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseCreate = __webpack_require__(26),
-	    getPrototype = __webpack_require__(64),
-	    isPrototype = __webpack_require__(75);
+	var baseCreate = __webpack_require__(25),
+	    getPrototype = __webpack_require__(63),
+	    isPrototype = __webpack_require__(74);
 
 	/**
 	 * Initializes an object clone.
@@ -5703,15 +5180,15 @@ var ReactDashboard =
 	module.exports = initCloneObject;
 
 /***/ },
-/* 131 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var constant = __webpack_require__(132),
-	    root = __webpack_require__(21);
+	var constant = __webpack_require__(131),
+	    root = __webpack_require__(20);
 
 	/** Used to determine if values are of the language type `Object`. */
 	var objectTypes = {
@@ -5753,10 +5230,10 @@ var ReactDashboard =
 	};
 
 	module.exports = isBuffer;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21)(module)))
 
 /***/ },
-/* 132 */
+/* 131 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5787,12 +5264,12 @@ var ReactDashboard =
 	module.exports = constant;
 
 /***/ },
-/* 133 */
+/* 132 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createWrapper = __webpack_require__(10);
+	var createWrapper = __webpack_require__(9);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var CURRY_FLAG = 8;
@@ -5851,13 +5328,13 @@ var ReactDashboard =
 	module.exports = curry;
 
 /***/ },
-/* 134 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseClone = __webpack_require__(77),
-	    baseIteratee = __webpack_require__(135);
+	var baseClone = __webpack_require__(76),
+	    baseIteratee = __webpack_require__(134);
 
 	/**
 	 * Creates a function that invokes `func` with the arguments of the created
@@ -5908,18 +5385,18 @@ var ReactDashboard =
 	module.exports = iteratee;
 
 /***/ },
-/* 135 */
+/* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var baseMatches = __webpack_require__(136),
-	    baseMatchesProperty = __webpack_require__(151),
-	    identity = __webpack_require__(12),
-	    isArray = __webpack_require__(43),
-	    property = __webpack_require__(164);
+	var baseMatches = __webpack_require__(135),
+	    baseMatchesProperty = __webpack_require__(150),
+	    identity = __webpack_require__(11),
+	    isArray = __webpack_require__(42),
+	    property = __webpack_require__(163);
 
 	/**
 	 * The base implementation of `_.iteratee`.
@@ -5946,14 +5423,14 @@ var ReactDashboard =
 	module.exports = baseIteratee;
 
 /***/ },
-/* 136 */
+/* 135 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseIsMatch = __webpack_require__(137),
-	    getMatchData = __webpack_require__(145),
-	    matchesStrictComparable = __webpack_require__(150);
+	var baseIsMatch = __webpack_require__(136),
+	    getMatchData = __webpack_require__(144),
+	    matchesStrictComparable = __webpack_require__(149);
 
 	/**
 	 * The base implementation of `_.matches` which doesn't clone `source`.
@@ -5975,13 +5452,13 @@ var ReactDashboard =
 	module.exports = baseMatches;
 
 /***/ },
-/* 137 */
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stack = __webpack_require__(78),
-	    baseIsEqual = __webpack_require__(138);
+	var Stack = __webpack_require__(77),
+	    baseIsEqual = __webpack_require__(137);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -6038,14 +5515,14 @@ var ReactDashboard =
 	module.exports = baseIsMatch;
 
 /***/ },
-/* 138 */
+/* 137 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseIsEqualDeep = __webpack_require__(139),
-	    isObject = __webpack_require__(18),
-	    isObjectLike = __webpack_require__(44);
+	var baseIsEqualDeep = __webpack_require__(138),
+	    isObject = __webpack_require__(17),
+	    isObjectLike = __webpack_require__(43);
 
 	/**
 	 * The base implementation of `_.isEqual` which supports partial comparisons
@@ -6075,19 +5552,19 @@ var ReactDashboard =
 	module.exports = baseIsEqual;
 
 /***/ },
-/* 139 */
+/* 138 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stack = __webpack_require__(78),
-	    equalArrays = __webpack_require__(140),
-	    equalByTag = __webpack_require__(142),
-	    equalObjects = __webpack_require__(143),
-	    getTag = __webpack_require__(110),
-	    isArray = __webpack_require__(43),
-	    isHostObject = __webpack_require__(19),
-	    isTypedArray = __webpack_require__(144);
+	var Stack = __webpack_require__(77),
+	    equalArrays = __webpack_require__(139),
+	    equalByTag = __webpack_require__(141),
+	    equalObjects = __webpack_require__(142),
+	    getTag = __webpack_require__(109),
+	    isArray = __webpack_require__(42),
+	    isHostObject = __webpack_require__(18),
+	    isTypedArray = __webpack_require__(143);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var PARTIAL_COMPARE_FLAG = 2;
@@ -6162,12 +5639,12 @@ var ReactDashboard =
 	module.exports = baseIsEqualDeep;
 
 /***/ },
-/* 140 */
+/* 139 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arraySome = __webpack_require__(141);
+	var arraySome = __webpack_require__(140);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -6240,7 +5717,7 @@ var ReactDashboard =
 	module.exports = equalArrays;
 
 /***/ },
-/* 141 */
+/* 140 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6270,16 +5747,16 @@ var ReactDashboard =
 	module.exports = arraySome;
 
 /***/ },
-/* 142 */
+/* 141 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _Symbol = __webpack_require__(128),
-	    Uint8Array = __webpack_require__(117),
-	    equalArrays = __webpack_require__(140),
-	    mapToArray = __webpack_require__(122),
-	    setToArray = __webpack_require__(126);
+	var _Symbol = __webpack_require__(127),
+	    Uint8Array = __webpack_require__(116),
+	    equalArrays = __webpack_require__(139),
+	    mapToArray = __webpack_require__(121),
+	    setToArray = __webpack_require__(125);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -6389,13 +5866,13 @@ var ReactDashboard =
 	module.exports = equalByTag;
 
 /***/ },
-/* 143 */
+/* 142 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseHas = __webpack_require__(63),
-	    keys = __webpack_require__(62);
+	var baseHas = __webpack_require__(62),
+	    keys = __webpack_require__(61);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var PARTIAL_COMPARE_FLAG = 2;
@@ -6471,13 +5948,13 @@ var ReactDashboard =
 	module.exports = equalObjects;
 
 /***/ },
-/* 144 */
+/* 143 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isLength = __webpack_require__(73),
-	    isObjectLike = __webpack_require__(44);
+	var isLength = __webpack_require__(72),
+	    isObjectLike = __webpack_require__(43);
 
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -6546,13 +6023,13 @@ var ReactDashboard =
 	module.exports = isTypedArray;
 
 /***/ },
-/* 145 */
+/* 144 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isStrictComparable = __webpack_require__(146),
-	    toPairs = __webpack_require__(147);
+	var isStrictComparable = __webpack_require__(145),
+	    toPairs = __webpack_require__(146);
 
 	/**
 	 * Gets the property names, values, and compare flags of `object`.
@@ -6574,12 +6051,12 @@ var ReactDashboard =
 	module.exports = getMatchData;
 
 /***/ },
-/* 146 */
+/* 145 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isObject = __webpack_require__(18);
+	var isObject = __webpack_require__(17);
 
 	/**
 	 * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
@@ -6596,13 +6073,13 @@ var ReactDashboard =
 	module.exports = isStrictComparable;
 
 /***/ },
-/* 147 */
+/* 146 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseToPairs = __webpack_require__(148),
-	    keys = __webpack_require__(62);
+	var baseToPairs = __webpack_require__(147),
+	    keys = __webpack_require__(61);
 
 	/**
 	 * Creates an array of own enumerable string keyed-value pairs for `object`
@@ -6634,12 +6111,12 @@ var ReactDashboard =
 	module.exports = toPairs;
 
 /***/ },
-/* 148 */
+/* 147 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayMap = __webpack_require__(149);
+	var arrayMap = __webpack_require__(148);
 
 	/**
 	 * The base implementation of `_.toPairs` and `_.toPairsIn` which creates an array
@@ -6659,7 +6136,7 @@ var ReactDashboard =
 	module.exports = baseToPairs;
 
 /***/ },
-/* 149 */
+/* 148 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6687,7 +6164,7 @@ var ReactDashboard =
 	module.exports = arrayMap;
 
 /***/ },
-/* 150 */
+/* 149 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6713,18 +6190,18 @@ var ReactDashboard =
 	module.exports = matchesStrictComparable;
 
 /***/ },
-/* 151 */
+/* 150 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseIsEqual = __webpack_require__(138),
-	    get = __webpack_require__(152),
-	    hasIn = __webpack_require__(161),
-	    isKey = __webpack_require__(159),
-	    isStrictComparable = __webpack_require__(146),
-	    matchesStrictComparable = __webpack_require__(150),
-	    toKey = __webpack_require__(160);
+	var baseIsEqual = __webpack_require__(137),
+	    get = __webpack_require__(151),
+	    hasIn = __webpack_require__(160),
+	    isKey = __webpack_require__(158),
+	    isStrictComparable = __webpack_require__(145),
+	    matchesStrictComparable = __webpack_require__(149),
+	    toKey = __webpack_require__(159);
 
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -6751,12 +6228,12 @@ var ReactDashboard =
 	module.exports = baseMatchesProperty;
 
 /***/ },
-/* 152 */
+/* 151 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseGet = __webpack_require__(153);
+	var baseGet = __webpack_require__(152);
 
 	/**
 	 * Gets the value at `path` of `object`. If the resolved value is
@@ -6791,14 +6268,14 @@ var ReactDashboard =
 	module.exports = get;
 
 /***/ },
-/* 153 */
+/* 152 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var castPath = __webpack_require__(154),
-	    isKey = __webpack_require__(159),
-	    toKey = __webpack_require__(160);
+	var castPath = __webpack_require__(153),
+	    isKey = __webpack_require__(158),
+	    toKey = __webpack_require__(159);
 
 	/**
 	 * The base implementation of `_.get` without support for default values.
@@ -6823,13 +6300,13 @@ var ReactDashboard =
 	module.exports = baseGet;
 
 /***/ },
-/* 154 */
+/* 153 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArray = __webpack_require__(43),
-	    stringToPath = __webpack_require__(155);
+	var isArray = __webpack_require__(42),
+	    stringToPath = __webpack_require__(154);
 
 	/**
 	 * Casts `value` to a path array if it's not one.
@@ -6845,13 +6322,13 @@ var ReactDashboard =
 	module.exports = castPath;
 
 /***/ },
-/* 155 */
+/* 154 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var memoize = __webpack_require__(156),
-	    toString = __webpack_require__(157);
+	var memoize = __webpack_require__(155),
+	    toString = __webpack_require__(156);
 
 	/** Used to match property names within property paths. */
 	var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]/g;
@@ -6877,12 +6354,12 @@ var ReactDashboard =
 	module.exports = stringToPath;
 
 /***/ },
-/* 156 */
+/* 155 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var MapCache = __webpack_require__(88);
+	var MapCache = __webpack_require__(87);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -6957,12 +6434,12 @@ var ReactDashboard =
 	module.exports = memoize;
 
 /***/ },
-/* 157 */
+/* 156 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseToString = __webpack_require__(158);
+	var baseToString = __webpack_require__(157);
 
 	/**
 	 * Converts `value` to a string. An empty string is returned for `null`
@@ -6992,13 +6469,13 @@ var ReactDashboard =
 	module.exports = toString;
 
 /***/ },
-/* 158 */
+/* 157 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _Symbol = __webpack_require__(128),
-	    isSymbol = __webpack_require__(57);
+	var _Symbol = __webpack_require__(127),
+	    isSymbol = __webpack_require__(56);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -7030,15 +6507,15 @@ var ReactDashboard =
 	module.exports = baseToString;
 
 /***/ },
-/* 159 */
+/* 158 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var isArray = __webpack_require__(43),
-	    isSymbol = __webpack_require__(57);
+	var isArray = __webpack_require__(42),
+	    isSymbol = __webpack_require__(56);
 
 	/** Used to match property names within property paths. */
 	var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
@@ -7066,12 +6543,12 @@ var ReactDashboard =
 	module.exports = isKey;
 
 /***/ },
-/* 160 */
+/* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isSymbol = __webpack_require__(57);
+	var isSymbol = __webpack_require__(56);
 
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -7094,13 +6571,13 @@ var ReactDashboard =
 	module.exports = toKey;
 
 /***/ },
-/* 161 */
+/* 160 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseHasIn = __webpack_require__(162),
-	    hasPath = __webpack_require__(163);
+	var baseHasIn = __webpack_require__(161),
+	    hasPath = __webpack_require__(162);
 
 	/**
 	 * Checks if `path` is a direct or inherited property of `object`.
@@ -7135,7 +6612,7 @@ var ReactDashboard =
 	module.exports = hasIn;
 
 /***/ },
-/* 162 */
+/* 161 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7155,19 +6632,19 @@ var ReactDashboard =
 	module.exports = baseHasIn;
 
 /***/ },
-/* 163 */
+/* 162 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var castPath = __webpack_require__(154),
-	    isArguments = __webpack_require__(68),
-	    isArray = __webpack_require__(43),
-	    isIndex = __webpack_require__(51),
-	    isKey = __webpack_require__(159),
-	    isLength = __webpack_require__(73),
-	    isString = __webpack_require__(74),
-	    toKey = __webpack_require__(160);
+	var castPath = __webpack_require__(153),
+	    isArguments = __webpack_require__(67),
+	    isArray = __webpack_require__(42),
+	    isIndex = __webpack_require__(50),
+	    isKey = __webpack_require__(158),
+	    isLength = __webpack_require__(72),
+	    isString = __webpack_require__(73),
+	    toKey = __webpack_require__(159);
 
 	/**
 	 * Checks if `path` exists on `object`.
@@ -7202,15 +6679,15 @@ var ReactDashboard =
 	module.exports = hasPath;
 
 /***/ },
-/* 164 */
+/* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseProperty = __webpack_require__(72),
-	    basePropertyDeep = __webpack_require__(165),
-	    isKey = __webpack_require__(159),
-	    toKey = __webpack_require__(160);
+	var baseProperty = __webpack_require__(71),
+	    basePropertyDeep = __webpack_require__(164),
+	    isKey = __webpack_require__(158),
+	    toKey = __webpack_require__(159);
 
 	/**
 	 * Creates a function that returns the value at `path` of a given object.
@@ -7241,12 +6718,12 @@ var ReactDashboard =
 	module.exports = property;
 
 /***/ },
-/* 165 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseGet = __webpack_require__(153);
+	var baseGet = __webpack_require__(152);
 
 	/**
 	 * A specialized version of `baseProperty` which supports deep paths.
@@ -7264,14 +6741,14 @@ var ReactDashboard =
 	module.exports = basePropertyDeep;
 
 /***/ },
-/* 166 */
+/* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseFlatten = __webpack_require__(167),
-	    createWrapper = __webpack_require__(10),
-	    rest = __webpack_require__(169);
+	var baseFlatten = __webpack_require__(166),
+	    createWrapper = __webpack_require__(9),
+	    rest = __webpack_require__(168);
 
 	/** Used to compose bitmasks for wrapper metadata. */
 	var REARG_FLAG = 256;
@@ -7305,13 +6782,13 @@ var ReactDashboard =
 	module.exports = rearg;
 
 /***/ },
-/* 167 */
+/* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayPush = __webpack_require__(109),
-	    isFlattenable = __webpack_require__(168);
+	var arrayPush = __webpack_require__(108),
+	    isFlattenable = __webpack_require__(167);
 
 	/**
 	 * The base implementation of `_.flatten` with support for restricting flattening.
@@ -7350,14 +6827,14 @@ var ReactDashboard =
 	module.exports = baseFlatten;
 
 /***/ },
-/* 168 */
+/* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isArguments = __webpack_require__(68),
-	    isArray = __webpack_require__(43),
-	    isArrayLikeObject = __webpack_require__(69);
+	var isArguments = __webpack_require__(67),
+	    isArray = __webpack_require__(42),
+	    isArrayLikeObject = __webpack_require__(68);
 
 	/**
 	 * Checks if `value` is a flattenable `arguments` object or array.
@@ -7373,13 +6850,13 @@ var ReactDashboard =
 	module.exports = isFlattenable;
 
 /***/ },
-/* 169 */
+/* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(28),
-	    toInteger = __webpack_require__(55);
+	var apply = __webpack_require__(27),
+	    toInteger = __webpack_require__(54);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -7447,16 +6924,16 @@ var ReactDashboard =
 	module.exports = rest;
 
 /***/ },
-/* 170 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var apply = __webpack_require__(28),
-	    arrayPush = __webpack_require__(109),
-	    castSlice = __webpack_require__(171),
-	    rest = __webpack_require__(169),
-	    toInteger = __webpack_require__(55);
+	var apply = __webpack_require__(27),
+	    arrayPush = __webpack_require__(108),
+	    castSlice = __webpack_require__(170),
+	    rest = __webpack_require__(168),
+	    toInteger = __webpack_require__(54);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -7517,12 +6994,12 @@ var ReactDashboard =
 	module.exports = spread;
 
 /***/ },
-/* 171 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseSlice = __webpack_require__(172);
+	var baseSlice = __webpack_require__(171);
 
 	/**
 	 * Casts `array` to a slice if it's needed.
@@ -7542,7 +7019,7 @@ var ReactDashboard =
 	module.exports = castSlice;
 
 /***/ },
-/* 172 */
+/* 171 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7580,17 +7057,17 @@ var ReactDashboard =
 	module.exports = baseSlice;
 
 /***/ },
-/* 173 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var arrayMap = __webpack_require__(149),
-	    copyArray = __webpack_require__(46),
-	    isArray = __webpack_require__(43),
-	    isSymbol = __webpack_require__(57),
-	    stringToPath = __webpack_require__(155),
-	    toKey = __webpack_require__(160);
+	var arrayMap = __webpack_require__(148),
+	    copyArray = __webpack_require__(45),
+	    isArray = __webpack_require__(42),
+	    isSymbol = __webpack_require__(56),
+	    stringToPath = __webpack_require__(154),
+	    toKey = __webpack_require__(159);
 
 	/**
 	 * Converts `value` to a property path array.
@@ -7628,39 +7105,7 @@ var ReactDashboard =
 	module.exports = toPath;
 
 /***/ },
-/* 174 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var baseClone = __webpack_require__(77);
-
-	/**
-	 * This method is like `_.clone` except that it recursively clones `value`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 1.0.0
-	 * @category Lang
-	 * @param {*} value The value to recursively clone.
-	 * @returns {*} Returns the deep cloned value.
-	 * @see _.clone
-	 * @example
-	 *
-	 * var objects = [{ 'a': 1 }, { 'b': 2 }];
-	 *
-	 * var deep = _.cloneDeep(objects);
-	 * console.log(deep[0] === objects[0]);
-	 * // => false
-	 */
-	function cloneDeep(value) {
-	  return baseClone(value, true, true);
-	}
-
-	module.exports = cloneDeep;
-
-/***/ },
-/* 175 */
+/* 173 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -7674,32 +7119,32 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 176 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var convert = __webpack_require__(4),
-	    func = convert('isEmpty', __webpack_require__(177), __webpack_require__(175));
+	var convert = __webpack_require__(3),
+	    func = convert('isEmpty', __webpack_require__(175), __webpack_require__(173));
 
-	func.placeholder = __webpack_require__(7);
+	func.placeholder = __webpack_require__(6);
 	module.exports = func;
 
 /***/ },
-/* 177 */
+/* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var getTag = __webpack_require__(110),
-	    isArguments = __webpack_require__(68),
-	    isArray = __webpack_require__(43),
-	    isArrayLike = __webpack_require__(70),
-	    isBuffer = __webpack_require__(131),
-	    isFunction = __webpack_require__(17),
-	    isObjectLike = __webpack_require__(44),
-	    isString = __webpack_require__(74),
-	    keys = __webpack_require__(62);
+	var getTag = __webpack_require__(109),
+	    isArguments = __webpack_require__(67),
+	    isArray = __webpack_require__(42),
+	    isArrayLike = __webpack_require__(69),
+	    isBuffer = __webpack_require__(130),
+	    isFunction = __webpack_require__(16),
+	    isObjectLike = __webpack_require__(43),
+	    isString = __webpack_require__(73),
+	    keys = __webpack_require__(61);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -7769,3125 +7214,6 @@ var ReactDashboard =
 	}
 
 	module.exports = isEmpty;
-
-/***/ },
-/* 178 */
-/***/ function(module, exports) {
-
-	module.exports = ReactBootstrap;
-
-/***/ },
-/* 179 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	var React = __webpack_require__(1);
-
-	var WidgetManager = {};
-
-	WidgetManager.ChartComponentList = {
-	  PieChart: __webpack_require__(195),
-	  ColumnChart: __webpack_require__(196),
-	  GeoChart: __webpack_require__(197),
-	  TableView: __webpack_require__(198),
-	  ScatterChart: __webpack_require__(199),
-	  Gauge: __webpack_require__(200)
-	};
-
-	WidgetManager.WidgetList = {
-	  GithubAuthor: __webpack_require__(202),
-	  GithubCommit: __webpack_require__(203)
-	};
-
-	/**
-	 * Add a Widget
-	 *
-	 * @param  type      name     Name of Widget
-	 * @param  Component instance Widget Component
-	 */
-	WidgetManager.addWidget = function (name, instance) {
-	  if (typeof name !== 'string') {
-	    throw new Error('ReactDashboard: First parameter of addWidget must be of type string');
-	  }
-
-	  //this validation does not work
-	  if (!React.Component instanceof instance.constructor) {
-	    throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
-	  }
-
-	  WidgetManager.WidgetList[name] = instance;
-	};
-
-	/**
-	 * Add multiple Widgets
-	 *
-	 * @param  object widgets, Widgets to add. string => Component
-	 */
-	WidgetManager.addWidgets = function (widgets) {
-	  if ((typeof widgets === 'undefined' ? 'undefined' : _typeof(widgets)) !== 'object') {
-	    throw new Error('ReactDashboard: First parameter of addWidgets must be of type object');
-	  }
-
-	  for (var name in widgets) {
-	    WidgetManager.addWidget(name, widgets[name]);
-	  }
-	};
-
-	module.exports = WidgetManager;
-
-/***/ },
-/* 180 */,
-/* 181 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var convert = __webpack_require__(4),
-	    func = convert('isArray', __webpack_require__(43), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
-
-/***/ },
-/* 182 */,
-/* 183 */,
-/* 184 */,
-/* 185 */,
-/* 186 */,
-/* 187 */,
-/* 188 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var convert = __webpack_require__(4),
-	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
-
-/***/ },
-/* 189 */,
-/* 190 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, module) {"use strict";
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	// vim:ts=4:sts=4:sw=4:
-	/*!
-	 *
-	 * Copyright 2009-2012 Kris Kowal under the terms of the MIT
-	 * license found at http://github.com/kriskowal/q/raw/master/LICENSE
-	 *
-	 * With parts by Tyler Close
-	 * Copyright 2007-2009 Tyler Close under the terms of the MIT X license found
-	 * at http://www.opensource.org/licenses/mit-license.html
-	 * Forked at ref_send.js version: 2009-05-11
-	 *
-	 * With parts by Mark Miller
-	 * Copyright (C) 2011 Google Inc.
-	 *
-	 * Licensed under the Apache License, Version 2.0 (the "License");
-	 * you may not use this file except in compliance with the License.
-	 * You may obtain a copy of the License at
-	 *
-	 * http://www.apache.org/licenses/LICENSE-2.0
-	 *
-	 * Unless required by applicable law or agreed to in writing, software
-	 * distributed under the License is distributed on an "AS IS" BASIS,
-	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 * See the License for the specific language governing permissions and
-	 * limitations under the License.
-	 *
-	 */
-
-	(function (definition) {
-	    "use strict";
-
-	    // This file will function properly as a <script> tag, or a module
-	    // using CommonJS and NodeJS or RequireJS module formats.  In
-	    // Common/Node/RequireJS, the module exports the Q API and when
-	    // executed as a simple <script>, it creates a Q global instead.
-
-	    // Montage Require
-
-	    if (typeof bootstrap === "function") {
-	        bootstrap("promise", definition);
-
-	        // CommonJS
-	    } else if (( false ? "undefined" : _typeof(exports)) === "object" && ( false ? "undefined" : _typeof(module)) === "object") {
-	            module.exports = definition();
-
-	            // RequireJS
-	        } else if (true) {
-	                !(__WEBPACK_AMD_DEFINE_FACTORY__ = (definition), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-	                // SES (Secure EcmaScript)
-	            } else if (typeof ses !== "undefined") {
-	                    if (!ses.ok()) {
-	                        return;
-	                    } else {
-	                        ses.makeQ = definition;
-	                    }
-
-	                    // <script>
-	                } else if (typeof window !== "undefined" || typeof self !== "undefined") {
-	                        // Prefer window over self for add-on scripts. Use self for
-	                        // non-windowed contexts.
-	                        var global = typeof window !== "undefined" ? window : self;
-
-	                        // Get the `window` object, save the previous Q global
-	                        // and initialize Q as a global.
-	                        var previousQ = global.Q;
-	                        global.Q = definition();
-
-	                        // Add a noConflict function so Q can be removed from the
-	                        // global namespace.
-	                        global.Q.noConflict = function () {
-	                            global.Q = previousQ;
-	                            return this;
-	                        };
-	                    } else {
-	                        throw new Error("This environment was not anticipated by Q. Please file a bug.");
-	                    }
-	})(function () {
-	    "use strict";
-
-	    var hasStacks = false;
-	    try {
-	        throw new Error();
-	    } catch (e) {
-	        hasStacks = !!e.stack;
-	    }
-
-	    // All code after this point will be filtered from stack traces reported
-	    // by Q.
-	    var qStartingLine = captureLine();
-	    var qFileName;
-
-	    // shims
-
-	    // used for fallback in "allResolved"
-	    var noop = function noop() {};
-
-	    // Use the fastest possible means to execute a task in a future turn
-	    // of the event loop.
-	    var nextTick = function () {
-	        // linked list of tasks (single, with head node)
-	        var head = { task: void 0, next: null };
-	        var tail = head;
-	        var flushing = false;
-	        var requestTick = void 0;
-	        var isNodeJS = false;
-	        // queue for late tasks, used by unhandled rejection tracking
-	        var laterQueue = [];
-
-	        function flush() {
-	            /* jshint loopfunc: true */
-	            var task, domain;
-
-	            while (head.next) {
-	                head = head.next;
-	                task = head.task;
-	                head.task = void 0;
-	                domain = head.domain;
-
-	                if (domain) {
-	                    head.domain = void 0;
-	                    domain.enter();
-	                }
-	                runSingle(task, domain);
-	            }
-	            while (laterQueue.length) {
-	                task = laterQueue.pop();
-	                runSingle(task);
-	            }
-	            flushing = false;
-	        }
-	        // runs a single function in the async queue
-	        function runSingle(task, domain) {
-	            try {
-	                task();
-	            } catch (e) {
-	                if (isNodeJS) {
-	                    // In node, uncaught exceptions are considered fatal errors.
-	                    // Re-throw them synchronously to interrupt flushing!
-
-	                    // Ensure continuation if the uncaught exception is suppressed
-	                    // listening "uncaughtException" events (as domains does).
-	                    // Continue in next event to avoid tick recursion.
-	                    if (domain) {
-	                        domain.exit();
-	                    }
-	                    setTimeout(flush, 0);
-	                    if (domain) {
-	                        domain.enter();
-	                    }
-
-	                    throw e;
-	                } else {
-	                    // In browsers, uncaught exceptions are not fatal.
-	                    // Re-throw them asynchronously to avoid slow-downs.
-	                    setTimeout(function () {
-	                        throw e;
-	                    }, 0);
-	                }
-	            }
-
-	            if (domain) {
-	                domain.exit();
-	            }
-	        }
-
-	        nextTick = function nextTick(task) {
-	            tail = tail.next = {
-	                task: task,
-	                domain: isNodeJS && process.domain,
-	                next: null
-	            };
-
-	            if (!flushing) {
-	                flushing = true;
-	                requestTick();
-	            }
-	        };
-
-	        if ((typeof process === "undefined" ? "undefined" : _typeof(process)) === "object" && process.toString() === "[object process]" && process.nextTick) {
-	            // Ensure Q is in a real Node environment, with a `process.nextTick`.
-	            // To see through fake Node environments:
-	            // * Mocha test runner - exposes a `process` global without a `nextTick`
-	            // * Browserify - exposes a `process.nexTick` function that uses
-	            //   `setTimeout`. In this case `setImmediate` is preferred because
-	            //    it is faster. Browserify's `process.toString()` yields
-	            //   "[object Object]", while in a real Node environment
-	            //   `process.nextTick()` yields "[object process]".
-	            isNodeJS = true;
-
-	            requestTick = function requestTick() {
-	                process.nextTick(flush);
-	            };
-	        } else if (typeof setImmediate === "function") {
-	            // In IE10, Node.js 0.9+, or https://github.com/NobleJS/setImmediate
-	            if (typeof window !== "undefined") {
-	                requestTick = setImmediate.bind(window, flush);
-	            } else {
-	                requestTick = function requestTick() {
-	                    setImmediate(flush);
-	                };
-	            }
-	        } else if (typeof MessageChannel !== "undefined") {
-	            // modern browsers
-	            // http://www.nonblocking.io/2011/06/windownexttick.html
-	            var channel = new MessageChannel();
-	            // At least Safari Version 6.0.5 (8536.30.1) intermittently cannot create
-	            // working message ports the first time a page loads.
-	            channel.port1.onmessage = function () {
-	                requestTick = requestPortTick;
-	                channel.port1.onmessage = flush;
-	                flush();
-	            };
-	            var requestPortTick = function requestPortTick() {
-	                // Opera requires us to provide a message payload, regardless of
-	                // whether we use it.
-	                channel.port2.postMessage(0);
-	            };
-	            requestTick = function requestTick() {
-	                setTimeout(flush, 0);
-	                requestPortTick();
-	            };
-	        } else {
-	            // old browsers
-	            requestTick = function requestTick() {
-	                setTimeout(flush, 0);
-	            };
-	        }
-	        // runs a task after all other tasks have been run
-	        // this is useful for unhandled rejection tracking that needs to happen
-	        // after all `then`d tasks have been run.
-	        nextTick.runAfter = function (task) {
-	            laterQueue.push(task);
-	            if (!flushing) {
-	                flushing = true;
-	                requestTick();
-	            }
-	        };
-	        return nextTick;
-	    }();
-
-	    // Attempt to make generics safe in the face of downstream
-	    // modifications.
-	    // There is no situation where this is necessary.
-	    // If you need a security guarantee, these primordials need to be
-	    // deeply frozen anyway, and if you don’t need a security guarantee,
-	    // this is just plain paranoid.
-	    // However, this **might** have the nice side-effect of reducing the size of
-	    // the minified code by reducing x.call() to merely x()
-	    // See Mark Miller’s explanation of what this does.
-	    // http://wiki.ecmascript.org/doku.php?id=conventions:safe_meta_programming
-	    var call = Function.call;
-	    function uncurryThis(f) {
-	        return function () {
-	            return call.apply(f, arguments);
-	        };
-	    }
-	    // This is equivalent, but slower:
-	    // uncurryThis = Function_bind.bind(Function_bind.call);
-	    // http://jsperf.com/uncurrythis
-
-	    var array_slice = uncurryThis(Array.prototype.slice);
-
-	    var array_reduce = uncurryThis(Array.prototype.reduce || function (callback, basis) {
-	        var index = 0,
-	            length = this.length;
-	        // concerning the initial value, if one is not provided
-	        if (arguments.length === 1) {
-	            // seek to the first value in the array, accounting
-	            // for the possibility that is is a sparse array
-	            do {
-	                if (index in this) {
-	                    basis = this[index++];
-	                    break;
-	                }
-	                if (++index >= length) {
-	                    throw new TypeError();
-	                }
-	            } while (1);
-	        }
-	        // reduce
-	        for (; index < length; index++) {
-	            // account for the possibility that the array is sparse
-	            if (index in this) {
-	                basis = callback(basis, this[index], index);
-	            }
-	        }
-	        return basis;
-	    });
-
-	    var array_indexOf = uncurryThis(Array.prototype.indexOf || function (value) {
-	        // not a very good shim, but good enough for our one use of it
-	        for (var i = 0; i < this.length; i++) {
-	            if (this[i] === value) {
-	                return i;
-	            }
-	        }
-	        return -1;
-	    });
-
-	    var array_map = uncurryThis(Array.prototype.map || function (callback, thisp) {
-	        var self = this;
-	        var collect = [];
-	        array_reduce(self, function (undefined, value, index) {
-	            collect.push(callback.call(thisp, value, index, self));
-	        }, void 0);
-	        return collect;
-	    });
-
-	    var object_create = Object.create || function (prototype) {
-	        function Type() {}
-	        Type.prototype = prototype;
-	        return new Type();
-	    };
-
-	    var object_hasOwnProperty = uncurryThis(Object.prototype.hasOwnProperty);
-
-	    var object_keys = Object.keys || function (object) {
-	        var keys = [];
-	        for (var key in object) {
-	            if (object_hasOwnProperty(object, key)) {
-	                keys.push(key);
-	            }
-	        }
-	        return keys;
-	    };
-
-	    var object_toString = uncurryThis(Object.prototype.toString);
-
-	    function isObject(value) {
-	        return value === Object(value);
-	    }
-
-	    // generator related shims
-
-	    // FIXME: Remove this function once ES6 generators are in SpiderMonkey.
-	    function isStopIteration(exception) {
-	        return object_toString(exception) === "[object StopIteration]" || exception instanceof QReturnValue;
-	    }
-
-	    // FIXME: Remove this helper and Q.return once ES6 generators are in
-	    // SpiderMonkey.
-	    var QReturnValue;
-	    if (typeof ReturnValue !== "undefined") {
-	        QReturnValue = ReturnValue;
-	    } else {
-	        QReturnValue = function QReturnValue(value) {
-	            this.value = value;
-	        };
-	    }
-
-	    // long stack traces
-
-	    var STACK_JUMP_SEPARATOR = "From previous event:";
-
-	    function makeStackTraceLong(error, promise) {
-	        // If possible, transform the error stack trace by removing Node and Q
-	        // cruft, then concatenating with the stack trace of `promise`. See #57.
-	        if (hasStacks && promise.stack && (typeof error === "undefined" ? "undefined" : _typeof(error)) === "object" && error !== null && error.stack && error.stack.indexOf(STACK_JUMP_SEPARATOR) === -1) {
-	            var stacks = [];
-	            for (var p = promise; !!p; p = p.source) {
-	                if (p.stack) {
-	                    stacks.unshift(p.stack);
-	                }
-	            }
-	            stacks.unshift(error.stack);
-
-	            var concatedStacks = stacks.join("\n" + STACK_JUMP_SEPARATOR + "\n");
-	            error.stack = filterStackString(concatedStacks);
-	        }
-	    }
-
-	    function filterStackString(stackString) {
-	        var lines = stackString.split("\n");
-	        var desiredLines = [];
-	        for (var i = 0; i < lines.length; ++i) {
-	            var line = lines[i];
-
-	            if (!isInternalFrame(line) && !isNodeFrame(line) && line) {
-	                desiredLines.push(line);
-	            }
-	        }
-	        return desiredLines.join("\n");
-	    }
-
-	    function isNodeFrame(stackLine) {
-	        return stackLine.indexOf("(module.js:") !== -1 || stackLine.indexOf("(node.js:") !== -1;
-	    }
-
-	    function getFileNameAndLineNumber(stackLine) {
-	        // Named functions: "at functionName (filename:lineNumber:columnNumber)"
-	        // In IE10 function name can have spaces ("Anonymous function") O_o
-	        var attempt1 = /at .+ \((.+):(\d+):(?:\d+)\)$/.exec(stackLine);
-	        if (attempt1) {
-	            return [attempt1[1], Number(attempt1[2])];
-	        }
-
-	        // Anonymous functions: "at filename:lineNumber:columnNumber"
-	        var attempt2 = /at ([^ ]+):(\d+):(?:\d+)$/.exec(stackLine);
-	        if (attempt2) {
-	            return [attempt2[1], Number(attempt2[2])];
-	        }
-
-	        // Firefox style: "function@filename:lineNumber or @filename:lineNumber"
-	        var attempt3 = /.*@(.+):(\d+)$/.exec(stackLine);
-	        if (attempt3) {
-	            return [attempt3[1], Number(attempt3[2])];
-	        }
-	    }
-
-	    function isInternalFrame(stackLine) {
-	        var fileNameAndLineNumber = getFileNameAndLineNumber(stackLine);
-
-	        if (!fileNameAndLineNumber) {
-	            return false;
-	        }
-
-	        var fileName = fileNameAndLineNumber[0];
-	        var lineNumber = fileNameAndLineNumber[1];
-
-	        return fileName === qFileName && lineNumber >= qStartingLine && lineNumber <= qEndingLine;
-	    }
-
-	    // discover own file name and line number range for filtering stack
-	    // traces
-	    function captureLine() {
-	        if (!hasStacks) {
-	            return;
-	        }
-
-	        try {
-	            throw new Error();
-	        } catch (e) {
-	            var lines = e.stack.split("\n");
-	            var firstLine = lines[0].indexOf("@") > 0 ? lines[1] : lines[2];
-	            var fileNameAndLineNumber = getFileNameAndLineNumber(firstLine);
-	            if (!fileNameAndLineNumber) {
-	                return;
-	            }
-
-	            qFileName = fileNameAndLineNumber[0];
-	            return fileNameAndLineNumber[1];
-	        }
-	    }
-
-	    function deprecate(callback, name, alternative) {
-	        return function () {
-	            if (typeof console !== "undefined" && typeof console.warn === "function") {
-	                console.warn(name + " is deprecated, use " + alternative + " instead.", new Error("").stack);
-	            }
-	            return callback.apply(callback, arguments);
-	        };
-	    }
-
-	    // end of shims
-	    // beginning of real work
-
-	    /**
-	     * Constructs a promise for an immediate reference, passes promises through, or
-	     * coerces promises from different systems.
-	     * @param value immediate reference or promise
-	     */
-	    function Q(value) {
-	        // If the object is already a Promise, return it directly.  This enables
-	        // the resolve function to both be used to created references from objects,
-	        // but to tolerably coerce non-promises to promises.
-	        if (value instanceof Promise) {
-	            return value;
-	        }
-
-	        // assimilate thenables
-	        if (isPromiseAlike(value)) {
-	            return coerce(value);
-	        } else {
-	            return fulfill(value);
-	        }
-	    }
-	    Q.resolve = Q;
-
-	    /**
-	     * Performs a task in a future turn of the event loop.
-	     * @param {Function} task
-	     */
-	    Q.nextTick = nextTick;
-
-	    /**
-	     * Controls whether or not long stack traces will be on
-	     */
-	    Q.longStackSupport = false;
-
-	    // enable long stacks if Q_DEBUG is set
-	    if ((typeof process === "undefined" ? "undefined" : _typeof(process)) === "object" && process && process.env && process.env.Q_DEBUG) {
-	        Q.longStackSupport = true;
-	    }
-
-	    /**
-	     * Constructs a {promise, resolve, reject} object.
-	     *
-	     * `resolve` is a callback to invoke with a more resolved value for the
-	     * promise. To fulfill the promise, invoke `resolve` with any value that is
-	     * not a thenable. To reject the promise, invoke `resolve` with a rejected
-	     * thenable, or invoke `reject` with the reason directly. To resolve the
-	     * promise to another thenable, thus putting it in the same state, invoke
-	     * `resolve` with that other thenable.
-	     */
-	    Q.defer = defer;
-	    function defer() {
-	        // if "messages" is an "Array", that indicates that the promise has not yet
-	        // been resolved.  If it is "undefined", it has been resolved.  Each
-	        // element of the messages array is itself an array of complete arguments to
-	        // forward to the resolved promise.  We coerce the resolution value to a
-	        // promise using the `resolve` function because it handles both fully
-	        // non-thenable values and other thenables gracefully.
-	        var messages = [],
-	            progressListeners = [],
-	            resolvedPromise;
-
-	        var deferred = object_create(defer.prototype);
-	        var promise = object_create(Promise.prototype);
-
-	        promise.promiseDispatch = function (resolve, op, operands) {
-	            var args = array_slice(arguments);
-	            if (messages) {
-	                messages.push(args);
-	                if (op === "when" && operands[1]) {
-	                    // progress operand
-	                    progressListeners.push(operands[1]);
-	                }
-	            } else {
-	                Q.nextTick(function () {
-	                    resolvedPromise.promiseDispatch.apply(resolvedPromise, args);
-	                });
-	            }
-	        };
-
-	        // XXX deprecated
-	        promise.valueOf = function () {
-	            if (messages) {
-	                return promise;
-	            }
-	            var nearerValue = nearer(resolvedPromise);
-	            if (isPromise(nearerValue)) {
-	                resolvedPromise = nearerValue; // shorten chain
-	            }
-	            return nearerValue;
-	        };
-
-	        promise.inspect = function () {
-	            if (!resolvedPromise) {
-	                return { state: "pending" };
-	            }
-	            return resolvedPromise.inspect();
-	        };
-
-	        if (Q.longStackSupport && hasStacks) {
-	            try {
-	                throw new Error();
-	            } catch (e) {
-	                // NOTE: don't try to use `Error.captureStackTrace` or transfer the
-	                // accessor around; that causes memory leaks as per GH-111. Just
-	                // reify the stack trace as a string ASAP.
-	                //
-	                // At the same time, cut off the first line; it's always just
-	                // "[object Promise]\n", as per the `toString`.
-	                promise.stack = e.stack.substring(e.stack.indexOf("\n") + 1);
-	            }
-	        }
-
-	        // NOTE: we do the checks for `resolvedPromise` in each method, instead of
-	        // consolidating them into `become`, since otherwise we'd create new
-	        // promises with the lines `become(whatever(value))`. See e.g. GH-252.
-
-	        function become(newPromise) {
-	            resolvedPromise = newPromise;
-	            promise.source = newPromise;
-
-	            array_reduce(messages, function (undefined, message) {
-	                Q.nextTick(function () {
-	                    newPromise.promiseDispatch.apply(newPromise, message);
-	                });
-	            }, void 0);
-
-	            messages = void 0;
-	            progressListeners = void 0;
-	        }
-
-	        deferred.promise = promise;
-	        deferred.resolve = function (value) {
-	            if (resolvedPromise) {
-	                return;
-	            }
-
-	            become(Q(value));
-	        };
-
-	        deferred.fulfill = function (value) {
-	            if (resolvedPromise) {
-	                return;
-	            }
-
-	            become(fulfill(value));
-	        };
-	        deferred.reject = function (reason) {
-	            if (resolvedPromise) {
-	                return;
-	            }
-
-	            become(reject(reason));
-	        };
-	        deferred.notify = function (progress) {
-	            if (resolvedPromise) {
-	                return;
-	            }
-
-	            array_reduce(progressListeners, function (undefined, progressListener) {
-	                Q.nextTick(function () {
-	                    progressListener(progress);
-	                });
-	            }, void 0);
-	        };
-
-	        return deferred;
-	    }
-
-	    /**
-	     * Creates a Node-style callback that will resolve or reject the deferred
-	     * promise.
-	     * @returns a nodeback
-	     */
-	    defer.prototype.makeNodeResolver = function () {
-	        var self = this;
-	        return function (error, value) {
-	            if (error) {
-	                self.reject(error);
-	            } else if (arguments.length > 2) {
-	                self.resolve(array_slice(arguments, 1));
-	            } else {
-	                self.resolve(value);
-	            }
-	        };
-	    };
-
-	    /**
-	     * @param resolver {Function} a function that returns nothing and accepts
-	     * the resolve, reject, and notify functions for a deferred.
-	     * @returns a promise that may be resolved with the given resolve and reject
-	     * functions, or rejected by a thrown exception in resolver
-	     */
-	    Q.Promise = promise; // ES6
-	    Q.promise = promise;
-	    function promise(resolver) {
-	        if (typeof resolver !== "function") {
-	            throw new TypeError("resolver must be a function.");
-	        }
-	        var deferred = defer();
-	        try {
-	            resolver(deferred.resolve, deferred.reject, deferred.notify);
-	        } catch (reason) {
-	            deferred.reject(reason);
-	        }
-	        return deferred.promise;
-	    }
-
-	    promise.race = race; // ES6
-	    promise.all = all; // ES6
-	    promise.reject = reject; // ES6
-	    promise.resolve = Q; // ES6
-
-	    // XXX experimental.  This method is a way to denote that a local value is
-	    // serializable and should be immediately dispatched to a remote upon request,
-	    // instead of passing a reference.
-	    Q.passByCopy = function (object) {
-	        //freeze(object);
-	        //passByCopies.set(object, true);
-	        return object;
-	    };
-
-	    Promise.prototype.passByCopy = function () {
-	        //freeze(object);
-	        //passByCopies.set(object, true);
-	        return this;
-	    };
-
-	    /**
-	     * If two promises eventually fulfill to the same value, promises that value,
-	     * but otherwise rejects.
-	     * @param x {Any*}
-	     * @param y {Any*}
-	     * @returns {Any*} a promise for x and y if they are the same, but a rejection
-	     * otherwise.
-	     *
-	     */
-	    Q.join = function (x, y) {
-	        return Q(x).join(y);
-	    };
-
-	    Promise.prototype.join = function (that) {
-	        return Q([this, that]).spread(function (x, y) {
-	            if (x === y) {
-	                // TODO: "===" should be Object.is or equiv
-	                return x;
-	            } else {
-	                throw new Error("Can't join: not the same: " + x + " " + y);
-	            }
-	        });
-	    };
-
-	    /**
-	     * Returns a promise for the first of an array of promises to become settled.
-	     * @param answers {Array[Any*]} promises to race
-	     * @returns {Any*} the first promise to be settled
-	     */
-	    Q.race = race;
-	    function race(answerPs) {
-	        return promise(function (resolve, reject) {
-	            // Switch to this once we can assume at least ES5
-	            // answerPs.forEach(function (answerP) {
-	            //     Q(answerP).then(resolve, reject);
-	            // });
-	            // Use this in the meantime
-	            for (var i = 0, len = answerPs.length; i < len; i++) {
-	                Q(answerPs[i]).then(resolve, reject);
-	            }
-	        });
-	    }
-
-	    Promise.prototype.race = function () {
-	        return this.then(Q.race);
-	    };
-
-	    /**
-	     * Constructs a Promise with a promise descriptor object and optional fallback
-	     * function.  The descriptor contains methods like when(rejected), get(name),
-	     * set(name, value), post(name, args), and delete(name), which all
-	     * return either a value, a promise for a value, or a rejection.  The fallback
-	     * accepts the operation name, a resolver, and any further arguments that would
-	     * have been forwarded to the appropriate method above had a method been
-	     * provided with the proper name.  The API makes no guarantees about the nature
-	     * of the returned object, apart from that it is usable whereever promises are
-	     * bought and sold.
-	     */
-	    Q.makePromise = Promise;
-	    function Promise(descriptor, fallback, inspect) {
-	        if (fallback === void 0) {
-	            fallback = function fallback(op) {
-	                return reject(new Error("Promise does not support operation: " + op));
-	            };
-	        }
-	        if (inspect === void 0) {
-	            inspect = function inspect() {
-	                return { state: "unknown" };
-	            };
-	        }
-
-	        var promise = object_create(Promise.prototype);
-
-	        promise.promiseDispatch = function (resolve, op, args) {
-	            var result;
-	            try {
-	                if (descriptor[op]) {
-	                    result = descriptor[op].apply(promise, args);
-	                } else {
-	                    result = fallback.call(promise, op, args);
-	                }
-	            } catch (exception) {
-	                result = reject(exception);
-	            }
-	            if (resolve) {
-	                resolve(result);
-	            }
-	        };
-
-	        promise.inspect = inspect;
-
-	        // XXX deprecated `valueOf` and `exception` support
-	        if (inspect) {
-	            var inspected = inspect();
-	            if (inspected.state === "rejected") {
-	                promise.exception = inspected.reason;
-	            }
-
-	            promise.valueOf = function () {
-	                var inspected = inspect();
-	                if (inspected.state === "pending" || inspected.state === "rejected") {
-	                    return promise;
-	                }
-	                return inspected.value;
-	            };
-	        }
-
-	        return promise;
-	    }
-
-	    Promise.prototype.toString = function () {
-	        return "[object Promise]";
-	    };
-
-	    Promise.prototype.then = function (fulfilled, rejected, progressed) {
-	        var self = this;
-	        var deferred = defer();
-	        var done = false; // ensure the untrusted promise makes at most a
-	        // single call to one of the callbacks
-
-	        function _fulfilled(value) {
-	            try {
-	                return typeof fulfilled === "function" ? fulfilled(value) : value;
-	            } catch (exception) {
-	                return reject(exception);
-	            }
-	        }
-
-	        function _rejected(exception) {
-	            if (typeof rejected === "function") {
-	                makeStackTraceLong(exception, self);
-	                try {
-	                    return rejected(exception);
-	                } catch (newException) {
-	                    return reject(newException);
-	                }
-	            }
-	            return reject(exception);
-	        }
-
-	        function _progressed(value) {
-	            return typeof progressed === "function" ? progressed(value) : value;
-	        }
-
-	        Q.nextTick(function () {
-	            self.promiseDispatch(function (value) {
-	                if (done) {
-	                    return;
-	                }
-	                done = true;
-
-	                deferred.resolve(_fulfilled(value));
-	            }, "when", [function (exception) {
-	                if (done) {
-	                    return;
-	                }
-	                done = true;
-
-	                deferred.resolve(_rejected(exception));
-	            }]);
-	        });
-
-	        // Progress propagator need to be attached in the current tick.
-	        self.promiseDispatch(void 0, "when", [void 0, function (value) {
-	            var newValue;
-	            var threw = false;
-	            try {
-	                newValue = _progressed(value);
-	            } catch (e) {
-	                threw = true;
-	                if (Q.onerror) {
-	                    Q.onerror(e);
-	                } else {
-	                    throw e;
-	                }
-	            }
-
-	            if (!threw) {
-	                deferred.notify(newValue);
-	            }
-	        }]);
-
-	        return deferred.promise;
-	    };
-
-	    Q.tap = function (promise, callback) {
-	        return Q(promise).tap(callback);
-	    };
-
-	    /**
-	     * Works almost like "finally", but not called for rejections.
-	     * Original resolution value is passed through callback unaffected.
-	     * Callback may return a promise that will be awaited for.
-	     * @param {Function} callback
-	     * @returns {Q.Promise}
-	     * @example
-	     * doSomething()
-	     *   .then(...)
-	     *   .tap(console.log)
-	     *   .then(...);
-	     */
-	    Promise.prototype.tap = function (callback) {
-	        callback = Q(callback);
-
-	        return this.then(function (value) {
-	            return callback.fcall(value).thenResolve(value);
-	        });
-	    };
-
-	    /**
-	     * Registers an observer on a promise.
-	     *
-	     * Guarantees:
-	     *
-	     * 1. that fulfilled and rejected will be called only once.
-	     * 2. that either the fulfilled callback or the rejected callback will be
-	     *    called, but not both.
-	     * 3. that fulfilled and rejected will not be called in this turn.
-	     *
-	     * @param value      promise or immediate reference to observe
-	     * @param fulfilled  function to be called with the fulfilled value
-	     * @param rejected   function to be called with the rejection exception
-	     * @param progressed function to be called on any progress notifications
-	     * @return promise for the return value from the invoked callback
-	     */
-	    Q.when = when;
-	    function when(value, fulfilled, rejected, progressed) {
-	        return Q(value).then(fulfilled, rejected, progressed);
-	    }
-
-	    Promise.prototype.thenResolve = function (value) {
-	        return this.then(function () {
-	            return value;
-	        });
-	    };
-
-	    Q.thenResolve = function (promise, value) {
-	        return Q(promise).thenResolve(value);
-	    };
-
-	    Promise.prototype.thenReject = function (reason) {
-	        return this.then(function () {
-	            throw reason;
-	        });
-	    };
-
-	    Q.thenReject = function (promise, reason) {
-	        return Q(promise).thenReject(reason);
-	    };
-
-	    /**
-	     * If an object is not a promise, it is as "near" as possible.
-	     * If a promise is rejected, it is as "near" as possible too.
-	     * If it’s a fulfilled promise, the fulfillment value is nearer.
-	     * If it’s a deferred promise and the deferred has been resolved, the
-	     * resolution is "nearer".
-	     * @param object
-	     * @returns most resolved (nearest) form of the object
-	     */
-
-	    // XXX should we re-do this?
-	    Q.nearer = nearer;
-	    function nearer(value) {
-	        if (isPromise(value)) {
-	            var inspected = value.inspect();
-	            if (inspected.state === "fulfilled") {
-	                return inspected.value;
-	            }
-	        }
-	        return value;
-	    }
-
-	    /**
-	     * @returns whether the given object is a promise.
-	     * Otherwise it is a fulfilled value.
-	     */
-	    Q.isPromise = isPromise;
-	    function isPromise(object) {
-	        return object instanceof Promise;
-	    }
-
-	    Q.isPromiseAlike = isPromiseAlike;
-	    function isPromiseAlike(object) {
-	        return isObject(object) && typeof object.then === "function";
-	    }
-
-	    /**
-	     * @returns whether the given object is a pending promise, meaning not
-	     * fulfilled or rejected.
-	     */
-	    Q.isPending = isPending;
-	    function isPending(object) {
-	        return isPromise(object) && object.inspect().state === "pending";
-	    }
-
-	    Promise.prototype.isPending = function () {
-	        return this.inspect().state === "pending";
-	    };
-
-	    /**
-	     * @returns whether the given object is a value or fulfilled
-	     * promise.
-	     */
-	    Q.isFulfilled = isFulfilled;
-	    function isFulfilled(object) {
-	        return !isPromise(object) || object.inspect().state === "fulfilled";
-	    }
-
-	    Promise.prototype.isFulfilled = function () {
-	        return this.inspect().state === "fulfilled";
-	    };
-
-	    /**
-	     * @returns whether the given object is a rejected promise.
-	     */
-	    Q.isRejected = isRejected;
-	    function isRejected(object) {
-	        return isPromise(object) && object.inspect().state === "rejected";
-	    }
-
-	    Promise.prototype.isRejected = function () {
-	        return this.inspect().state === "rejected";
-	    };
-
-	    //// BEGIN UNHANDLED REJECTION TRACKING
-
-	    // This promise library consumes exceptions thrown in handlers so they can be
-	    // handled by a subsequent promise.  The exceptions get added to this array when
-	    // they are created, and removed when they are handled.  Note that in ES6 or
-	    // shimmed environments, this would naturally be a `Set`.
-	    var unhandledReasons = [];
-	    var unhandledRejections = [];
-	    var reportedUnhandledRejections = [];
-	    var trackUnhandledRejections = true;
-
-	    function resetUnhandledRejections() {
-	        unhandledReasons.length = 0;
-	        unhandledRejections.length = 0;
-
-	        if (!trackUnhandledRejections) {
-	            trackUnhandledRejections = true;
-	        }
-	    }
-
-	    function trackRejection(promise, reason) {
-	        if (!trackUnhandledRejections) {
-	            return;
-	        }
-	        if ((typeof process === "undefined" ? "undefined" : _typeof(process)) === "object" && typeof process.emit === "function") {
-	            Q.nextTick.runAfter(function () {
-	                if (array_indexOf(unhandledRejections, promise) !== -1) {
-	                    process.emit("unhandledRejection", reason, promise);
-	                    reportedUnhandledRejections.push(promise);
-	                }
-	            });
-	        }
-
-	        unhandledRejections.push(promise);
-	        if (reason && typeof reason.stack !== "undefined") {
-	            unhandledReasons.push(reason.stack);
-	        } else {
-	            unhandledReasons.push("(no stack) " + reason);
-	        }
-	    }
-
-	    function untrackRejection(promise) {
-	        if (!trackUnhandledRejections) {
-	            return;
-	        }
-
-	        var at = array_indexOf(unhandledRejections, promise);
-	        if (at !== -1) {
-	            if ((typeof process === "undefined" ? "undefined" : _typeof(process)) === "object" && typeof process.emit === "function") {
-	                Q.nextTick.runAfter(function () {
-	                    var atReport = array_indexOf(reportedUnhandledRejections, promise);
-	                    if (atReport !== -1) {
-	                        process.emit("rejectionHandled", unhandledReasons[at], promise);
-	                        reportedUnhandledRejections.splice(atReport, 1);
-	                    }
-	                });
-	            }
-	            unhandledRejections.splice(at, 1);
-	            unhandledReasons.splice(at, 1);
-	        }
-	    }
-
-	    Q.resetUnhandledRejections = resetUnhandledRejections;
-
-	    Q.getUnhandledReasons = function () {
-	        // Make a copy so that consumers can't interfere with our internal state.
-	        return unhandledReasons.slice();
-	    };
-
-	    Q.stopUnhandledRejectionTracking = function () {
-	        resetUnhandledRejections();
-	        trackUnhandledRejections = false;
-	    };
-
-	    resetUnhandledRejections();
-
-	    //// END UNHANDLED REJECTION TRACKING
-
-	    /**
-	     * Constructs a rejected promise.
-	     * @param reason value describing the failure
-	     */
-	    Q.reject = reject;
-	    function reject(reason) {
-	        var rejection = Promise({
-	            "when": function when(rejected) {
-	                // note that the error has been handled
-	                if (rejected) {
-	                    untrackRejection(this);
-	                }
-	                return rejected ? rejected(reason) : this;
-	            }
-	        }, function fallback() {
-	            return this;
-	        }, function inspect() {
-	            return { state: "rejected", reason: reason };
-	        });
-
-	        // Note that the reason has not been handled.
-	        trackRejection(rejection, reason);
-
-	        return rejection;
-	    }
-
-	    /**
-	     * Constructs a fulfilled promise for an immediate reference.
-	     * @param value immediate reference
-	     */
-	    Q.fulfill = fulfill;
-	    function fulfill(value) {
-	        return Promise({
-	            "when": function when() {
-	                return value;
-	            },
-	            "get": function get(name) {
-	                return value[name];
-	            },
-	            "set": function set(name, rhs) {
-	                value[name] = rhs;
-	            },
-	            "delete": function _delete(name) {
-	                delete value[name];
-	            },
-	            "post": function post(name, args) {
-	                // Mark Miller proposes that post with no name should apply a
-	                // promised function.
-	                if (name === null || name === void 0) {
-	                    return value.apply(void 0, args);
-	                } else {
-	                    return value[name].apply(value, args);
-	                }
-	            },
-	            "apply": function apply(thisp, args) {
-	                return value.apply(thisp, args);
-	            },
-	            "keys": function keys() {
-	                return object_keys(value);
-	            }
-	        }, void 0, function inspect() {
-	            return { state: "fulfilled", value: value };
-	        });
-	    }
-
-	    /**
-	     * Converts thenables to Q promises.
-	     * @param promise thenable promise
-	     * @returns a Q promise
-	     */
-	    function coerce(promise) {
-	        var deferred = defer();
-	        Q.nextTick(function () {
-	            try {
-	                promise.then(deferred.resolve, deferred.reject, deferred.notify);
-	            } catch (exception) {
-	                deferred.reject(exception);
-	            }
-	        });
-	        return deferred.promise;
-	    }
-
-	    /**
-	     * Annotates an object such that it will never be
-	     * transferred away from this process over any promise
-	     * communication channel.
-	     * @param object
-	     * @returns promise a wrapping of that object that
-	     * additionally responds to the "isDef" message
-	     * without a rejection.
-	     */
-	    Q.master = master;
-	    function master(object) {
-	        return Promise({
-	            "isDef": function isDef() {}
-	        }, function fallback(op, args) {
-	            return dispatch(object, op, args);
-	        }, function () {
-	            return Q(object).inspect();
-	        });
-	    }
-
-	    /**
-	     * Spreads the values of a promised array of arguments into the
-	     * fulfillment callback.
-	     * @param fulfilled callback that receives variadic arguments from the
-	     * promised array
-	     * @param rejected callback that receives the exception if the promise
-	     * is rejected.
-	     * @returns a promise for the return value or thrown exception of
-	     * either callback.
-	     */
-	    Q.spread = spread;
-	    function spread(value, fulfilled, rejected) {
-	        return Q(value).spread(fulfilled, rejected);
-	    }
-
-	    Promise.prototype.spread = function (fulfilled, rejected) {
-	        return this.all().then(function (array) {
-	            return fulfilled.apply(void 0, array);
-	        }, rejected);
-	    };
-
-	    /**
-	     * The async function is a decorator for generator functions, turning
-	     * them into asynchronous generators.  Although generators are only part
-	     * of the newest ECMAScript 6 drafts, this code does not cause syntax
-	     * errors in older engines.  This code should continue to work and will
-	     * in fact improve over time as the language improves.
-	     *
-	     * ES6 generators are currently part of V8 version 3.19 with the
-	     * --harmony-generators runtime flag enabled.  SpiderMonkey has had them
-	     * for longer, but under an older Python-inspired form.  This function
-	     * works on both kinds of generators.
-	     *
-	     * Decorates a generator function such that:
-	     *  - it may yield promises
-	     *  - execution will continue when that promise is fulfilled
-	     *  - the value of the yield expression will be the fulfilled value
-	     *  - it returns a promise for the return value (when the generator
-	     *    stops iterating)
-	     *  - the decorated function returns a promise for the return value
-	     *    of the generator or the first rejected promise among those
-	     *    yielded.
-	     *  - if an error is thrown in the generator, it propagates through
-	     *    every following yield until it is caught, or until it escapes
-	     *    the generator function altogether, and is translated into a
-	     *    rejection for the promise returned by the decorated generator.
-	     */
-	    Q.async = async;
-	    function async(makeGenerator) {
-	        return function () {
-	            // when verb is "send", arg is a value
-	            // when verb is "throw", arg is an exception
-	            function continuer(verb, arg) {
-	                var result;
-
-	                // Until V8 3.19 / Chromium 29 is released, SpiderMonkey is the only
-	                // engine that has a deployed base of browsers that support generators.
-	                // However, SM's generators use the Python-inspired semantics of
-	                // outdated ES6 drafts.  We would like to support ES6, but we'd also
-	                // like to make it possible to use generators in deployed browsers, so
-	                // we also support Python-style generators.  At some point we can remove
-	                // this block.
-
-	                if (typeof StopIteration === "undefined") {
-	                    // ES6 Generators
-	                    try {
-	                        result = generator[verb](arg);
-	                    } catch (exception) {
-	                        return reject(exception);
-	                    }
-	                    if (result.done) {
-	                        return Q(result.value);
-	                    } else {
-	                        return when(result.value, callback, errback);
-	                    }
-	                } else {
-	                    // SpiderMonkey Generators
-	                    // FIXME: Remove this case when SM does ES6 generators.
-	                    try {
-	                        result = generator[verb](arg);
-	                    } catch (exception) {
-	                        if (isStopIteration(exception)) {
-	                            return Q(exception.value);
-	                        } else {
-	                            return reject(exception);
-	                        }
-	                    }
-	                    return when(result, callback, errback);
-	                }
-	            }
-	            var generator = makeGenerator.apply(this, arguments);
-	            var callback = continuer.bind(continuer, "next");
-	            var errback = continuer.bind(continuer, "throw");
-	            return callback();
-	        };
-	    }
-
-	    /**
-	     * The spawn function is a small wrapper around async that immediately
-	     * calls the generator and also ends the promise chain, so that any
-	     * unhandled errors are thrown instead of forwarded to the error
-	     * handler. This is useful because it's extremely common to run
-	     * generators at the top-level to work with libraries.
-	     */
-	    Q.spawn = spawn;
-	    function spawn(makeGenerator) {
-	        Q.done(Q.async(makeGenerator)());
-	    }
-
-	    // FIXME: Remove this interface once ES6 generators are in SpiderMonkey.
-	    /**
-	     * Throws a ReturnValue exception to stop an asynchronous generator.
-	     *
-	     * This interface is a stop-gap measure to support generator return
-	     * values in older Firefox/SpiderMonkey.  In browsers that support ES6
-	     * generators like Chromium 29, just use "return" in your generator
-	     * functions.
-	     *
-	     * @param value the return value for the surrounding generator
-	     * @throws ReturnValue exception with the value.
-	     * @example
-	     * // ES6 style
-	     * Q.async(function* () {
-	     *      var foo = yield getFooPromise();
-	     *      var bar = yield getBarPromise();
-	     *      return foo + bar;
-	     * })
-	     * // Older SpiderMonkey style
-	     * Q.async(function () {
-	     *      var foo = yield getFooPromise();
-	     *      var bar = yield getBarPromise();
-	     *      Q.return(foo + bar);
-	     * })
-	     */
-	    Q["return"] = _return;
-	    function _return(value) {
-	        throw new QReturnValue(value);
-	    }
-
-	    /**
-	     * The promised function decorator ensures that any promise arguments
-	     * are settled and passed as values (`this` is also settled and passed
-	     * as a value).  It will also ensure that the result of a function is
-	     * always a promise.
-	     *
-	     * @example
-	     * var add = Q.promised(function (a, b) {
-	     *     return a + b;
-	     * });
-	     * add(Q(a), Q(B));
-	     *
-	     * @param {function} callback The function to decorate
-	     * @returns {function} a function that has been decorated.
-	     */
-	    Q.promised = promised;
-	    function promised(callback) {
-	        return function () {
-	            return spread([this, all(arguments)], function (self, args) {
-	                return callback.apply(self, args);
-	            });
-	        };
-	    }
-
-	    /**
-	     * sends a message to a value in a future turn
-	     * @param object* the recipient
-	     * @param op the name of the message operation, e.g., "when",
-	     * @param args further arguments to be forwarded to the operation
-	     * @returns result {Promise} a promise for the result of the operation
-	     */
-	    Q.dispatch = dispatch;
-	    function dispatch(object, op, args) {
-	        return Q(object).dispatch(op, args);
-	    }
-
-	    Promise.prototype.dispatch = function (op, args) {
-	        var self = this;
-	        var deferred = defer();
-	        Q.nextTick(function () {
-	            self.promiseDispatch(deferred.resolve, op, args);
-	        });
-	        return deferred.promise;
-	    };
-
-	    /**
-	     * Gets the value of a property in a future turn.
-	     * @param object    promise or immediate reference for target object
-	     * @param name      name of property to get
-	     * @return promise for the property value
-	     */
-	    Q.get = function (object, key) {
-	        return Q(object).dispatch("get", [key]);
-	    };
-
-	    Promise.prototype.get = function (key) {
-	        return this.dispatch("get", [key]);
-	    };
-
-	    /**
-	     * Sets the value of a property in a future turn.
-	     * @param object    promise or immediate reference for object object
-	     * @param name      name of property to set
-	     * @param value     new value of property
-	     * @return promise for the return value
-	     */
-	    Q.set = function (object, key, value) {
-	        return Q(object).dispatch("set", [key, value]);
-	    };
-
-	    Promise.prototype.set = function (key, value) {
-	        return this.dispatch("set", [key, value]);
-	    };
-
-	    /**
-	     * Deletes a property in a future turn.
-	     * @param object    promise or immediate reference for target object
-	     * @param name      name of property to delete
-	     * @return promise for the return value
-	     */
-	    Q.del = // XXX legacy
-	    Q["delete"] = function (object, key) {
-	        return Q(object).dispatch("delete", [key]);
-	    };
-
-	    Promise.prototype.del = // XXX legacy
-	    Promise.prototype["delete"] = function (key) {
-	        return this.dispatch("delete", [key]);
-	    };
-
-	    /**
-	     * Invokes a method in a future turn.
-	     * @param object    promise or immediate reference for target object
-	     * @param name      name of method to invoke
-	     * @param value     a value to post, typically an array of
-	     *                  invocation arguments for promises that
-	     *                  are ultimately backed with `resolve` values,
-	     *                  as opposed to those backed with URLs
-	     *                  wherein the posted value can be any
-	     *                  JSON serializable object.
-	     * @return promise for the return value
-	     */
-	    // bound locally because it is used by other methods
-	    Q.mapply = // XXX As proposed by "Redsandro"
-	    Q.post = function (object, name, args) {
-	        return Q(object).dispatch("post", [name, args]);
-	    };
-
-	    Promise.prototype.mapply = // XXX As proposed by "Redsandro"
-	    Promise.prototype.post = function (name, args) {
-	        return this.dispatch("post", [name, args]);
-	    };
-
-	    /**
-	     * Invokes a method in a future turn.
-	     * @param object    promise or immediate reference for target object
-	     * @param name      name of method to invoke
-	     * @param ...args   array of invocation arguments
-	     * @return promise for the return value
-	     */
-	    Q.send = // XXX Mark Miller's proposed parlance
-	    Q.mcall = // XXX As proposed by "Redsandro"
-	    Q.invoke = function (object, name /*...args*/) {
-	        return Q(object).dispatch("post", [name, array_slice(arguments, 2)]);
-	    };
-
-	    Promise.prototype.send = // XXX Mark Miller's proposed parlance
-	    Promise.prototype.mcall = // XXX As proposed by "Redsandro"
-	    Promise.prototype.invoke = function (name /*...args*/) {
-	        return this.dispatch("post", [name, array_slice(arguments, 1)]);
-	    };
-
-	    /**
-	     * Applies the promised function in a future turn.
-	     * @param object    promise or immediate reference for target function
-	     * @param args      array of application arguments
-	     */
-	    Q.fapply = function (object, args) {
-	        return Q(object).dispatch("apply", [void 0, args]);
-	    };
-
-	    Promise.prototype.fapply = function (args) {
-	        return this.dispatch("apply", [void 0, args]);
-	    };
-
-	    /**
-	     * Calls the promised function in a future turn.
-	     * @param object    promise or immediate reference for target function
-	     * @param ...args   array of application arguments
-	     */
-	    Q["try"] = Q.fcall = function (object /* ...args*/) {
-	        return Q(object).dispatch("apply", [void 0, array_slice(arguments, 1)]);
-	    };
-
-	    Promise.prototype.fcall = function () /*...args*/{
-	        return this.dispatch("apply", [void 0, array_slice(arguments)]);
-	    };
-
-	    /**
-	     * Binds the promised function, transforming return values into a fulfilled
-	     * promise and thrown errors into a rejected one.
-	     * @param object    promise or immediate reference for target function
-	     * @param ...args   array of application arguments
-	     */
-	    Q.fbind = function (object /*...args*/) {
-	        var promise = Q(object);
-	        var args = array_slice(arguments, 1);
-	        return function fbound() {
-	            return promise.dispatch("apply", [this, args.concat(array_slice(arguments))]);
-	        };
-	    };
-	    Promise.prototype.fbind = function () /*...args*/{
-	        var promise = this;
-	        var args = array_slice(arguments);
-	        return function fbound() {
-	            return promise.dispatch("apply", [this, args.concat(array_slice(arguments))]);
-	        };
-	    };
-
-	    /**
-	     * Requests the names of the owned properties of a promised
-	     * object in a future turn.
-	     * @param object    promise or immediate reference for target object
-	     * @return promise for the keys of the eventually settled object
-	     */
-	    Q.keys = function (object) {
-	        return Q(object).dispatch("keys", []);
-	    };
-
-	    Promise.prototype.keys = function () {
-	        return this.dispatch("keys", []);
-	    };
-
-	    /**
-	     * Turns an array of promises into a promise for an array.  If any of
-	     * the promises gets rejected, the whole array is rejected immediately.
-	     * @param {Array*} an array (or promise for an array) of values (or
-	     * promises for values)
-	     * @returns a promise for an array of the corresponding values
-	     */
-	    // By Mark Miller
-	    // http://wiki.ecmascript.org/doku.php?id=strawman:concurrency&rev=1308776521#allfulfilled
-	    Q.all = all;
-	    function all(promises) {
-	        return when(promises, function (promises) {
-	            var pendingCount = 0;
-	            var deferred = defer();
-	            array_reduce(promises, function (undefined, promise, index) {
-	                var snapshot;
-	                if (isPromise(promise) && (snapshot = promise.inspect()).state === "fulfilled") {
-	                    promises[index] = snapshot.value;
-	                } else {
-	                    ++pendingCount;
-	                    when(promise, function (value) {
-	                        promises[index] = value;
-	                        if (--pendingCount === 0) {
-	                            deferred.resolve(promises);
-	                        }
-	                    }, deferred.reject, function (progress) {
-	                        deferred.notify({ index: index, value: progress });
-	                    });
-	                }
-	            }, void 0);
-	            if (pendingCount === 0) {
-	                deferred.resolve(promises);
-	            }
-	            return deferred.promise;
-	        });
-	    }
-
-	    Promise.prototype.all = function () {
-	        return all(this);
-	    };
-
-	    /**
-	     * Returns the first resolved promise of an array. Prior rejected promises are
-	     * ignored.  Rejects only if all promises are rejected.
-	     * @param {Array*} an array containing values or promises for values
-	     * @returns a promise fulfilled with the value of the first resolved promise,
-	     * or a rejected promise if all promises are rejected.
-	     */
-	    Q.any = any;
-
-	    function any(promises) {
-	        if (promises.length === 0) {
-	            return Q.resolve();
-	        }
-
-	        var deferred = Q.defer();
-	        var pendingCount = 0;
-	        array_reduce(promises, function (prev, current, index) {
-	            var promise = promises[index];
-
-	            pendingCount++;
-
-	            when(promise, onFulfilled, onRejected, onProgress);
-	            function onFulfilled(result) {
-	                deferred.resolve(result);
-	            }
-	            function onRejected() {
-	                pendingCount--;
-	                if (pendingCount === 0) {
-	                    deferred.reject(new Error("Can't get fulfillment value from any promise, all " + "promises were rejected."));
-	                }
-	            }
-	            function onProgress(progress) {
-	                deferred.notify({
-	                    index: index,
-	                    value: progress
-	                });
-	            }
-	        }, undefined);
-
-	        return deferred.promise;
-	    }
-
-	    Promise.prototype.any = function () {
-	        return any(this);
-	    };
-
-	    /**
-	     * Waits for all promises to be settled, either fulfilled or
-	     * rejected.  This is distinct from `all` since that would stop
-	     * waiting at the first rejection.  The promise returned by
-	     * `allResolved` will never be rejected.
-	     * @param promises a promise for an array (or an array) of promises
-	     * (or values)
-	     * @return a promise for an array of promises
-	     */
-	    Q.allResolved = deprecate(allResolved, "allResolved", "allSettled");
-	    function allResolved(promises) {
-	        return when(promises, function (promises) {
-	            promises = array_map(promises, Q);
-	            return when(all(array_map(promises, function (promise) {
-	                return when(promise, noop, noop);
-	            })), function () {
-	                return promises;
-	            });
-	        });
-	    }
-
-	    Promise.prototype.allResolved = function () {
-	        return allResolved(this);
-	    };
-
-	    /**
-	     * @see Promise#allSettled
-	     */
-	    Q.allSettled = allSettled;
-	    function allSettled(promises) {
-	        return Q(promises).allSettled();
-	    }
-
-	    /**
-	     * Turns an array of promises into a promise for an array of their states (as
-	     * returned by `inspect`) when they have all settled.
-	     * @param {Array[Any*]} values an array (or promise for an array) of values (or
-	     * promises for values)
-	     * @returns {Array[State]} an array of states for the respective values.
-	     */
-	    Promise.prototype.allSettled = function () {
-	        return this.then(function (promises) {
-	            return all(array_map(promises, function (promise) {
-	                promise = Q(promise);
-	                function regardless() {
-	                    return promise.inspect();
-	                }
-	                return promise.then(regardless, regardless);
-	            }));
-	        });
-	    };
-
-	    /**
-	     * Captures the failure of a promise, giving an oportunity to recover
-	     * with a callback.  If the given promise is fulfilled, the returned
-	     * promise is fulfilled.
-	     * @param {Any*} promise for something
-	     * @param {Function} callback to fulfill the returned promise if the
-	     * given promise is rejected
-	     * @returns a promise for the return value of the callback
-	     */
-	    Q.fail = // XXX legacy
-	    Q["catch"] = function (object, rejected) {
-	        return Q(object).then(void 0, rejected);
-	    };
-
-	    Promise.prototype.fail = // XXX legacy
-	    Promise.prototype["catch"] = function (rejected) {
-	        return this.then(void 0, rejected);
-	    };
-
-	    /**
-	     * Attaches a listener that can respond to progress notifications from a
-	     * promise's originating deferred. This listener receives the exact arguments
-	     * passed to ``deferred.notify``.
-	     * @param {Any*} promise for something
-	     * @param {Function} callback to receive any progress notifications
-	     * @returns the given promise, unchanged
-	     */
-	    Q.progress = progress;
-	    function progress(object, progressed) {
-	        return Q(object).then(void 0, void 0, progressed);
-	    }
-
-	    Promise.prototype.progress = function (progressed) {
-	        return this.then(void 0, void 0, progressed);
-	    };
-
-	    /**
-	     * Provides an opportunity to observe the settling of a promise,
-	     * regardless of whether the promise is fulfilled or rejected.  Forwards
-	     * the resolution to the returned promise when the callback is done.
-	     * The callback can return a promise to defer completion.
-	     * @param {Any*} promise
-	     * @param {Function} callback to observe the resolution of the given
-	     * promise, takes no arguments.
-	     * @returns a promise for the resolution of the given promise when
-	     * ``fin`` is done.
-	     */
-	    Q.fin = // XXX legacy
-	    Q["finally"] = function (object, callback) {
-	        return Q(object)["finally"](callback);
-	    };
-
-	    Promise.prototype.fin = // XXX legacy
-	    Promise.prototype["finally"] = function (callback) {
-	        callback = Q(callback);
-	        return this.then(function (value) {
-	            return callback.fcall().then(function () {
-	                return value;
-	            });
-	        }, function (reason) {
-	            // TODO attempt to recycle the rejection with "this".
-	            return callback.fcall().then(function () {
-	                throw reason;
-	            });
-	        });
-	    };
-
-	    /**
-	     * Terminates a chain of promises, forcing rejections to be
-	     * thrown as exceptions.
-	     * @param {Any*} promise at the end of a chain of promises
-	     * @returns nothing
-	     */
-	    Q.done = function (object, fulfilled, rejected, progress) {
-	        return Q(object).done(fulfilled, rejected, progress);
-	    };
-
-	    Promise.prototype.done = function (fulfilled, rejected, progress) {
-	        var onUnhandledError = function onUnhandledError(error) {
-	            // forward to a future turn so that ``when``
-	            // does not catch it and turn it into a rejection.
-	            Q.nextTick(function () {
-	                makeStackTraceLong(error, promise);
-	                if (Q.onerror) {
-	                    Q.onerror(error);
-	                } else {
-	                    throw error;
-	                }
-	            });
-	        };
-
-	        // Avoid unnecessary `nextTick`ing via an unnecessary `when`.
-	        var promise = fulfilled || rejected || progress ? this.then(fulfilled, rejected, progress) : this;
-
-	        if ((typeof process === "undefined" ? "undefined" : _typeof(process)) === "object" && process && process.domain) {
-	            onUnhandledError = process.domain.bind(onUnhandledError);
-	        }
-
-	        promise.then(void 0, onUnhandledError);
-	    };
-
-	    /**
-	     * Causes a promise to be rejected if it does not get fulfilled before
-	     * some milliseconds time out.
-	     * @param {Any*} promise
-	     * @param {Number} milliseconds timeout
-	     * @param {Any*} custom error message or Error object (optional)
-	     * @returns a promise for the resolution of the given promise if it is
-	     * fulfilled before the timeout, otherwise rejected.
-	     */
-	    Q.timeout = function (object, ms, error) {
-	        return Q(object).timeout(ms, error);
-	    };
-
-	    Promise.prototype.timeout = function (ms, error) {
-	        var deferred = defer();
-	        var timeoutId = setTimeout(function () {
-	            if (!error || "string" === typeof error) {
-	                error = new Error(error || "Timed out after " + ms + " ms");
-	                error.code = "ETIMEDOUT";
-	            }
-	            deferred.reject(error);
-	        }, ms);
-
-	        this.then(function (value) {
-	            clearTimeout(timeoutId);
-	            deferred.resolve(value);
-	        }, function (exception) {
-	            clearTimeout(timeoutId);
-	            deferred.reject(exception);
-	        }, deferred.notify);
-
-	        return deferred.promise;
-	    };
-
-	    /**
-	     * Returns a promise for the given value (or promised value), some
-	     * milliseconds after it resolved. Passes rejections immediately.
-	     * @param {Any*} promise
-	     * @param {Number} milliseconds
-	     * @returns a promise for the resolution of the given promise after milliseconds
-	     * time has elapsed since the resolution of the given promise.
-	     * If the given promise rejects, that is passed immediately.
-	     */
-	    Q.delay = function (object, timeout) {
-	        if (timeout === void 0) {
-	            timeout = object;
-	            object = void 0;
-	        }
-	        return Q(object).delay(timeout);
-	    };
-
-	    Promise.prototype.delay = function (timeout) {
-	        return this.then(function (value) {
-	            var deferred = defer();
-	            setTimeout(function () {
-	                deferred.resolve(value);
-	            }, timeout);
-	            return deferred.promise;
-	        });
-	    };
-
-	    /**
-	     * Passes a continuation to a Node function, which is called with the given
-	     * arguments provided as an array, and returns a promise.
-	     *
-	     *      Q.nfapply(FS.readFile, [__filename])
-	     *      .then(function (content) {
-	     *      })
-	     *
-	     */
-	    Q.nfapply = function (callback, args) {
-	        return Q(callback).nfapply(args);
-	    };
-
-	    Promise.prototype.nfapply = function (args) {
-	        var deferred = defer();
-	        var nodeArgs = array_slice(args);
-	        nodeArgs.push(deferred.makeNodeResolver());
-	        this.fapply(nodeArgs).fail(deferred.reject);
-	        return deferred.promise;
-	    };
-
-	    /**
-	     * Passes a continuation to a Node function, which is called with the given
-	     * arguments provided individually, and returns a promise.
-	     * @example
-	     * Q.nfcall(FS.readFile, __filename)
-	     * .then(function (content) {
-	     * })
-	     *
-	     */
-	    Q.nfcall = function (callback /*...args*/) {
-	        var args = array_slice(arguments, 1);
-	        return Q(callback).nfapply(args);
-	    };
-
-	    Promise.prototype.nfcall = function () /*...args*/{
-	        var nodeArgs = array_slice(arguments);
-	        var deferred = defer();
-	        nodeArgs.push(deferred.makeNodeResolver());
-	        this.fapply(nodeArgs).fail(deferred.reject);
-	        return deferred.promise;
-	    };
-
-	    /**
-	     * Wraps a NodeJS continuation passing function and returns an equivalent
-	     * version that returns a promise.
-	     * @example
-	     * Q.nfbind(FS.readFile, __filename)("utf-8")
-	     * .then(console.log)
-	     * .done()
-	     */
-	    Q.nfbind = Q.denodeify = function (callback /*...args*/) {
-	        var baseArgs = array_slice(arguments, 1);
-	        return function () {
-	            var nodeArgs = baseArgs.concat(array_slice(arguments));
-	            var deferred = defer();
-	            nodeArgs.push(deferred.makeNodeResolver());
-	            Q(callback).fapply(nodeArgs).fail(deferred.reject);
-	            return deferred.promise;
-	        };
-	    };
-
-	    Promise.prototype.nfbind = Promise.prototype.denodeify = function () /*...args*/{
-	        var args = array_slice(arguments);
-	        args.unshift(this);
-	        return Q.denodeify.apply(void 0, args);
-	    };
-
-	    Q.nbind = function (callback, thisp /*...args*/) {
-	        var baseArgs = array_slice(arguments, 2);
-	        return function () {
-	            var nodeArgs = baseArgs.concat(array_slice(arguments));
-	            var deferred = defer();
-	            nodeArgs.push(deferred.makeNodeResolver());
-	            function bound() {
-	                return callback.apply(thisp, arguments);
-	            }
-	            Q(bound).fapply(nodeArgs).fail(deferred.reject);
-	            return deferred.promise;
-	        };
-	    };
-
-	    Promise.prototype.nbind = function () /*thisp, ...args*/{
-	        var args = array_slice(arguments, 0);
-	        args.unshift(this);
-	        return Q.nbind.apply(void 0, args);
-	    };
-
-	    /**
-	     * Calls a method of a Node-style object that accepts a Node-style
-	     * callback with a given array of arguments, plus a provided callback.
-	     * @param object an object that has the named method
-	     * @param {String} name name of the method of object
-	     * @param {Array} args arguments to pass to the method; the callback
-	     * will be provided by Q and appended to these arguments.
-	     * @returns a promise for the value or error
-	     */
-	    Q.nmapply = // XXX As proposed by "Redsandro"
-	    Q.npost = function (object, name, args) {
-	        return Q(object).npost(name, args);
-	    };
-
-	    Promise.prototype.nmapply = // XXX As proposed by "Redsandro"
-	    Promise.prototype.npost = function (name, args) {
-	        var nodeArgs = array_slice(args || []);
-	        var deferred = defer();
-	        nodeArgs.push(deferred.makeNodeResolver());
-	        this.dispatch("post", [name, nodeArgs]).fail(deferred.reject);
-	        return deferred.promise;
-	    };
-
-	    /**
-	     * Calls a method of a Node-style object that accepts a Node-style
-	     * callback, forwarding the given variadic arguments, plus a provided
-	     * callback argument.
-	     * @param object an object that has the named method
-	     * @param {String} name name of the method of object
-	     * @param ...args arguments to pass to the method; the callback will
-	     * be provided by Q and appended to these arguments.
-	     * @returns a promise for the value or error
-	     */
-	    Q.nsend = // XXX Based on Mark Miller's proposed "send"
-	    Q.nmcall = // XXX Based on "Redsandro's" proposal
-	    Q.ninvoke = function (object, name /*...args*/) {
-	        var nodeArgs = array_slice(arguments, 2);
-	        var deferred = defer();
-	        nodeArgs.push(deferred.makeNodeResolver());
-	        Q(object).dispatch("post", [name, nodeArgs]).fail(deferred.reject);
-	        return deferred.promise;
-	    };
-
-	    Promise.prototype.nsend = // XXX Based on Mark Miller's proposed "send"
-	    Promise.prototype.nmcall = // XXX Based on "Redsandro's" proposal
-	    Promise.prototype.ninvoke = function (name /*...args*/) {
-	        var nodeArgs = array_slice(arguments, 1);
-	        var deferred = defer();
-	        nodeArgs.push(deferred.makeNodeResolver());
-	        this.dispatch("post", [name, nodeArgs]).fail(deferred.reject);
-	        return deferred.promise;
-	    };
-
-	    /**
-	     * If a function would like to support both Node continuation-passing-style and
-	     * promise-returning-style, it can end its internal promise chain with
-	     * `nodeify(nodeback)`, forwarding the optional nodeback argument.  If the user
-	     * elects to use a nodeback, the result will be sent there.  If they do not
-	     * pass a nodeback, they will receive the result promise.
-	     * @param object a result (or a promise for a result)
-	     * @param {Function} nodeback a Node.js-style callback
-	     * @returns either the promise or nothing
-	     */
-	    Q.nodeify = nodeify;
-	    function nodeify(object, nodeback) {
-	        return Q(object).nodeify(nodeback);
-	    }
-
-	    Promise.prototype.nodeify = function (nodeback) {
-	        if (nodeback) {
-	            this.then(function (value) {
-	                Q.nextTick(function () {
-	                    nodeback(null, value);
-	                });
-	            }, function (error) {
-	                Q.nextTick(function () {
-	                    nodeback(error);
-	                });
-	            });
-	        } else {
-	            return this;
-	        }
-	    };
-
-	    Q.noConflict = function () {
-	        throw new Error("Q.noConflict only works when Q is used as a global");
-	    };
-
-	    // All code before this point will be filtered from stack traces.
-	    var qEndingLine = captureLine();
-
-	    return Q;
-	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(191), __webpack_require__(192).setImmediate, __webpack_require__(22)(module)))
-
-/***/ },
-/* 191 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-	var currentQueue;
-	var queueIndex = -1;
-
-	function cleanUpNextTick() {
-	    draining = false;
-	    if (currentQueue.length) {
-	        queue = currentQueue.concat(queue);
-	    } else {
-	        queueIndex = -1;
-	    }
-	    if (queue.length) {
-	        drainQueue();
-	    }
-	}
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    var timeout = setTimeout(cleanUpNextTick);
-	    draining = true;
-
-	    var len = queue.length;
-	    while (len) {
-	        currentQueue = queue;
-	        queue = [];
-	        while (++queueIndex < len) {
-	            if (currentQueue) {
-	                currentQueue[queueIndex].run();
-	            }
-	        }
-	        queueIndex = -1;
-	        len = queue.length;
-	    }
-	    currentQueue = null;
-	    draining = false;
-	    clearTimeout(timeout);
-	}
-
-	process.nextTick = function (fun) {
-	    var args = new Array(arguments.length - 1);
-	    if (arguments.length > 1) {
-	        for (var i = 1; i < arguments.length; i++) {
-	            args[i - 1] = arguments[i];
-	        }
-	    }
-	    queue.push(new Item(fun, args));
-	    if (queue.length === 1 && !draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	// v8 likes predictible objects
-	function Item(fun, array) {
-	    this.fun = fun;
-	    this.array = array;
-	}
-	Item.prototype.run = function () {
-	    this.fun.apply(null, this.array);
-	};
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	process.cwd = function () {
-	    return '/';
-	};
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function () {
-	    return 0;
-	};
-
-/***/ },
-/* 192 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {"use strict";
-
-	var nextTick = __webpack_require__(191).nextTick;
-	var apply = Function.prototype.apply;
-	var slice = Array.prototype.slice;
-	var immediateIds = {};
-	var nextImmediateId = 0;
-
-	// DOM APIs, for completeness
-
-	exports.setTimeout = function () {
-	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-	};
-	exports.setInterval = function () {
-	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-	};
-	exports.clearTimeout = exports.clearInterval = function (timeout) {
-	  timeout.close();
-	};
-
-	function Timeout(id, clearFn) {
-	  this._id = id;
-	  this._clearFn = clearFn;
-	}
-	Timeout.prototype.unref = Timeout.prototype.ref = function () {};
-	Timeout.prototype.close = function () {
-	  this._clearFn.call(window, this._id);
-	};
-
-	// Does not start the time, just sets up the members needed.
-	exports.enroll = function (item, msecs) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = msecs;
-	};
-
-	exports.unenroll = function (item) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = -1;
-	};
-
-	exports._unrefActive = exports.active = function (item) {
-	  clearTimeout(item._idleTimeoutId);
-
-	  var msecs = item._idleTimeout;
-	  if (msecs >= 0) {
-	    item._idleTimeoutId = setTimeout(function onTimeout() {
-	      if (item._onTimeout) item._onTimeout();
-	    }, msecs);
-	  }
-	};
-
-	// That's not how node.js implements it but the exposed api is the same.
-	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function (fn) {
-	  var id = nextImmediateId++;
-	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
-
-	  immediateIds[id] = true;
-
-	  nextTick(function onNextTick() {
-	    if (immediateIds[id]) {
-	      // fn.call() is faster so we optimize for the common use-case
-	      // @see http://jsperf.com/call-apply-segu
-	      if (args) {
-	        fn.apply(null, args);
-	      } else {
-	        fn.call(null);
-	      }
-	      // Prevent ids from leaking
-	      exports.clearImmediate(id);
-	    }
-	  });
-
-	  return id;
-	};
-
-	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function (id) {
-	  delete immediateIds[id];
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(192).setImmediate, __webpack_require__(192).clearImmediate))
-
-/***/ },
-/* 193 */,
-/* 194 */,
-/* 195 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var PieChart = React.createClass({
-	  displayName: 'PieChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "pie_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.PieChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	PieChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = PieChart;
-
-/***/ },
-/* 196 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var ColumnChart = React.createClass({
-	  displayName: 'ColumnChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "column_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ColumnChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ColumnChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ColumnChart;
-
-/***/ },
-/* 197 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var GeoChart = React.createClass({
-	  displayName: 'GeoChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "geo_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.GeoChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	GeoChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = GeoChart;
-
-/***/ },
-/* 198 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var TableView = React.createClass({
-	  displayName: 'TableView',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "table_view_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Table(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	TableView.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = TableView;
-
-/***/ },
-/* 199 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var ScatterChart = React.createClass({
-	  displayName: 'ScatterChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "scatter_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ScatterChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ScatterChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ScatterChart;
-
-/***/ },
-/* 200 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var Gauge = React.createClass({
-	  displayName: 'Gauge',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "gauge_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Gauge(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      //var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      //this.props.onClick(value);     
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	Gauge.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = Gauge;
-
-/***/ },
-/* 201 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	//GoogleChartLoader Singleton
-	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
-
-	var q = __webpack_require__(190);
-
-	var GoogleChartLoader = function GoogleChartLoader() {
-
-		this.is_loading = false;
-		this.is_loaded = false;
-		this.google_promise = q.defer();
-
-		var self = this;
-
-		this.init = function () {
-
-			if (!window.google || !window.google.charts) {
-				console.warn('Google Chart API not loaded, some widgets will not work.');
-				this.google_promise.reject();
-				return this.google_promise.promise;
-			}
-
-			if (this.is_loading) {
-				return this.google_promise.promise;
-			}
-
-			this.is_loading = true;
-
-			google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] });
-			google.charts.setOnLoadCallback(function () {
-				self.is_loaded = true;
-				self.google_promise.resolve();
-			});
-
-			return this.google_promise.promise;
-		};
-	};
-
-	module.exports = new GoogleChartLoader();
-
-/***/ },
-/* 202 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-	var PieChart = __webpack_require__(195);
-
-	var GithubAuthor = React.createClass({
-	  displayName: 'GithubAuthor',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "6", type: "GithubAuthor", title: "Github Author", ajax: "get", params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }] };
-	    },
-	    prepareUrl: function prepareUrl(params) {
-	      //var url = "testdata/PieChart.json";
-	      var owner = "";
-	      var project = "";
-
-	      angular.forEach(params, function (param) {
-	        if (param.name == "owner") {
-	          owner = param.value;
-	        }
-	        if (param.name == "project") {
-	          project = param.value;
-	        }
-	      });
-
-	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
-	      return url;
-	    },
-	    prepareParamsForPost: function prepareParamsForPost(params) {}
-	  },
-
-	  getInitialState: function getInitialState() {
-	    return {};
-	  },
-
-	  componentDidMount: function componentDidMount() {},
-
-	  componentDidUpdate: function componentDidUpdate() {},
-
-	  render: function render() {
-	    //alert(JSON.stringify(this.props.data));
-
-	    if (this.props.data.length == 0) {
-	      return React.createElement(
-	        'div',
-	        null,
-	        'Sorry, failed to fetch data from server.'
-	      );
-	    }
-
-	    var data = {};
-	    angular.forEach(this.props.data, function (commit) {
-	      var author = commit.commit.author.name;
-	      if (data[author]) {
-	        data[author]++;
-	      } else {
-	        data[author] = 1;
-	      }
-	    });
-
-	    var seriesData = [];
-	    angular.forEach(data, function (count, author) {
-	      seriesData.push([author, count]);
-	    });
-	    //alert(JSON.stringify(seriesData));
-
-	    seriesData.unshift(["Author", "Commits"]);
-
-	    var gc_data = seriesData;
-	    var gc_options = {
-	      "title": "Author Commits",
-	      "chartArea": {
-	        "left": "10%",
-	        "top": "10%",
-	        "height": "90%",
-	        "width": "90%"
-	      }
-	    };
-
-	    return React.createElement(PieChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
-	  }
-
-	});
-
-	GithubAuthor.defaultProps = {
-	  data: [],
-	  onClick: undefined
-	};
-
-	module.exports = GithubAuthor;
-
-/***/ },
-/* 203 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-	var ColumnChart = __webpack_require__(196);
-
-	var GithubCommit = React.createClass({
-	  displayName: 'GithubCommit',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return { colSpan: "6", type: "GithubCommit", title: "Github Commit", ajax: "get", params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }] };
-	    },
-	    prepareUrl: function prepareUrl(params) {
-
-	      var owner = "";
-	      var project = "";
-
-	      angular.forEach(params, function (param) {
-	        if (param.name == "owner") {
-	          owner = param.value;
-	        }
-	        if (param.name == "project") {
-	          project = param.value;
-	        }
-	      });
-
-	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
-	      return url;
-	    },
-	    prepareParamsForPost: function prepareParamsForPost(params) {}
-	  },
-
-	  getInitialState: function getInitialState() {
-	    return {};
-	  },
-
-	  componentDidMount: function componentDidMount() {},
-
-	  componentDidUpdate: function componentDidUpdate() {},
-
-	  parseDate: function parseDate(input) {
-	    var parts = input.split('-');
-	    return Date.UTC(parts[0], parts[1] - 1, parts[2]);
-	  },
-
-	  render: function render() {
-	    //alert(JSON.stringify(this.props.data));
-
-	    if (this.props.data.length == 0) {
-	      return React.createElement(
-	        'div',
-	        null,
-	        'Sorry, failed to fetch data from server.'
-	      );
-	    }
-
-	    var data = {};
-	    angular.forEach(this.props.data, function (commit) {
-	      var day = commit.commit.author.date;
-	      day = day.substring(0, day.indexOf('T'));
-
-	      if (data[day]) {
-	        data[day]++;
-	      } else {
-	        data[day] = 1;
-	      }
-	    });
-
-	    var seriesData = [];
-	    angular.forEach(data, function (count, day) {
-	      seriesData.push([day, count]);
-	    });
-
-	    seriesData.sort(function (a, b) {
-	      return this.parseDate(a[0]) - this.parseDate(b[0]);
-	    }.bind(this));
-
-	    //alert(JSON.stringify(seriesData));
-
-	    seriesData.unshift(["Day", "Commits"]);
-
-	    var gc_data = seriesData;
-	    var gc_options = {
-	      "title": "Commit History",
-	      "colors": ["#9575cd", "#33ac71"],
-	      "hAxis": {
-	        "title": "Day"
-	      },
-	      "vAxis": {
-	        "title": "Commits"
-	      },
-	      legend: { position: 'none' },
-	      "animation": {
-	        "duration": 1000,
-	        "easing": "out",
-	        "startup": true
-	      }
-	    };
-
-	    return React.createElement(ColumnChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
-	  }
-
-	});
-
-	GithubCommit.defaultProps = {
-	  data: [],
-	  onClick: undefined
-	};
-
-	module.exports = GithubCommit;
 
 /***/ }
 /******/ ]);
