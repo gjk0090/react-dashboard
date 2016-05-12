@@ -16,13 +16,9 @@
 * get rid of React-Bootstrap
 * fix validation in addWidget method
 * config for less refresh
-* more wrapper widget for example
-* wrapper init, no data
-* update core types as Pie
-* finish the GH commit wrapper
-* change name for widgets folder
-* this.DetailWidget = WidgetList[nextProps.widget.type];
-* this.setState({ data: nextProps.widget.data, showModal: false });
+* input for different param type
+* more chart component
+* more example widget
 
 ###### improvement
 * auto height

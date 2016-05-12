@@ -3,7 +3,7 @@ var Widget = require('./Widget');
 var cloneDeep = require('lodash/fp/cloneDeep');
 var isEmpty = require('lodash/fp/isEmpty');
 var isFunction = require('lodash/fp/isFunction');
-var WidgetList = require('./WidgetManager').WrapperWidgetList;
+var WidgetList = require('./WidgetManager').WidgetList;
 
 var Dashboard = React.createClass({
 
@@ -242,7 +242,7 @@ Dashboard.defaultProps = {
 
 Dashboard.addWidget = require('./WidgetManager').addWidget;
 Dashboard.addWidgets = require('./WidgetManager').addWidgets;
-Dashboard.CoreWidgetList = require('./WidgetManager').CoreWidgetList;
-Dashboard.GoogleChartLoader = require('./GoogleChartLoader');
+Dashboard.ChartComponentList = require('./WidgetManager').ChartComponentList;
+Dashboard.GoogleChartLoader = require('./chartcomponents/GoogleChartLoader');
 
 module.exports = Dashboard;

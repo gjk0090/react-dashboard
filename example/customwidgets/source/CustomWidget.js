@@ -1,7 +1,7 @@
 var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
-var PieChart = ReactDashboard.CoreWidgetList['PieChart'];
+var PieChart = ReactDashboard.ChartComponentList['PieChart'];
 
 var CustomWidget = React.createClass({
 

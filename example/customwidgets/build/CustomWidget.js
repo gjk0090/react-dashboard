@@ -50,7 +50,7 @@ var CustomWidget =
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(2);
 	var isEmpty = __webpack_require__(174);
-	var PieChart = ReactDashboard.CoreWidgetList['PieChart'];
+	var PieChart = ReactDashboard.ChartComponentList['PieChart'];
 
 	var CustomWidget = React.createClass({
 	  displayName: 'CustomWidget',

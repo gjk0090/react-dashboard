@@ -2,13 +2,7 @@ var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
 
-var ScatterChart = React.createClass({
-
-  statics: {
-    getTemplate: function() {
-      return {colSpan:"4", type:"ScatterChart", title:"Scatter Chart", url:"testdata/ScatterChart.json", params:[{name:"paramA", type:"string", value:"abc", configurable:true}], data:"testData"};
-    }
-  },
+var ColumnChart = React.createClass({
 
   gc_id: null,
   chart: null,
@@ -16,7 +10,7 @@ var ScatterChart = React.createClass({
   gc_options: null,
 
   getInitialState: function(){
-    this.gc_id = "scatter_chart_"+Math.floor(Math.random() * 1000000);
+    this.gc_id = "column_chart_"+Math.floor(Math.random() * 1000000);
     return null;
   },
 
@@ -35,14 +29,14 @@ var ScatterChart = React.createClass({
 
   drawChart: function(){
     if(!this.chart){
-      this.chart = new google.visualization.ScatterChart(document.getElementById(this.gc_id));
+      this.chart = new google.visualization.ColumnChart(document.getElementById(this.gc_id));
       google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
     }
 
-    if(!isArray(this.props.data.data) || isEmpty(this.props.data.data)){return;}
+    if(!isArray(this.props.data) || isEmpty(this.props.data)){return;}
 
-    this.gc_data = google.visualization.arrayToDataTable(this.props.data.data);
-    this.gc_options = this.props.data.options;
+    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
+    this.gc_options = this.props.options;
 
     this.chart.draw(this.gc_data, this.gc_options);
   },
@@ -76,9 +70,9 @@ var ScatterChart = React.createClass({
 
 });
 
-ScatterChart.defaultProps = {
+ColumnChart.defaultProps = {
   data      : {data:[], options:{}},
   onClick   : undefined
 };
 
-module.exports = ScatterChart;
+module.exports = ColumnChart;

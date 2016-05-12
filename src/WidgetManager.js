@@ -2,17 +2,18 @@ var React = require('react');
 
 var WidgetManager = {};
 
-WidgetManager.CoreWidgetList = { 
-    PieChart : require('./corewidgets/PieChart'),
-    ColumnChart : require('./corewidgets/ColumnChart'),
-    GeoChart : require('./corewidgets/GeoChart'),
-    TableView : require('./corewidgets/TableView'),
-    ScatterChart : require('./corewidgets/ScatterChart'),
-    Gauge : require('./corewidgets/Gauge')
+WidgetManager.ChartComponentList = { 
+    PieChart : require('./chartcomponents/PieChart'),
+    ColumnChart : require('./chartcomponents/ColumnChart'),
+    GeoChart : require('./chartcomponents/GeoChart'),
+    TableView : require('./chartcomponents/TableView'),
+    ScatterChart : require('./chartcomponents/ScatterChart'),
+    Gauge : require('./chartcomponents/Gauge')
 };
 
-WidgetManager.WrapperWidgetList = { 
-    GithubAuthor : require('./wrapperwidgets/GithubAuthor')
+WidgetManager.WidgetList = { 
+    GithubAuthor : require('./widgets/GithubAuthor'),
+    GithubCommit : require('./widgets/GithubCommit')
 };
 
 /**
@@ -31,7 +32,7 @@ WidgetManager.addWidget = (name, instance) => {
     throw new Error('ReactDashboard: Cannot not assign "' + name + '" as an widget. Second paramter expects a React component');
   }
 
-  WidgetManager.WrapperWidgetList[name] = instance;
+  WidgetManager.WidgetList[name] = instance;
 };
 
 /**
