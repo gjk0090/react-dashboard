@@ -7,7 +7,7 @@ app.controller('myCtrl',function($scope){
     widgets: [
       [
         {colSpan:"6", type:"GithubAuthor", title:"Github Author", ajax:"get", params:[{name:"owner", type:"string", value:"angular", displayName:"project owner"}, {name:"project", type:"string", value:"angular", displayName:"project name"}]},
-        {colSpan:"6", type:"GithubCommit", title:"Github Commit", ajax:"get", params:[{name:"owner", type:"string", value:"angular", displayName:"project owner"}, {name:"project", type:"string", value:"angular", displayName:"project name"}]}
+        {colSpan:"6", type:"GithubCommit", title:"Github Commit", ajax:"get", params:[{name:"owner", type:"string", value:"facebook", displayName:"project owner"}, {name:"project", type:"string", value:"react", displayName:"project name"}]}
       ]
     ]
   };
@@ -27,6 +27,6 @@ app.controller('myCtrl',function($scope){
   ReactDOM.render(React.createElement(ReactDashboard, {schema: $scope.schema, onClick: $scope.handleClick, onEdit: $scope.handleEdit}), document.getElementById('example'));
 
   //ReactDashboard.addWidgets({"RD":ReactDashboard,"RD2":"string2"});
-  //ReactDashboard.addWidget("CustomWidget", CustomWidget);
+  ReactDashboard.addWidget("CustomWidget", CustomWidget);
 
 });
