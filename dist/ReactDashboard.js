@@ -406,7 +406,7 @@ var ReactDashboard =
 	  componentWillUnmount: function componentWillUnmount() {},
 
 	  refreshWidget: function refreshWidget(props) {
-	    alert("ajax");
+	    //alert("ajax");
 
 	    if (props.widget.ajax == "get") {
 
