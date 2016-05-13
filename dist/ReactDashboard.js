@@ -382,6 +382,7 @@ var ReactDashboard =
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    //do not refresh data if no change
 	    if (nextProps.widget.type == this.props.widget.type && isEqual(nextProps.widget.params, this.props.widget.params)) {
 	      this.setState({ showModal: false });
 	      return;
@@ -389,10 +390,10 @@ var ReactDashboard =
 
 	    this.DetailWidget = WidgetList[nextProps.widget.type];
 
-	    //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
+	    //set data to solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
 	    this.setState({ data: nextProps.widget.data, showModal: false });
 
-	    this.refreshWidget(nextProps);
+	    this.refreshWidget(nextProps); //ajax becomes sync in componentWillReceiveProps, why?
 	  },
 
 	  shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
