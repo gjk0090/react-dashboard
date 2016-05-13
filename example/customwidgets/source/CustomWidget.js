@@ -1,13 +1,11 @@
 var React = require('react');
-var isArray = require('lodash/fp/isArray');
-var isEmpty = require('lodash/fp/isEmpty');
 var PieChart = ReactDashboard.ChartComponentList['PieChart'];
 
 var CustomWidget = React.createClass({
 
   statics: {
     getTemplate: function() {
-      return {colSpan:"6", type:"CustomWidget", title:"Custom Widget", ajax:"get", params:[{name:"paramA", type:"string", value:"ReactDashboard", displayName:"param A"}]};
+      return {colSpan:"6", type:"CustomWidget", title:"Daily Hours", ajax:"get", params:[{name:"paramA", type:"string", value:"ReactDashboard", displayName:"param A"}]};
     },
     prepareUrl: function(params){
       var url = "testdata/PieChart.json";
