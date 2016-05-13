@@ -55,7 +55,8 @@ var Widget = React.createClass({
   componentWillUnmount: function(){
   },
 
-  refreshWidget: function(props) {alert("ajax");
+  refreshWidget: function(props) {
+    //alert("ajax");
 
     if(props.widget.ajax == "get"){
 
