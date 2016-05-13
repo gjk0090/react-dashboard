@@ -1,6 +1,7 @@
 var React = require('react');
 var cloneDeep = require('lodash/fp/cloneDeep');
 var isEmpty = require('lodash/fp/isEmpty');
+var isEqual = require('lodash/fp/isEqual');
 var Modal = require('react-bootstrap').Modal;
 var WidgetList = require('./WidgetManager').WidgetList;
 
@@ -28,6 +29,11 @@ var Widget = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
+    if(nextProps.widget.type == this.props.widget.type && isEqual(nextProps.widget.params, this.props.widget.params)){
+      this.setState({showModal: false});
+      return;
+    }
+
     this.DetailWidget = WidgetList[nextProps.widget.type];
 
     //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
@@ -36,7 +42,7 @@ var Widget = React.createClass({
     this.refreshWidget(nextProps);
   },
 
-  shouldComponentUpdate: function(){
+  shouldComponentUpdate: function(nextProps, nextState){
     return true;
   },
   
@@ -49,7 +55,7 @@ var Widget = React.createClass({
   componentWillUnmount: function(){
   },
 
-  refreshWidget: function(props) {
+  refreshWidget: function(props) {alert("ajax");
 
     if(props.widget.ajax == "get"){
 

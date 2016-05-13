@@ -18,9 +18,6 @@
 * more chart component
 * more example widget
 * input for different param type
-* less refresh, compare props deeply in shouldComponentUpdate()
-* no angular for each
-* deepclone gc_data
 * test delay ajax
 
 ###### improvement

@@ -1,6 +1,7 @@
 var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
+var forEach = require('lodash/forEach');
 var PieChart = require('../chartcomponents/PieChart');
 
 var GithubAuthor = React.createClass({
@@ -56,7 +57,7 @@ var GithubAuthor = React.createClass({
     }
 
     var data = {};
-    angular.forEach(this.props.data, function(commit){
+    forEach(this.props.data, function(commit){
       var author = commit.commit.author.name;
       if (data[author]){
         data[author]++;
@@ -66,7 +67,7 @@ var GithubAuthor = React.createClass({
     });
 
     var seriesData = [];
-    angular.forEach(data, function(count, author){
+    forEach(data, function(count, author){
       seriesData.push([author, count]);
     });
     //alert(JSON.stringify(seriesData));

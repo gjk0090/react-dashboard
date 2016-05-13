@@ -3,6 +3,7 @@ var Widget = require('./Widget');
 var cloneDeep = require('lodash/fp/cloneDeep');
 var isEmpty = require('lodash/fp/isEmpty');
 var isFunction = require('lodash/fp/isFunction');
+var forEach = require('lodash/forEach');
 var WidgetList = require('./WidgetManager').WidgetList;
 
 var Dashboard = React.createClass({
@@ -19,7 +20,10 @@ var Dashboard = React.createClass({
   },
 
   refreshWidgets: function(){
-    this.setState({}); //this.setState({}) will trigger a re-render
+    forEach(this.refs, function(widget){
+      widget.refreshWidget(widget.props);
+    });
+    this.setState({});
   },
 
   toggleEditMode: function(action){
@@ -172,7 +176,7 @@ var Dashboard = React.createClass({
 
         return (
           <div className={clazzName} key={"row_widget_"+j}>
-            <Widget widget={widget} widgetHeight={widgetHeight} editMode={this.state.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
+            <Widget ref={"widget_"+i+"_"+j} widget={widget} widgetHeight={widgetHeight} editMode={this.state.editMode} onClick={this.handleClick.bind(this, i, j, widget.type)} onEdit={this.handleEdit.bind(this, i, j)}></Widget>
           </div>
         );
       });

@@ -52,6 +52,7 @@ var ReactDashboard =
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
 	var isFunction = __webpack_require__(188);
+	var forEach = __webpack_require__(205);
 	var WidgetList = __webpack_require__(179).WidgetList;
 
 	var Dashboard = React.createClass({
@@ -69,7 +70,10 @@ var ReactDashboard =
 	  },
 
 	  refreshWidgets: function refreshWidgets() {
-	    this.setState({}); //this.setState({}) will trigger a re-render
+	    forEach(this.refs, function (widget) {
+	      widget.refreshWidget(widget.props);
+	    });
+	    this.setState({});
 	  },
 
 	  toggleEditMode: function toggleEditMode(action) {
@@ -222,7 +226,7 @@ var ReactDashboard =
 	        return React.createElement(
 	          'div',
 	          { className: clazzName, key: "row_widget_" + j },
-	          React.createElement(Widget, { widget: widget, widgetHeight: widgetHeight, editMode: _this.state.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
+	          React.createElement(Widget, { ref: "widget_" + i + "_" + j, widget: widget, widgetHeight: widgetHeight, editMode: _this.state.editMode, onClick: _this.handleClick.bind(_this, i, j, widget.type), onEdit: _this.handleEdit.bind(_this, i, j) })
 	        );
 	      });
 
@@ -348,6 +352,7 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
+	var isEqual = __webpack_require__(211);
 	var Modal = __webpack_require__(178).Modal;
 	var WidgetList = __webpack_require__(179).WidgetList;
 
@@ -377,6 +382,11 @@ var ReactDashboard =
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.widget.type == this.props.widget.type && isEqual(nextProps.widget.params, this.props.widget.params)) {
+	      this.setState({ showModal: false });
+	      return;
+	    }
+
 	    this.DetailWidget = WidgetList[nextProps.widget.type];
 
 	    //solve the problem that when moving widgets left/right, other widget's data is used to render before firing ajax call
@@ -385,7 +395,7 @@ var ReactDashboard =
 	    this.refreshWidget(nextProps);
 	  },
 
-	  shouldComponentUpdate: function shouldComponentUpdate() {
+	  shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
 	    return true;
 	  },
 
@@ -396,6 +406,7 @@ var ReactDashboard =
 	  componentWillUnmount: function componentWillUnmount() {},
 
 	  refreshWidget: function refreshWidget(props) {
+	    alert("ajax");
 
 	    if (props.widget.ajax == "get") {
 
@@ -10681,6 +10692,7 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(181);
 	var isEmpty = __webpack_require__(176);
+	var forEach = __webpack_require__(205);
 	var PieChart = __webpack_require__(195);
 
 	var GithubAuthor = React.createClass({
@@ -10737,7 +10749,7 @@ var ReactDashboard =
 	    }
 
 	    var data = {};
-	    angular.forEach(this.props.data, function (commit) {
+	    forEach(this.props.data, function (commit) {
 	      var author = commit.commit.author.name;
 	      if (data[author]) {
 	        data[author]++;
@@ -10747,7 +10759,7 @@ var ReactDashboard =
 	    });
 
 	    var seriesData = [];
-	    angular.forEach(data, function (count, author) {
+	    forEach(data, function (count, author) {
 	      seriesData.push([author, count]);
 	    });
 	    //alert(JSON.stringify(seriesData));
@@ -10786,6 +10798,7 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(181);
 	var isEmpty = __webpack_require__(176);
+	var forEach = __webpack_require__(205);
 	var ColumnChart = __webpack_require__(196);
 
 	var GithubCommit = React.createClass({
@@ -10847,7 +10860,7 @@ var ReactDashboard =
 	    }
 
 	    var data = {};
-	    angular.forEach(this.props.data, function (commit) {
+	    forEach(this.props.data, function (commit) {
 	      var day = commit.commit.author.date;
 	      day = day.substring(0, day.indexOf('T'));
 
@@ -10859,7 +10872,7 @@ var ReactDashboard =
 	    });
 
 	    var seriesData = [];
-	    angular.forEach(data, function (count, day) {
+	    forEach(data, function (count, day) {
 	      seriesData.push([day, count]);
 	    });
 
@@ -10900,6 +10913,247 @@ var ReactDashboard =
 	};
 
 	module.exports = GithubCommit;
+
+/***/ },
+/* 204 */,
+/* 205 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var arrayEach = __webpack_require__(103),
+	    baseEach = __webpack_require__(206),
+	    baseIteratee = __webpack_require__(135),
+	    isArray = __webpack_require__(43);
+
+	/**
+	 * Iterates over elements of `collection` and invokes `iteratee` for each element.
+	 * The iteratee is invoked with three arguments: (value, index|key, collection).
+	 * Iteratee functions may exit iteration early by explicitly returning `false`.
+	 *
+	 * **Note:** As with other "Collections" methods, objects with a "length"
+	 * property are iterated like arrays. To avoid this behavior use `_.forIn`
+	 * or `_.forOwn` for object iteration.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @alias each
+	 * @category Collection
+	 * @param {Array|Object} collection The collection to iterate over.
+	 * @param {Function} [iteratee=_.identity] The function invoked per iteration.
+	 * @returns {Array|Object} Returns `collection`.
+	 * @see _.forEachRight
+	 * @example
+	 *
+	 * _([1, 2]).forEach(function(value) {
+	 *   console.log(value);
+	 * });
+	 * // => Logs `1` then `2`.
+	 *
+	 * _.forEach({ 'a': 1, 'b': 2 }, function(value, key) {
+	 *   console.log(key);
+	 * });
+	 * // => Logs 'a' then 'b' (iteration order is not guaranteed).
+	 */
+	function forEach(collection, iteratee) {
+	    return typeof iteratee == 'function' && isArray(collection) ? arrayEach(collection, iteratee) : baseEach(collection, baseIteratee(iteratee));
+	}
+
+	module.exports = forEach;
+
+/***/ },
+/* 206 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var baseForOwn = __webpack_require__(207),
+	    createBaseEach = __webpack_require__(210);
+
+	/**
+	 * The base implementation of `_.forEach` without support for iteratee shorthands.
+	 *
+	 * @private
+	 * @param {Array|Object} collection The collection to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Array|Object} Returns `collection`.
+	 */
+	var baseEach = createBaseEach(baseForOwn);
+
+	module.exports = baseEach;
+
+/***/ },
+/* 207 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var baseFor = __webpack_require__(208),
+	    keys = __webpack_require__(62);
+
+	/**
+	 * The base implementation of `_.forOwn` without support for iteratee shorthands.
+	 *
+	 * @private
+	 * @param {Object} object The object to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Object} Returns `object`.
+	 */
+	function baseForOwn(object, iteratee) {
+	  return object && baseFor(object, iteratee, keys);
+	}
+
+	module.exports = baseForOwn;
+
+/***/ },
+/* 208 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var createBaseFor = __webpack_require__(209);
+
+	/**
+	 * The base implementation of `baseForOwn` which iterates over `object`
+	 * properties returned by `keysFunc` and invokes `iteratee` for each property.
+	 * Iteratee functions may exit iteration early by explicitly returning `false`.
+	 *
+	 * @private
+	 * @param {Object} object The object to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @param {Function} keysFunc The function to get the keys of `object`.
+	 * @returns {Object} Returns `object`.
+	 */
+	var baseFor = createBaseFor();
+
+	module.exports = baseFor;
+
+/***/ },
+/* 209 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	/**
+	 * Creates a base function for methods like `_.forIn` and `_.forOwn`.
+	 *
+	 * @private
+	 * @param {boolean} [fromRight] Specify iterating from right to left.
+	 * @returns {Function} Returns the new base function.
+	 */
+	function createBaseFor(fromRight) {
+	  return function (object, iteratee, keysFunc) {
+	    var index = -1,
+	        iterable = Object(object),
+	        props = keysFunc(object),
+	        length = props.length;
+
+	    while (length--) {
+	      var key = props[fromRight ? length : ++index];
+	      if (iteratee(iterable[key], key, iterable) === false) {
+	        break;
+	      }
+	    }
+	    return object;
+	  };
+	}
+
+	module.exports = createBaseFor;
+
+/***/ },
+/* 210 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var isArrayLike = __webpack_require__(70);
+
+	/**
+	 * Creates a `baseEach` or `baseEachRight` function.
+	 *
+	 * @private
+	 * @param {Function} eachFunc The function to iterate over a collection.
+	 * @param {boolean} [fromRight] Specify iterating from right to left.
+	 * @returns {Function} Returns the new base function.
+	 */
+	function createBaseEach(eachFunc, fromRight) {
+	  return function (collection, iteratee) {
+	    if (collection == null) {
+	      return collection;
+	    }
+	    if (!isArrayLike(collection)) {
+	      return eachFunc(collection, iteratee);
+	    }
+	    var length = collection.length,
+	        index = fromRight ? length : -1,
+	        iterable = Object(collection);
+
+	    while (fromRight ? index-- : ++index < length) {
+	      if (iteratee(iterable[index], index, iterable) === false) {
+	        break;
+	      }
+	    }
+	    return collection;
+	  };
+	}
+
+	module.exports = createBaseEach;
+
+/***/ },
+/* 211 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isEqual', __webpack_require__(212));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 212 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var baseIsEqual = __webpack_require__(138);
+
+	/**
+	 * Performs a deep comparison between two values to determine if they are
+	 * equivalent.
+	 *
+	 * **Note:** This method supports comparing arrays, array buffers, booleans,
+	 * date objects, error objects, maps, numbers, `Object` objects, regexes,
+	 * sets, strings, symbols, and typed arrays. `Object` objects are compared
+	 * by their own, not inherited, enumerable properties. Functions and DOM
+	 * nodes are **not** supported.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to compare.
+	 * @param {*} other The other value to compare.
+	 * @returns {boolean} Returns `true` if the values are equivalent,
+	 *  else `false`.
+	 * @example
+	 *
+	 * var object = { 'user': 'fred' };
+	 * var other = { 'user': 'fred' };
+	 *
+	 * _.isEqual(object, other);
+	 * // => true
+	 *
+	 * object === other;
+	 * // => false
+	 */
+	function isEqual(value, other) {
+	  return baseIsEqual(value, other);
+	}
+
+	module.exports = isEqual;
 
 /***/ }
 /******/ ]);

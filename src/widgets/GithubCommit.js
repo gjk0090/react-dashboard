@@ -1,6 +1,7 @@
 var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
+var forEach = require('lodash/forEach');
 var ColumnChart = require('../chartcomponents/ColumnChart');
 
 var GithubCommit = React.createClass({
@@ -61,7 +62,7 @@ var GithubCommit = React.createClass({
     }
 
     var data = {};
-    angular.forEach(this.props.data, function(commit){
+    forEach(this.props.data, function(commit){
       var day = commit.commit.author.date;
       day = day.substring(0, day.indexOf('T'));
 
@@ -73,7 +74,7 @@ var GithubCommit = React.createClass({
     });
 
     var seriesData = [];
-    angular.forEach(data, function(count, day){
+    forEach(data, function(count, day){
       seriesData.push([day, count]);
     });
 
