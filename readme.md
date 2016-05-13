@@ -18,6 +18,7 @@
 * more chart component
 * more example widget
 * input for different param type
+* click, ajax, popup detail widget
 
 ###### improvement
 * auto height
