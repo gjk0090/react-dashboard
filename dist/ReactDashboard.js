@@ -10644,7 +10644,7 @@ var ReactDashboard =
 
 	    //alert(JSON.stringify(seriesData));
 
-	    seriesData.unshift(["Day", "Commits"]);
+	    seriesData.unshift(["Date", "Commits"]);
 
 	    var gc_data = seriesData;
 	    var gc_options = {

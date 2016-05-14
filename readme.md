@@ -17,7 +17,7 @@
 * fix validation in addWidget method
 * more example widget
 * input for different param type
-* click, ajax, popup detail widget
+* click popup widget
 
 ###### improvement
 * auto height
