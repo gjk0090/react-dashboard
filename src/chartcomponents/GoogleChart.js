@@ -74,8 +74,8 @@ var GoogleChart = React.createClass({
 
 GoogleChart.defaultProps = {
 	data      		: [],
-	options 			: {},
-	chartFunction		: undefined,
+	options 		: {},
+	chartFunction	: undefined,
 	onClick   		: undefined
 };
 
