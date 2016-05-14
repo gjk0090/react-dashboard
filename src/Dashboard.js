@@ -4,7 +4,7 @@ var cloneDeep = require('lodash/fp/cloneDeep');
 var isEmpty = require('lodash/fp/isEmpty');
 var isFunction = require('lodash/fp/isFunction');
 var forEach = require('lodash/forEach');
-var WidgetList = require('./WidgetManager').WidgetList;
+var WidgetList = require('./widgets/WidgetManager').WidgetList;
 
 var Dashboard = React.createClass({
 
@@ -244,9 +244,8 @@ Dashboard.defaultProps = {
   schema      : {title:"ReactJS Dashboard", style:{}, widgets:[]},
 };
 
-Dashboard.addWidget = require('./WidgetManager').addWidget;
-Dashboard.addWidgets = require('./WidgetManager').addWidgets;
-Dashboard.ChartComponentList = require('./WidgetManager').ChartComponentList;
-Dashboard.GoogleChartLoader = require('./chartcomponents/GoogleChartLoader');
+Dashboard.addWidget = require('./widgets/WidgetManager').addWidget;
+Dashboard.addWidgets = require('./widgets/WidgetManager').addWidgets;
+Dashboard.GoogleChartComponent = require('./chartcomponents/GoogleChart');
 
 module.exports = Dashboard;

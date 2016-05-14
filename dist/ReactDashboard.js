@@ -51,8 +51,8 @@ var ReactDashboard =
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
-	var isFunction = __webpack_require__(197);
-	var forEach = __webpack_require__(190);
+	var isFunction = __webpack_require__(182);
+	var forEach = __webpack_require__(183);
 	var WidgetList = __webpack_require__(181).WidgetList;
 
 	var Dashboard = React.createClass({
@@ -332,8 +332,7 @@ var ReactDashboard =
 
 	Dashboard.addWidget = __webpack_require__(181).addWidget;
 	Dashboard.addWidgets = __webpack_require__(181).addWidgets;
-	Dashboard.ChartComponentList = __webpack_require__(181).ChartComponentList;
-	Dashboard.GoogleChartLoader = __webpack_require__(198);
+	Dashboard.GoogleChartComponent = __webpack_require__(189);
 
 	module.exports = Dashboard;
 
@@ -7855,17 +7854,8 @@ var ReactDashboard =
 
 	var WidgetManager = {};
 
-	WidgetManager.ChartComponentList = {
-	  PieChart: __webpack_require__(182),
-	  ColumnChart: __webpack_require__(184),
-	  GeoChart: __webpack_require__(185),
-	  TableView: __webpack_require__(186),
-	  ScatterChart: __webpack_require__(187),
-	  Gauge: __webpack_require__(188)
-	};
-
 	WidgetManager.WidgetList = {
-	  GithubAuthor: __webpack_require__(189),
+	  GithubAuthor: __webpack_require__(195),
 	  GithubCommit: __webpack_require__(196)
 	};
 
@@ -7911,92 +7901,11 @@ var ReactDashboard =
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
-	var isEmpty = __webpack_require__(176);
+	var convert = __webpack_require__(4),
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
 
-	var PieChart = React.createClass({
-	  displayName: 'PieChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "pie_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.PieChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	PieChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = PieChart;
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
 
 /***/ },
 /* 183 */
@@ -8004,591 +7913,8 @@ var ReactDashboard =
 
 	'use strict';
 
-	var convert = __webpack_require__(4),
-	    func = convert('isArray', __webpack_require__(43), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
-
-/***/ },
-/* 184 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
-	var isEmpty = __webpack_require__(176);
-
-	var ColumnChart = React.createClass({
-	  displayName: 'ColumnChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "column_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ColumnChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ColumnChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ColumnChart;
-
-/***/ },
-/* 185 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
-	var isEmpty = __webpack_require__(176);
-
-	var GeoChart = React.createClass({
-	  displayName: 'GeoChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "geo_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.GeoChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	GeoChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = GeoChart;
-
-/***/ },
-/* 186 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
-	var isEmpty = __webpack_require__(176);
-
-	var TableView = React.createClass({
-	  displayName: 'TableView',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "table_view_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Table(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	TableView.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = TableView;
-
-/***/ },
-/* 187 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
-	var isEmpty = __webpack_require__(176);
-
-	var ScatterChart = React.createClass({
-	  displayName: 'ScatterChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "scatter_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ScatterChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ScatterChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ScatterChart;
-
-/***/ },
-/* 188 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
-	var isEmpty = __webpack_require__(176);
-
-	var Gauge = React.createClass({
-	  displayName: 'Gauge',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "gauge_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Gauge(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      //var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      //this.props.onClick(value);     
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	Gauge.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = Gauge;
-
-/***/ },
-/* 189 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
-	var isEmpty = __webpack_require__(176);
-	var forEach = __webpack_require__(190);
-	var PieChart = __webpack_require__(182);
-
-	var GithubAuthor = React.createClass({
-	  displayName: 'GithubAuthor',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return {
-	        colSpan: "6",
-	        type: "GithubAuthor",
-	        title: "Github Author",
-	        ajax: "get",
-	        params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }]
-	      };
-	    },
-	    prepareUrl: function prepareUrl(params) {
-	      //var url = "testdata/PieChart.json";
-	      var owner = "";
-	      var project = "";
-
-	      angular.forEach(params, function (param) {
-	        if (param.name == "owner") {
-	          owner = param.value;
-	        }
-	        if (param.name == "project") {
-	          project = param.value;
-	        }
-	      });
-
-	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
-	      return url;
-	    },
-	    prepareParamsForPost: function prepareParamsForPost(params) {}
-	  },
-
-	  getInitialState: function getInitialState() {
-	    return {};
-	  },
-
-	  componentDidMount: function componentDidMount() {},
-
-	  componentDidUpdate: function componentDidUpdate() {},
-
-	  render: function render() {
-	    //alert(JSON.stringify(this.props.data));
-
-	    if (this.props.data.length == 0) {
-	      return React.createElement(
-	        'div',
-	        null,
-	        'Sorry, failed to fetch data from server.'
-	      );
-	    }
-
-	    var data = {};
-	    forEach(this.props.data, function (commit) {
-	      var author = commit.commit.author.name;
-	      if (data[author]) {
-	        data[author]++;
-	      } else {
-	        data[author] = 1;
-	      }
-	    });
-
-	    var seriesData = [];
-	    forEach(data, function (count, author) {
-	      seriesData.push([author, count]);
-	    });
-	    //alert(JSON.stringify(seriesData));
-
-	    seriesData.unshift(["Author", "Commits"]);
-
-	    var gc_data = seriesData;
-	    var gc_options = {
-	      "title": "Author Commits",
-	      "chartArea": {
-	        "left": "10%",
-	        "top": "10%",
-	        "height": "90%",
-	        "width": "90%"
-	      }
-	    };
-
-	    return React.createElement(PieChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
-	  }
-
-	});
-
-	GithubAuthor.defaultProps = {
-	  data: [],
-	  onClick: undefined
-	};
-
-	module.exports = GithubAuthor;
-
-/***/ },
-/* 190 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	var arrayEach = __webpack_require__(103),
-	    baseEach = __webpack_require__(191),
+	    baseEach = __webpack_require__(184),
 	    baseIteratee = __webpack_require__(135),
 	    isArray = __webpack_require__(43);
 
@@ -8629,13 +7955,13 @@ var ReactDashboard =
 	module.exports = forEach;
 
 /***/ },
-/* 191 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseForOwn = __webpack_require__(192),
-	    createBaseEach = __webpack_require__(195);
+	var baseForOwn = __webpack_require__(185),
+	    createBaseEach = __webpack_require__(188);
 
 	/**
 	 * The base implementation of `_.forEach` without support for iteratee shorthands.
@@ -8650,12 +7976,12 @@ var ReactDashboard =
 	module.exports = baseEach;
 
 /***/ },
-/* 192 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseFor = __webpack_require__(193),
+	var baseFor = __webpack_require__(186),
 	    keys = __webpack_require__(62);
 
 	/**
@@ -8673,12 +7999,12 @@ var ReactDashboard =
 	module.exports = baseForOwn;
 
 /***/ },
-/* 193 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createBaseFor = __webpack_require__(194);
+	var createBaseFor = __webpack_require__(187);
 
 	/**
 	 * The base implementation of `baseForOwn` which iterates over `object`
@@ -8696,7 +8022,7 @@ var ReactDashboard =
 	module.exports = baseFor;
 
 /***/ },
-/* 194 */
+/* 187 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8728,7 +8054,7 @@ var ReactDashboard =
 	module.exports = createBaseFor;
 
 /***/ },
-/* 195 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8767,144 +8093,116 @@ var ReactDashboard =
 	module.exports = createBaseEach;
 
 /***/ },
-/* 196 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(183);
+	var isArray = __webpack_require__(190);
 	var isEmpty = __webpack_require__(176);
-	var forEach = __webpack_require__(190);
-	var ColumnChart = __webpack_require__(184);
+	var GoogleChartLoader = __webpack_require__(191);
 
-	var GithubCommit = React.createClass({
-	  displayName: 'GithubCommit',
+	var GoogleChart = React.createClass({
+		displayName: 'GoogleChart',
 
 
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return {
-	        colSpan: "6",
-	        type: "GithubCommit",
-	        title: "Github Commit",
-	        ajax: "get",
-	        params: [{ name: "owner", type: "string", value: "facebook", displayName: "project owner" }, { name: "project", type: "string", value: "react", displayName: "project name" }]
-	      };
-	    },
-	    prepareUrl: function prepareUrl(params) {
+		gc_id: null,
+		chart: null,
+		gc_data: null,
+		gc_options: null,
 
-	      var owner = "";
-	      var project = "";
+		getInitialState: function getInitialState() {
+			this.gc_id = "google_chart_" + Math.floor(Math.random() * 10000000);
+			return null;
+		},
 
-	      angular.forEach(params, function (param) {
-	        if (param.name == "owner") {
-	          owner = param.value;
-	        }
-	        if (param.name == "project") {
-	          project = param.value;
-	        }
-	      });
+		componentDidMount: function componentDidMount() {
+			var self = this;
+			GoogleChartLoader.init().then(function () {
+				self.drawChart();
+			});
+		},
 
-	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
-	      return url;
-	    },
-	    prepareParamsForPost: function prepareParamsForPost(params) {}
-	  },
+		componentDidUpdate: function componentDidUpdate() {
+			if (GoogleChartLoader.is_loaded) {
+				this.drawChart();
+			};
+		},
 
-	  getInitialState: function getInitialState() {
-	    return {};
-	  },
+		drawChart: function drawChart() {
+			if (!this.chart) {
+				if (!google.visualization[this.props.chartFunction]) {
+					console.log('ReactDashboard: Google Chart Type "' + this.props.chartFunction + '" not defined in Google API');
+					return;
+				}
+				this.chart = new google.visualization[this.props.chartFunction](document.getElementById(this.gc_id));
+				google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+			}
 
-	  componentDidMount: function componentDidMount() {},
+			if (!isArray(this.props.data) || isEmpty(this.props.data)) {
+				return;
+			}
 
-	  componentDidUpdate: function componentDidUpdate() {},
+			this.gc_data = google.visualization.arrayToDataTable(this.props.data);
+			this.gc_options = this.props.options;
 
-	  parseDate: function parseDate(input) {
-	    var parts = input.split('-');
-	    return Date.UTC(parts[0], parts[1] - 1, parts[2]);
-	  },
+			this.chart.draw(this.gc_data, this.gc_options);
+		},
 
-	  render: function render() {
-	    //alert(JSON.stringify(this.props.data));
+		handleSelect: function handleSelect() {
+			var chart = this.chart;
+			var gc_data = this.gc_data;
+			var selected = chart.getSelection()[0];
+			this.props.onClick(selected, gc_data);
+		},
 
-	    if (this.props.data.length == 0) {
-	      return React.createElement(
-	        'div',
-	        null,
-	        'Sorry, failed to fetch data from server.'
-	      );
-	    }
+		render: function render() {
 
-	    var data = {};
-	    forEach(this.props.data, function (commit) {
-	      var day = commit.commit.author.date;
-	      day = day.substring(0, day.indexOf('T'));
+			var chartWrapStyle = {};
 
-	      if (data[day]) {
-	        data[day]++;
-	      } else {
-	        data[day] = 1;
-	      }
-	    });
+			var chartStyle = {
+				position: "absolute",
+				width: "100%",
+				height: "100%"
+			};
 
-	    var seriesData = [];
-	    forEach(data, function (count, day) {
-	      seriesData.push([day, count]);
-	    });
-
-	    seriesData.sort(function (a, b) {
-	      return this.parseDate(a[0]) - this.parseDate(b[0]);
-	    }.bind(this));
-
-	    //alert(JSON.stringify(seriesData));
-
-	    seriesData.unshift(["Day", "Commits"]);
-
-	    var gc_data = seriesData;
-	    var gc_options = {
-	      "title": "Commit History",
-	      "colors": ["#9575cd", "#33ac71"],
-	      "hAxis": {
-	        "title": "Day"
-	      },
-	      "vAxis": {
-	        "title": "Commits"
-	      },
-	      legend: { position: 'none' },
-	      "animation": {
-	        "duration": 1000,
-	        "easing": "out",
-	        "startup": true
-	      }
-	    };
-
-	    return React.createElement(ColumnChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
-	  }
+			return React.createElement(
+				'div',
+				{ style: chartWrapStyle },
+				React.createElement(
+					'div',
+					{ style: chartStyle, id: this.gc_id },
+					'Sorry, Google Chart is not properly rendered.'
+				)
+			);
+		}
 
 	});
 
-	GithubCommit.defaultProps = {
-	  data: [],
-	  onClick: undefined
+	GoogleChart.defaultProps = {
+		data: [],
+		options: {},
+		chartFunction: undefined,
+		onClick: undefined
 	};
 
-	module.exports = GithubCommit;
+	module.exports = GoogleChart;
 
 /***/ },
-/* 197 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var convert = __webpack_require__(4),
-	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+	    func = convert('isArray', __webpack_require__(43), __webpack_require__(175));
 
 	func.placeholder = __webpack_require__(7);
 	module.exports = func;
 
 /***/ },
-/* 198 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8912,7 +8210,7 @@ var ReactDashboard =
 	//GoogleChartLoader Singleton
 	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
 
-	var q = __webpack_require__(199);
+	var q = __webpack_require__(192);
 
 	var GoogleChartLoader = function GoogleChartLoader() {
 
@@ -8949,7 +8247,7 @@ var ReactDashboard =
 	module.exports = new GoogleChartLoader();
 
 /***/ },
-/* 199 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, module) {"use strict";
@@ -10957,10 +10255,10 @@ var ReactDashboard =
 
 	    return Q;
 	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(200), __webpack_require__(201).setImmediate, __webpack_require__(22)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(193), __webpack_require__(194).setImmediate, __webpack_require__(22)(module)))
 
 /***/ },
-/* 200 */
+/* 193 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -11062,12 +10360,12 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 201 */
+/* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {"use strict";
 
-	var nextTick = __webpack_require__(200).nextTick;
+	var nextTick = __webpack_require__(193).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -11143,7 +10441,252 @@ var ReactDashboard =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function (id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(201).setImmediate, __webpack_require__(201).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(194).setImmediate, __webpack_require__(194).clearImmediate))
+
+/***/ },
+/* 195 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(190);
+	var isEmpty = __webpack_require__(176);
+	var forEach = __webpack_require__(183);
+	var GoogleChart = __webpack_require__(189);
+
+	var GithubAuthor = React.createClass({
+	  displayName: 'GithubAuthor',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return {
+	        colSpan: "6",
+	        type: "GithubAuthor",
+	        title: "Github Author",
+	        ajax: "get",
+	        params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }]
+	      };
+	    },
+	    prepareUrl: function prepareUrl(params) {
+	      //var url = "testdata/PieChart.json";
+	      var owner = "";
+	      var project = "";
+
+	      angular.forEach(params, function (param) {
+	        if (param.name == "owner") {
+	          owner = param.value;
+	        }
+	        if (param.name == "project") {
+	          project = param.value;
+	        }
+	      });
+
+	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
+	      return url;
+	    },
+	    prepareParamsForPost: function prepareParamsForPost(params) {}
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {};
+	  },
+
+	  componentDidMount: function componentDidMount() {},
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  onClick: function onClick(selected, data) {
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+	    //alert(JSON.stringify(this.props.data));
+
+	    if (this.props.data.length == 0) {
+	      return React.createElement(
+	        'div',
+	        null,
+	        'Sorry, failed to fetch data from server.'
+	      );
+	    }
+
+	    var data = {};
+	    forEach(this.props.data, function (commit) {
+	      var author = commit.commit.author.name;
+	      if (data[author]) {
+	        data[author]++;
+	      } else {
+	        data[author] = 1;
+	      }
+	    });
+
+	    var seriesData = [];
+	    forEach(data, function (count, author) {
+	      seriesData.push([author, count]);
+	    });
+	    //alert(JSON.stringify(seriesData));
+
+	    seriesData.unshift(["Author", "Commits"]);
+
+	    var gc_data = seriesData;
+	    var gc_options = {
+	      "title": "Author Commits",
+	      "chartArea": {
+	        "left": "10%",
+	        "top": "10%",
+	        "height": "90%",
+	        "width": "90%"
+	      }
+	    };
+
+	    return React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'PieChart', onClick: this.onClick });
+	  }
+
+	});
+
+	GithubAuthor.defaultProps = {
+	  data: [],
+	  onClick: undefined
+	};
+
+	module.exports = GithubAuthor;
+
+/***/ },
+/* 196 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(190);
+	var isEmpty = __webpack_require__(176);
+	var forEach = __webpack_require__(183);
+	var GoogleChart = __webpack_require__(189);
+
+	var GithubCommit = React.createClass({
+	  displayName: 'GithubCommit',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return {
+	        colSpan: "6",
+	        type: "GithubCommit",
+	        title: "Github Commit",
+	        ajax: "get",
+	        params: [{ name: "owner", type: "string", value: "facebook", displayName: "project owner" }, { name: "project", type: "string", value: "react", displayName: "project name" }]
+	      };
+	    },
+	    prepareUrl: function prepareUrl(params) {
+
+	      var owner = "";
+	      var project = "";
+
+	      angular.forEach(params, function (param) {
+	        if (param.name == "owner") {
+	          owner = param.value;
+	        }
+	        if (param.name == "project") {
+	          project = param.value;
+	        }
+	      });
+
+	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
+	      return url;
+	    },
+	    prepareParamsForPost: function prepareParamsForPost(params) {}
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {};
+	  },
+
+	  componentDidMount: function componentDidMount() {},
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  onClick: function onClick(selected, data) {
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  parseDate: function parseDate(input) {
+	    var parts = input.split('-');
+	    return Date.UTC(parts[0], parts[1] - 1, parts[2]);
+	  },
+
+	  render: function render() {
+	    //alert(JSON.stringify(this.props.data));
+
+	    if (this.props.data.length == 0) {
+	      return React.createElement(
+	        'div',
+	        null,
+	        'Sorry, failed to fetch data from server.'
+	      );
+	    }
+
+	    var data = {};
+	    forEach(this.props.data, function (commit) {
+	      var day = commit.commit.author.date;
+	      day = day.substring(0, day.indexOf('T'));
+
+	      if (data[day]) {
+	        data[day]++;
+	      } else {
+	        data[day] = 1;
+	      }
+	    });
+
+	    var seriesData = [];
+	    forEach(data, function (count, day) {
+	      seriesData.push([day, count]);
+	    });
+
+	    seriesData.sort(function (a, b) {
+	      return this.parseDate(a[0]) - this.parseDate(b[0]);
+	    }.bind(this));
+
+	    //alert(JSON.stringify(seriesData));
+
+	    seriesData.unshift(["Day", "Commits"]);
+
+	    var gc_data = seriesData;
+	    var gc_options = {
+	      "title": "Commit History",
+	      "colors": ["#9575cd", "#33ac71"],
+	      "hAxis": {
+	        "title": "Day"
+	      },
+	      "vAxis": {
+	        "title": "Commits"
+	      },
+	      legend: { position: 'none' },
+	      "animation": {
+	        "duration": 1000,
+	        "easing": "out",
+	        "startup": true
+	      }
+	    };
+
+	    return React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'ColumnChart', onClick: this.onClick });
+	  }
+
+	});
+
+	GithubCommit.defaultProps = {
+	  data: [],
+	  onClick: undefined
+	};
+
+	module.exports = GithubCommit;
 
 /***/ }
 /******/ ]);

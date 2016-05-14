@@ -3,7 +3,7 @@ var cloneDeep = require('lodash/fp/cloneDeep');
 var isEmpty = require('lodash/fp/isEmpty');
 var isEqual = require('lodash/fp/isEqual');
 var Modal = require('react-bootstrap').Modal;
-var WidgetList = require('./WidgetManager').WidgetList;
+var WidgetList = require('./widgets/WidgetManager').WidgetList;
 
 
 var Widget = React.createClass({
@@ -14,7 +14,9 @@ var Widget = React.createClass({
 
   getInitialState: function() {
     this.DetailWidget = WidgetList[this.props.widget.type];
-    if (!this.DetailWidget) {throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');}
+    if (!this.DetailWidget) {
+      throw new Error('ReactDashboard: Widget Type "' + this.props.widget.type + '" not defined as ReactDashboard Widget Type');
+    }
 
     this.tempTitle = this.props.widget.title;
     this.tempParams = cloneDeep(this.props.widget.params);

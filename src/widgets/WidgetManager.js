@@ -2,18 +2,9 @@ var React = require('react');
 
 var WidgetManager = {};
 
-WidgetManager.ChartComponentList = { 
-    PieChart : require('./chartcomponents/PieChart'),
-    ColumnChart : require('./chartcomponents/ColumnChart'),
-    GeoChart : require('./chartcomponents/GeoChart'),
-    TableView : require('./chartcomponents/TableView'),
-    ScatterChart : require('./chartcomponents/ScatterChart'),
-    Gauge : require('./chartcomponents/Gauge')
-};
-
 WidgetManager.WidgetList = { 
-    GithubAuthor : require('./widgets/GithubAuthor'),
-    GithubCommit : require('./widgets/GithubCommit')
+    GithubAuthor : require('./GithubAuthor'),
+    GithubCommit : require('./GithubCommit')
 };
 
 /**

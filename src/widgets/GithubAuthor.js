@@ -2,7 +2,7 @@ var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
 var forEach = require('lodash/forEach');
-var PieChart = require('../chartcomponents/PieChart');
+var GoogleChart = require('../chartcomponents/GoogleChart');
 
 var GithubAuthor = React.createClass({
 
@@ -47,6 +47,13 @@ var GithubAuthor = React.createClass({
   componentDidUpdate: function(){
   },
 
+  onClick: function(selected, data){
+    if(selected && (selected.row || selected.row==0)){
+      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+      this.props.onClick(value);      
+    }
+  },
+
   render: function() {
     //alert(JSON.stringify(this.props.data));
 
@@ -86,7 +93,7 @@ var GithubAuthor = React.createClass({
     };
 
     return (
-      <PieChart data={gc_data} options={gc_options} onClick={this.props.onClick}></PieChart>
+      <GoogleChart data={gc_data} options={gc_options} chartFunction="PieChart" onClick={this.onClick}></GoogleChart>
     );
   }
 

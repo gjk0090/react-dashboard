@@ -15,7 +15,6 @@
 * wrap widget with grid for dnd
 * get rid of React-Bootstrap
 * fix validation in addWidget method
-* more chart component
 * more example widget
 * input for different param type
 * click, ajax, popup detail widget
@@ -24,9 +23,6 @@
 * auto height
 * use propTypes
 * learn Flux
-
-###### google charts
-* Google Chart responsive
 
 ###### project
 * tests

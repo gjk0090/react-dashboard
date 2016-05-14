@@ -2,7 +2,7 @@ var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
 var forEach = require('lodash/forEach');
-var ColumnChart = require('../chartcomponents/ColumnChart');
+var GoogleChart = require('../chartcomponents/GoogleChart');
 
 var GithubCommit = React.createClass({
 
@@ -46,6 +46,13 @@ var GithubCommit = React.createClass({
   
   componentDidUpdate: function(){
   },
+  
+  onClick: function(selected, data){
+    if(selected && (selected.row || selected.row==0)){
+      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+      this.props.onClick(value);      
+    }
+  }, 
 
   parseDate: function (input) {
       var parts = input.split('-');
@@ -105,7 +112,7 @@ var GithubCommit = React.createClass({
       };
 
     return (
-      <ColumnChart data={gc_data} options={gc_options} onClick={this.props.onClick}></ColumnChart>
+      <GoogleChart data={gc_data} options={gc_options} chartFunction="ColumnChart" onClick={this.onClick}></GoogleChart>
     );
   }
 

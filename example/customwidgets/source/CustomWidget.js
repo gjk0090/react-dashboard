@@ -1,5 +1,5 @@
 var React = require('react');
-var PieChart = ReactDashboard.ChartComponentList['PieChart'];
+var GoogleChart = ReactDashboard.GoogleChartComponent;
 
 var CustomWidget = React.createClass({
 
@@ -27,6 +27,13 @@ var CustomWidget = React.createClass({
   componentDidUpdate: function(){
   },
 
+  onClick: function(selected, data){
+    if(selected && (selected.row || selected.row==0)){
+      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+      this.props.onClick(value);      
+    }
+  },
+
   render: function() {
 
     //prepare valid data
@@ -35,7 +42,7 @@ var CustomWidget = React.createClass({
     var gc_options = this.props.data.options;
 
     return (
-      <PieChart data={gc_data} options={gc_options} onClick={this.props.onClick}></PieChart>
+      <GoogleChart data={gc_data} options={gc_options} chartFunction="PieChart" onClick={this.onClick}></GoogleChart>
     );
   }
 
