@@ -51,8 +51,8 @@ var ReactDashboard =
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
-	var isFunction = __webpack_require__(182);
-	var forEach = __webpack_require__(183);
+	var isFunction = __webpack_require__(196);
+	var forEach = __webpack_require__(184);
 	var WidgetList = __webpack_require__(181).WidgetList;
 
 	var Dashboard = React.createClass({
@@ -332,7 +332,7 @@ var ReactDashboard =
 
 	Dashboard.addWidget = __webpack_require__(181).addWidget;
 	Dashboard.addWidgets = __webpack_require__(181).addWidgets;
-	Dashboard.GoogleChartComponent = __webpack_require__(189);
+	Dashboard.GoogleChartComponent = __webpack_require__(190);
 
 	module.exports = Dashboard;
 
@@ -7855,8 +7855,8 @@ var ReactDashboard =
 	var WidgetManager = {};
 
 	WidgetManager.WidgetList = {
-	  GithubAuthor: __webpack_require__(195),
-	  GithubCommit: __webpack_require__(196)
+	  GithubAuthor: __webpack_require__(182),
+	  GithubCommit: __webpack_require__(195)
 	};
 
 	/**
@@ -7901,11 +7901,112 @@ var ReactDashboard =
 
 	'use strict';
 
-	var convert = __webpack_require__(4),
-	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(183);
+	var isEmpty = __webpack_require__(176);
+	var forEach = __webpack_require__(184);
+	var GoogleChart = __webpack_require__(190);
 
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
+	var GithubAuthor = React.createClass({
+	  displayName: 'GithubAuthor',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return {
+	        colSpan: "6",
+	        type: "GithubAuthor",
+	        title: "Github Author",
+	        ajax: "get",
+	        params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }]
+	      };
+	    },
+	    prepareUrl: function prepareUrl(params) {
+	      //var url = "testdata/PieChart.json";
+	      var owner = "";
+	      var project = "";
+
+	      angular.forEach(params, function (param) {
+	        if (param.name == "owner") {
+	          owner = param.value;
+	        }
+	        if (param.name == "project") {
+	          project = param.value;
+	        }
+	      });
+
+	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
+	      return url;
+	    },
+	    prepareParamsForPost: function prepareParamsForPost(params) {}
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {};
+	  },
+
+	  componentDidMount: function componentDidMount() {},
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  onClick: function onClick(selected, data) {
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+	      this.props.onClick(value);
+	    }
+	  },
+
+	  render: function render() {
+	    //alert(JSON.stringify(this.props.data));
+
+	    if (this.props.data.length == 0) {
+	      return React.createElement(
+	        'div',
+	        null,
+	        'Sorry, failed to fetch data from server.'
+	      );
+	    }
+
+	    var data = {};
+	    forEach(this.props.data, function (commit) {
+	      var author = commit.commit.author.name;
+	      if (data[author]) {
+	        data[author]++;
+	      } else {
+	        data[author] = 1;
+	      }
+	    });
+
+	    var seriesData = [];
+	    forEach(data, function (count, author) {
+	      seriesData.push([author, count]);
+	    });
+	    //alert(JSON.stringify(seriesData));
+
+	    seriesData.unshift(["Author", "Commits"]);
+
+	    var gc_data = seriesData;
+	    var gc_options = {
+	      "title": "Author Commits",
+	      "chartArea": {
+	        "left": "10%",
+	        "top": "10%",
+	        "height": "90%",
+	        "width": "90%"
+	      }
+	    };
+
+	    return React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'PieChart', onClick: this.onClick });
+	  }
+
+	});
+
+	GithubAuthor.defaultProps = {
+	  data: [],
+	  onClick: undefined
+	};
+
+	module.exports = GithubAuthor;
 
 /***/ },
 /* 183 */
@@ -7913,8 +8014,20 @@ var ReactDashboard =
 
 	'use strict';
 
+	var convert = __webpack_require__(4),
+	    func = convert('isArray', __webpack_require__(43), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 184 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var arrayEach = __webpack_require__(103),
-	    baseEach = __webpack_require__(184),
+	    baseEach = __webpack_require__(185),
 	    baseIteratee = __webpack_require__(135),
 	    isArray = __webpack_require__(43);
 
@@ -7955,13 +8068,13 @@ var ReactDashboard =
 	module.exports = forEach;
 
 /***/ },
-/* 184 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseForOwn = __webpack_require__(185),
-	    createBaseEach = __webpack_require__(188);
+	var baseForOwn = __webpack_require__(186),
+	    createBaseEach = __webpack_require__(189);
 
 	/**
 	 * The base implementation of `_.forEach` without support for iteratee shorthands.
@@ -7976,12 +8089,12 @@ var ReactDashboard =
 	module.exports = baseEach;
 
 /***/ },
-/* 185 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseFor = __webpack_require__(186),
+	var baseFor = __webpack_require__(187),
 	    keys = __webpack_require__(62);
 
 	/**
@@ -7999,12 +8112,12 @@ var ReactDashboard =
 	module.exports = baseForOwn;
 
 /***/ },
-/* 186 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createBaseFor = __webpack_require__(187);
+	var createBaseFor = __webpack_require__(188);
 
 	/**
 	 * The base implementation of `baseForOwn` which iterates over `object`
@@ -8022,7 +8135,7 @@ var ReactDashboard =
 	module.exports = baseFor;
 
 /***/ },
-/* 187 */
+/* 188 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8054,7 +8167,7 @@ var ReactDashboard =
 	module.exports = createBaseFor;
 
 /***/ },
-/* 188 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8093,13 +8206,13 @@ var ReactDashboard =
 	module.exports = createBaseEach;
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(190);
+	var isArray = __webpack_require__(183);
 	var isEmpty = __webpack_require__(176);
 	var GoogleChartLoader = __webpack_require__(191);
 
@@ -8133,7 +8246,7 @@ var ReactDashboard =
 		drawChart: function drawChart() {
 			if (!this.chart) {
 				if (!google.visualization[this.props.chartFunction]) {
-					console.log('ReactDashboard: Google Chart Type "' + this.props.chartFunction + '" not defined in Google API');
+					console.warn('ReactDashboard: Google Chart Type "' + this.props.chartFunction + '" not defined in Google API');
 					return;
 				}
 				this.chart = new google.visualization[this.props.chartFunction](document.getElementById(this.gc_id));
@@ -8188,18 +8301,6 @@ var ReactDashboard =
 	};
 
 	module.exports = GoogleChart;
-
-/***/ },
-/* 190 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var convert = __webpack_require__(4),
-	    func = convert('isArray', __webpack_require__(43), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
 
 /***/ },
 /* 191 */
@@ -10450,123 +10551,10 @@ var ReactDashboard =
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(190);
+	var isArray = __webpack_require__(183);
 	var isEmpty = __webpack_require__(176);
-	var forEach = __webpack_require__(183);
-	var GoogleChart = __webpack_require__(189);
-
-	var GithubAuthor = React.createClass({
-	  displayName: 'GithubAuthor',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return {
-	        colSpan: "6",
-	        type: "GithubAuthor",
-	        title: "Github Author",
-	        ajax: "get",
-	        params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }]
-	      };
-	    },
-	    prepareUrl: function prepareUrl(params) {
-	      //var url = "testdata/PieChart.json";
-	      var owner = "";
-	      var project = "";
-
-	      angular.forEach(params, function (param) {
-	        if (param.name == "owner") {
-	          owner = param.value;
-	        }
-	        if (param.name == "project") {
-	          project = param.value;
-	        }
-	      });
-
-	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
-	      return url;
-	    },
-	    prepareParamsForPost: function prepareParamsForPost(params) {}
-	  },
-
-	  getInitialState: function getInitialState() {
-	    return {};
-	  },
-
-	  componentDidMount: function componentDidMount() {},
-
-	  componentDidUpdate: function componentDidUpdate() {},
-
-	  onClick: function onClick(selected, data) {
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-	    //alert(JSON.stringify(this.props.data));
-
-	    if (this.props.data.length == 0) {
-	      return React.createElement(
-	        'div',
-	        null,
-	        'Sorry, failed to fetch data from server.'
-	      );
-	    }
-
-	    var data = {};
-	    forEach(this.props.data, function (commit) {
-	      var author = commit.commit.author.name;
-	      if (data[author]) {
-	        data[author]++;
-	      } else {
-	        data[author] = 1;
-	      }
-	    });
-
-	    var seriesData = [];
-	    forEach(data, function (count, author) {
-	      seriesData.push([author, count]);
-	    });
-	    //alert(JSON.stringify(seriesData));
-
-	    seriesData.unshift(["Author", "Commits"]);
-
-	    var gc_data = seriesData;
-	    var gc_options = {
-	      "title": "Author Commits",
-	      "chartArea": {
-	        "left": "10%",
-	        "top": "10%",
-	        "height": "90%",
-	        "width": "90%"
-	      }
-	    };
-
-	    return React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'PieChart', onClick: this.onClick });
-	  }
-
-	});
-
-	GithubAuthor.defaultProps = {
-	  data: [],
-	  onClick: undefined
-	};
-
-	module.exports = GithubAuthor;
-
-/***/ },
-/* 196 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(190);
-	var isEmpty = __webpack_require__(176);
-	var forEach = __webpack_require__(183);
-	var GoogleChart = __webpack_require__(189);
+	var forEach = __webpack_require__(184);
+	var GoogleChart = __webpack_require__(190);
 
 	var GithubCommit = React.createClass({
 	  displayName: 'GithubCommit',
@@ -10687,6 +10675,18 @@ var ReactDashboard =
 	};
 
 	module.exports = GithubCommit;
+
+/***/ },
+/* 196 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
 
 /***/ }
 /******/ ]);

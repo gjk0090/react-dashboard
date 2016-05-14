@@ -31,7 +31,7 @@ var GoogleChart = React.createClass({
 	drawChart: function(){
 		if(!this.chart){
 			if(!google.visualization[this.props.chartFunction]){
-				console.log('ReactDashboard: Google Chart Type "' + this.props.chartFunction + '" not defined in Google API');
+				console.warn('ReactDashboard: Google Chart Type "' + this.props.chartFunction + '" not defined in Google API');
 				return;
 			}
 			this.chart = new google.visualization[this.props.chartFunction](document.getElementById(this.gc_id));
