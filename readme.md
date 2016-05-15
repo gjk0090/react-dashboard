@@ -18,6 +18,7 @@
 * more example widget
 * input for different param type
 * click popup modal: Widget or widget?
+* manage widget list event with flux!!!!
 
 ###### google chart
 * click event instead of select
