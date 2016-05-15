@@ -103,6 +103,7 @@ var GithubAuthor = React.createClass({
 
 GithubAuthor.defaultProps = {
   data      : [],
+  widget    : {colSpan:"6", type:"GithubAuthor", title:"Github Author", ajax:"get", params:[{name:"owner", type:"string", value:"angular", displayName:"project owner"},  {name:"project", type:"string", value:"angular", displayName:"project name"}]},
   onClick   : undefined
 };
 

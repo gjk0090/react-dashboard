@@ -86,6 +86,7 @@ var WorldPopulation = React.createClass({
 
 WorldPopulation.defaultProps = {
   data      : [],
+  widget    : {colSpan:"6", type:"WorldPopulation", title:"World Population", ajax:"none", params:[]},
   onClick   : undefined
 };
 

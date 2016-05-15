@@ -161,7 +161,7 @@ var Widget = React.createClass({
             </div>
             <div className="panel-body">
               <div style={panelBodyStyle}>
-                <this.DetailWidget data={this.state.data} onClick={this.props.onClick}></this.DetailWidget>
+                <this.DetailWidget data={this.state.data} widget={this.props.widget} onClick={this.props.onClick}></this.DetailWidget>
               </div>
             </div>
           </div>

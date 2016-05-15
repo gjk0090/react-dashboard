@@ -573,7 +573,7 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: panelBodyStyle },
-	            React.createElement(this.DetailWidget, { data: this.state.data, onClick: this.props.onClick })
+	            React.createElement(this.DetailWidget, { data: this.state.data, widget: this.props.widget, onClick: this.props.onClick })
 	          )
 	        )
 	      ),
@@ -8009,6 +8009,7 @@ var ReactDashboard =
 
 	GithubAuthor.defaultProps = {
 	  data: [],
+	  widget: { colSpan: "6", type: "GithubAuthor", title: "Github Author", ajax: "get", params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }] },
 	  onClick: undefined
 	};
 
@@ -10742,6 +10743,7 @@ var ReactDashboard =
 
 	GithubCommit.defaultProps = {
 	  data: [],
+	  widget: { colSpan: "6", type: "GithubCommit", title: "Github Commit", ajax: "get", params: [{ name: "owner", type: "string", value: "facebook", displayName: "project owner" }, { name: "project", type: "string", value: "react", displayName: "project name" }] },
 	  onClick: undefined
 	};
 
@@ -10847,6 +10849,7 @@ var ReactDashboard =
 
 	WorldPopulation.defaultProps = {
 	  data: [],
+	  widget: { colSpan: "6", type: "WorldPopulation", title: "World Population", ajax: "none", params: [] },
 	  onClick: undefined
 	};
 

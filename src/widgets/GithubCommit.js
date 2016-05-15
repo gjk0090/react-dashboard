@@ -162,6 +162,7 @@ var GithubCommit = React.createClass({
 
 GithubCommit.defaultProps = {
   data      : [],
+  widget    : {colSpan:"6", type:"GithubCommit", title:"Github Commit", ajax:"get", params:[{name:"owner", type:"string", value:"facebook", displayName:"project owner"}, {name:"project", type:"string", value:"react", displayName:"project name"}]},
   onClick   : undefined
 };
 
