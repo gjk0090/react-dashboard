@@ -10613,14 +10613,24 @@ var ReactDashboard =
 	      if (!!this.props.onClick) {}
 	      //this.props.onClick(value);
 
-
 	      //get project from current params
 	      //build url with project and selected date (selected.row, 0)
 	      //https://api.github.com/repos/angular/angular/commits?since=2016-05-13&until=2016-05-14
 	      //sync ajax get data
 	      //validate and set to state
 	      //set modal header
-	      this.setState({ showModal: true });
+	      var tartgetDay = data.getValue(selected.row, 0);
+	      var modalData = [];
+	      forEach(this.props.data, function (commit) {
+	        var day = commit.commit.committer.date;
+	        day = day.substring(0, day.indexOf('T'));
+
+	        if (day == tartgetDay) {
+	          modalData.push(commit);
+	        }
+	      });
+
+	      this.setState({ showModal: true, modalData: modalData, modalHeader: tartgetDay });
 	    }
 	  },
 
@@ -10700,7 +10710,7 @@ var ReactDashboard =
 	          React.createElement(
 	            Modal.Title,
 	            null,
-	            'Detail'
+	            this.state.modalHeader
 	          )
 	        ),
 	        React.createElement(
@@ -10709,7 +10719,7 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: { position: "relative", height: window.innerHeight / 4 } },
-	            React.createElement(GithubAuthor, { data: this.props.data })
+	            React.createElement(GithubAuthor, { data: this.state.modalData })
 	          )
 	        ),
 	        React.createElement(

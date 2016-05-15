@@ -17,7 +17,7 @@
 * fix validation in addWidget method
 * more example widget
 * input for different param type
-* click popup modal
+* click popup modal: Widget or widget?
 
 ###### google chart
 * click event instead of select

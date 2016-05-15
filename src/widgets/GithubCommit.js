@@ -55,14 +55,24 @@ var GithubCommit = React.createClass({
       if(!!this.props.onClick){
         //this.props.onClick(value);
       }
-      
       //get project from current params
       //build url with project and selected date (selected.row, 0)
       //https://api.github.com/repos/angular/angular/commits?since=2016-05-13&until=2016-05-14
       //sync ajax get data
       //validate and set to state
       //set modal header
-      this.setState({showModal:true});      
+      var tartgetDay = data.getValue(selected.row, 0);
+      var modalData = [];
+      forEach(this.props.data, function(commit){
+        var day = commit.commit.committer.date;
+        day = day.substring(0, day.indexOf('T'));
+
+        if (day == tartgetDay){
+          modalData.push(commit);
+        }
+      });
+
+      this.setState({showModal:true, modalData:modalData, modalHeader:tartgetDay});      
     }
   }, 
 
@@ -133,11 +143,11 @@ var GithubCommit = React.createClass({
 
       <Modal show={this.state.showModal} onHide={this.closeModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Detail</Modal.Title>
+          <Modal.Title>{this.state.modalHeader}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div style={{position: "relative",height:window.innerHeight/4}}>
-            <GithubAuthor data={this.props.data} ></GithubAuthor>
+            <GithubAuthor data={this.state.modalData} ></GithubAuthor>
           </div>
         </Modal.Body>
         <Modal.Footer>
