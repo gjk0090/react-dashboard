@@ -51,9 +51,9 @@ var ReactDashboard =
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
-	var isFunction = __webpack_require__(188);
-	var forEach = __webpack_require__(205);
-	var WidgetList = __webpack_require__(179).WidgetList;
+	var isFunction = __webpack_require__(196);
+	var forEach = __webpack_require__(184);
+	var WidgetList = __webpack_require__(181).WidgetList;
 
 	var Dashboard = React.createClass({
 	  displayName: 'Dashboard',
@@ -330,10 +330,9 @@ var ReactDashboard =
 	  schema: { title: "ReactJS Dashboard", style: {}, widgets: [] }
 	};
 
-	Dashboard.addWidget = __webpack_require__(179).addWidget;
-	Dashboard.addWidgets = __webpack_require__(179).addWidgets;
-	Dashboard.ChartComponentList = __webpack_require__(179).ChartComponentList;
-	Dashboard.GoogleChartLoader = __webpack_require__(201);
+	Dashboard.addWidget = __webpack_require__(181).addWidget;
+	Dashboard.addWidgets = __webpack_require__(181).addWidgets;
+	Dashboard.GoogleChartComponent = __webpack_require__(190);
 
 	module.exports = Dashboard;
 
@@ -352,9 +351,9 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
-	var isEqual = __webpack_require__(211);
-	var Modal = __webpack_require__(178).Modal;
-	var WidgetList = __webpack_require__(179).WidgetList;
+	var isEqual = __webpack_require__(178);
+	var Modal = __webpack_require__(180).Modal;
+	var WidgetList = __webpack_require__(181).WidgetList;
 
 	var Widget = React.createClass({
 	  displayName: 'Widget',
@@ -423,7 +422,7 @@ var ReactDashboard =
 	        this.setState({ data: result });
 	      }.bind(this), "json");
 	    } else {
-	      //do nothing
+	      //framework do nothing, get data in your widget
 	    }
 	  },
 
@@ -574,7 +573,7 @@ var ReactDashboard =
 	          React.createElement(
 	            'div',
 	            { style: panelBodyStyle },
-	            React.createElement(this.DetailWidget, { data: this.state.data, onClick: this.props.onClick })
+	            React.createElement(this.DetailWidget, { data: this.state.data, widget: this.props.widget, onClick: this.props.onClick })
 	          )
 	        )
 	      ),
@@ -631,7 +630,10 @@ var ReactDashboard =
 
 	Widget.defaultProps = {
 	  widget: { colSpan: "6", type: "", title: "", ajax: "none", params: [{ name: "", type: "string", value: "", displayName: "" }], data: "" },
-	  onClick: undefined
+	  widgetHeight: window.innerHeight / 4,
+	  editMode: false,
+	  onClick: undefined,
+	  onEdit: undefined
 	};
 
 	module.exports = Widget;
@@ -7784,12 +7786,67 @@ var ReactDashboard =
 
 /***/ },
 /* 178 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isEqual', __webpack_require__(179));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var baseIsEqual = __webpack_require__(138);
+
+	/**
+	 * Performs a deep comparison between two values to determine if they are
+	 * equivalent.
+	 *
+	 * **Note:** This method supports comparing arrays, array buffers, booleans,
+	 * date objects, error objects, maps, numbers, `Object` objects, regexes,
+	 * sets, strings, symbols, and typed arrays. `Object` objects are compared
+	 * by their own, not inherited, enumerable properties. Functions and DOM
+	 * nodes are **not** supported.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to compare.
+	 * @param {*} other The other value to compare.
+	 * @returns {boolean} Returns `true` if the values are equivalent,
+	 *  else `false`.
+	 * @example
+	 *
+	 * var object = { 'user': 'fred' };
+	 * var other = { 'user': 'fred' };
+	 *
+	 * _.isEqual(object, other);
+	 * // => true
+	 *
+	 * object === other;
+	 * // => false
+	 */
+	function isEqual(value, other) {
+	  return baseIsEqual(value, other);
+	}
+
+	module.exports = isEqual;
+
+/***/ },
+/* 180 */
 /***/ function(module, exports) {
 
 	module.exports = ReactBootstrap;
 
 /***/ },
-/* 179 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7800,18 +7857,10 @@ var ReactDashboard =
 
 	var WidgetManager = {};
 
-	WidgetManager.ChartComponentList = {
-	  PieChart: __webpack_require__(195),
-	  ColumnChart: __webpack_require__(196),
-	  GeoChart: __webpack_require__(197),
-	  TableView: __webpack_require__(198),
-	  ScatterChart: __webpack_require__(199),
-	  Gauge: __webpack_require__(200)
-	};
-
 	WidgetManager.WidgetList = {
-	  GithubAuthor: __webpack_require__(202),
-	  GithubCommit: __webpack_require__(203)
+	  GithubAuthor: __webpack_require__(182),
+	  GithubCommit: __webpack_require__(195),
+	  WorldPopulation: __webpack_require__(198)
 	};
 
 	/**
@@ -7851,8 +7900,123 @@ var ReactDashboard =
 	module.exports = WidgetManager;
 
 /***/ },
-/* 180 */,
-/* 181 */
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(183);
+	var isEmpty = __webpack_require__(176);
+	var forEach = __webpack_require__(184);
+	var GoogleChart = __webpack_require__(190);
+
+	var GithubAuthor = React.createClass({
+	  displayName: 'GithubAuthor',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return {
+	        colSpan: "6",
+	        type: "GithubAuthor",
+	        title: "Github Author",
+	        ajax: "get",
+	        params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }]
+	      };
+	    },
+	    prepareUrl: function prepareUrl(params) {
+	      //var url = "testdata/PieChart.json";
+	      var owner = "";
+	      var project = "";
+
+	      angular.forEach(params, function (param) {
+	        if (param.name == "owner") {
+	          owner = param.value;
+	        }
+	        if (param.name == "project") {
+	          project = param.value;
+	        }
+	      });
+
+	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
+	      return url;
+	    },
+	    prepareParamsForPost: function prepareParamsForPost(params) {}
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {};
+	  },
+
+	  componentDidMount: function componentDidMount() {},
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  onClick: function onClick(selected, data) {
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+	      if (!!this.props.onClick) {
+	        this.props.onClick(value);
+	      }
+	    }
+	  },
+
+	  render: function render() {
+	    //alert(JSON.stringify(this.props.data));
+
+	    if (this.props.data.length == 0) {
+	      return React.createElement(
+	        'div',
+	        null,
+	        'Sorry, failed to fetch data from server.'
+	      );
+	    }
+
+	    var data = {};
+	    forEach(this.props.data, function (commit) {
+	      var author = commit.commit.author.name;
+	      if (data[author]) {
+	        data[author]++;
+	      } else {
+	        data[author] = 1;
+	      }
+	    });
+
+	    var seriesData = [];
+	    forEach(data, function (count, author) {
+	      seriesData.push([author, count]);
+	    });
+	    //alert(JSON.stringify(seriesData));
+
+	    seriesData.unshift(["Author", "Commits"]);
+
+	    var gc_data = seriesData;
+	    var gc_options = {
+	      "title": "Author Commits",
+	      "chartArea": {
+	        "left": "10%",
+	        "top": "10%",
+	        "height": "90%",
+	        "width": "90%"
+	      }
+	    };
+
+	    return React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'PieChart', onClick: this.onClick });
+	  }
+
+	});
+
+	GithubAuthor.defaultProps = {
+	  data: [],
+	  widget: { colSpan: "6", type: "GithubAuthor", title: "Github Author", ajax: "get", params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }] },
+	  onClick: undefined
+	};
+
+	module.exports = GithubAuthor;
+
+/***/ },
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7864,26 +8028,338 @@ var ReactDashboard =
 	module.exports = func;
 
 /***/ },
-/* 182 */,
-/* 183 */,
-/* 184 */,
-/* 185 */,
-/* 186 */,
-/* 187 */,
-/* 188 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var convert = __webpack_require__(4),
-	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+	var arrayEach = __webpack_require__(103),
+	    baseEach = __webpack_require__(185),
+	    baseIteratee = __webpack_require__(135),
+	    isArray = __webpack_require__(43);
 
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
+	/**
+	 * Iterates over elements of `collection` and invokes `iteratee` for each element.
+	 * The iteratee is invoked with three arguments: (value, index|key, collection).
+	 * Iteratee functions may exit iteration early by explicitly returning `false`.
+	 *
+	 * **Note:** As with other "Collections" methods, objects with a "length"
+	 * property are iterated like arrays. To avoid this behavior use `_.forIn`
+	 * or `_.forOwn` for object iteration.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @alias each
+	 * @category Collection
+	 * @param {Array|Object} collection The collection to iterate over.
+	 * @param {Function} [iteratee=_.identity] The function invoked per iteration.
+	 * @returns {Array|Object} Returns `collection`.
+	 * @see _.forEachRight
+	 * @example
+	 *
+	 * _([1, 2]).forEach(function(value) {
+	 *   console.log(value);
+	 * });
+	 * // => Logs `1` then `2`.
+	 *
+	 * _.forEach({ 'a': 1, 'b': 2 }, function(value, key) {
+	 *   console.log(key);
+	 * });
+	 * // => Logs 'a' then 'b' (iteration order is not guaranteed).
+	 */
+	function forEach(collection, iteratee) {
+	    return typeof iteratee == 'function' && isArray(collection) ? arrayEach(collection, iteratee) : baseEach(collection, baseIteratee(iteratee));
+	}
+
+	module.exports = forEach;
 
 /***/ },
-/* 189 */,
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var baseForOwn = __webpack_require__(186),
+	    createBaseEach = __webpack_require__(189);
+
+	/**
+	 * The base implementation of `_.forEach` without support for iteratee shorthands.
+	 *
+	 * @private
+	 * @param {Array|Object} collection The collection to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Array|Object} Returns `collection`.
+	 */
+	var baseEach = createBaseEach(baseForOwn);
+
+	module.exports = baseEach;
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var baseFor = __webpack_require__(187),
+	    keys = __webpack_require__(62);
+
+	/**
+	 * The base implementation of `_.forOwn` without support for iteratee shorthands.
+	 *
+	 * @private
+	 * @param {Object} object The object to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Object} Returns `object`.
+	 */
+	function baseForOwn(object, iteratee) {
+	  return object && baseFor(object, iteratee, keys);
+	}
+
+	module.exports = baseForOwn;
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var createBaseFor = __webpack_require__(188);
+
+	/**
+	 * The base implementation of `baseForOwn` which iterates over `object`
+	 * properties returned by `keysFunc` and invokes `iteratee` for each property.
+	 * Iteratee functions may exit iteration early by explicitly returning `false`.
+	 *
+	 * @private
+	 * @param {Object} object The object to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @param {Function} keysFunc The function to get the keys of `object`.
+	 * @returns {Object} Returns `object`.
+	 */
+	var baseFor = createBaseFor();
+
+	module.exports = baseFor;
+
+/***/ },
+/* 188 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	/**
+	 * Creates a base function for methods like `_.forIn` and `_.forOwn`.
+	 *
+	 * @private
+	 * @param {boolean} [fromRight] Specify iterating from right to left.
+	 * @returns {Function} Returns the new base function.
+	 */
+	function createBaseFor(fromRight) {
+	  return function (object, iteratee, keysFunc) {
+	    var index = -1,
+	        iterable = Object(object),
+	        props = keysFunc(object),
+	        length = props.length;
+
+	    while (length--) {
+	      var key = props[fromRight ? length : ++index];
+	      if (iteratee(iterable[key], key, iterable) === false) {
+	        break;
+	      }
+	    }
+	    return object;
+	  };
+	}
+
+	module.exports = createBaseFor;
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var isArrayLike = __webpack_require__(70);
+
+	/**
+	 * Creates a `baseEach` or `baseEachRight` function.
+	 *
+	 * @private
+	 * @param {Function} eachFunc The function to iterate over a collection.
+	 * @param {boolean} [fromRight] Specify iterating from right to left.
+	 * @returns {Function} Returns the new base function.
+	 */
+	function createBaseEach(eachFunc, fromRight) {
+	  return function (collection, iteratee) {
+	    if (collection == null) {
+	      return collection;
+	    }
+	    if (!isArrayLike(collection)) {
+	      return eachFunc(collection, iteratee);
+	    }
+	    var length = collection.length,
+	        index = fromRight ? length : -1,
+	        iterable = Object(collection);
+
+	    while (fromRight ? index-- : ++index < length) {
+	      if (iteratee(iterable[index], index, iterable) === false) {
+	        break;
+	      }
+	    }
+	    return collection;
+	  };
+	}
+
+	module.exports = createBaseEach;
+
+/***/ },
 /* 190 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var isArray = __webpack_require__(183);
+	var isEmpty = __webpack_require__(176);
+	var GoogleChartLoader = __webpack_require__(191);
+
+	var GoogleChart = React.createClass({
+		displayName: 'GoogleChart',
+
+
+		gc_id: null,
+		chart: null,
+		gc_data: null,
+		gc_options: null,
+
+		getInitialState: function getInitialState() {
+			this.gc_id = "google_chart_" + Math.floor(Math.random() * 10000000);
+			return null;
+		},
+
+		componentDidMount: function componentDidMount() {
+			var self = this;
+			GoogleChartLoader.init().then(function () {
+				self.drawChart();
+			});
+		},
+
+		componentDidUpdate: function componentDidUpdate() {
+			if (GoogleChartLoader.is_loaded) {
+				this.drawChart();
+			};
+		},
+
+		drawChart: function drawChart() {
+			if (!this.chart) {
+				if (!google.visualization[this.props.chartFunction]) {
+					console.warn('ReactDashboard: Google Chart Type "' + this.props.chartFunction + '" not defined in Google API');
+					return;
+				}
+				this.chart = new google.visualization[this.props.chartFunction](document.getElementById(this.gc_id));
+				if (!!this.props.onClick) {
+					google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+				}
+			}
+
+			if (!isArray(this.props.data) || isEmpty(this.props.data)) {
+				return;
+			}
+
+			this.gc_data = google.visualization.arrayToDataTable(this.props.data);
+			this.gc_options = this.props.options;
+
+			this.chart.draw(this.gc_data, this.gc_options);
+		},
+
+		handleSelect: function handleSelect() {
+			var chart = this.chart;
+			var gc_data = this.gc_data;
+			var selected = chart.getSelection()[0];
+			if (!!selected) {
+				this.props.onClick(selected, gc_data);
+			}
+		},
+
+		render: function render() {
+
+			var chartWrapStyle = {};
+
+			var chartStyle = {
+				position: "absolute",
+				width: "100%",
+				height: "100%"
+			};
+
+			return React.createElement(
+				'div',
+				{ style: chartWrapStyle },
+				React.createElement(
+					'div',
+					{ style: chartStyle, id: this.gc_id },
+					'Sorry, Google Chart is not properly rendered.'
+				)
+			);
+		}
+
+	});
+
+	GoogleChart.defaultProps = {
+		data: [],
+		options: {},
+		chartFunction: undefined,
+		onClick: undefined
+	};
+
+	module.exports = GoogleChart;
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	//GoogleChartLoader Singleton
+	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
+
+	var q = __webpack_require__(192);
+
+	var GoogleChartLoader = function GoogleChartLoader() {
+
+		this.is_loading = false;
+		this.is_loaded = false;
+		this.google_promise = q.defer();
+
+		var self = this;
+
+		this.init = function () {
+
+			if (!window.google || !window.google.charts) {
+				console.warn('Google Chart API not loaded, some widgets will not work.');
+				this.google_promise.reject();
+				return this.google_promise.promise;
+			}
+
+			if (this.is_loading) {
+				return this.google_promise.promise;
+			}
+
+			this.is_loading = true;
+
+			google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge', 'geochart'] });
+			google.charts.setOnLoadCallback(function () {
+				self.is_loaded = true;
+				self.google_promise.resolve();
+			});
+
+			return this.google_promise.promise;
+		};
+	};
+
+	module.exports = new GoogleChartLoader();
+
+/***/ },
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, module) {"use strict";
@@ -9891,10 +10367,10 @@ var ReactDashboard =
 
 	    return Q;
 	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(191), __webpack_require__(192).setImmediate, __webpack_require__(22)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(193), __webpack_require__(194).setImmediate, __webpack_require__(22)(module)))
 
 /***/ },
-/* 191 */
+/* 193 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -9996,12 +10472,12 @@ var ReactDashboard =
 	};
 
 /***/ },
-/* 192 */
+/* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {"use strict";
 
-	var nextTick = __webpack_require__(191).nextTick;
+	var nextTick = __webpack_require__(193).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -10077,730 +10553,21 @@ var ReactDashboard =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function (id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(192).setImmediate, __webpack_require__(192).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(194).setImmediate, __webpack_require__(194).clearImmediate))
 
 /***/ },
-/* 193 */,
-/* 194 */,
 /* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
+	var isArray = __webpack_require__(183);
 	var isEmpty = __webpack_require__(176);
-
-	var PieChart = React.createClass({
-	  displayName: 'PieChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "pie_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.PieChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	PieChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = PieChart;
-
-/***/ },
-/* 196 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var ColumnChart = React.createClass({
-	  displayName: 'ColumnChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "column_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ColumnChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ColumnChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ColumnChart;
-
-/***/ },
-/* 197 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var GeoChart = React.createClass({
-	  displayName: 'GeoChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "geo_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.GeoChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	GeoChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = GeoChart;
-
-/***/ },
-/* 198 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var TableView = React.createClass({
-	  displayName: 'TableView',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "table_view_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Table(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1) + ", " + gc_data.getValue(selected.row, 2);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	TableView.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = TableView;
-
-/***/ },
-/* 199 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var ScatterChart = React.createClass({
-	  displayName: 'ScatterChart',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "scatter_chart_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.ScatterChart(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0) && (selected.column || selected.column == 0)) {
-	      var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      this.props.onClick(value);
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	ScatterChart.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = ScatterChart;
-
-/***/ },
-/* 200 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-
-	var Gauge = React.createClass({
-	  displayName: 'Gauge',
-
-
-	  gc_id: null,
-	  chart: null,
-	  gc_data: null,
-	  gc_options: null,
-
-	  getInitialState: function getInitialState() {
-	    this.gc_id = "gauge_" + Math.floor(Math.random() * 1000000);
-	    return null;
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    var self = this;
-	    ReactDashboard.GoogleChartLoader.init().then(function () {
-	      self.drawChart();
-	    });
-	  },
-
-	  componentDidUpdate: function componentDidUpdate() {
-	    if (ReactDashboard.GoogleChartLoader.is_loaded) {
-	      this.drawChart();
-	    };
-	  },
-
-	  drawChart: function drawChart() {
-	    if (!this.chart) {
-	      this.chart = new google.visualization.Gauge(document.getElementById(this.gc_id));
-	      google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
-	    }
-
-	    if (!isArray(this.props.data) || isEmpty(this.props.data)) {
-	      return;
-	    }
-
-	    this.gc_data = google.visualization.arrayToDataTable(this.props.data);
-	    this.gc_options = this.props.options;
-
-	    this.chart.draw(this.gc_data, this.gc_options);
-	  },
-
-	  handleSelect: function handleSelect() {
-	    var chart = this.chart;
-	    var gc_data = this.gc_data;
-	    var selected = chart.getSelection()[0];
-	    if (selected && (selected.row || selected.row == 0)) {
-	      //var value = gc_data.getValue(selected.row, 0) + ", " + gc_data.getValue(selected.row, 1);
-	      //this.props.onClick(value);     
-	    }
-	  },
-
-	  render: function render() {
-
-	    var chartWrapStyle = {};
-
-	    var chartStyle = {
-	      position: "absolute",
-	      width: "100%",
-	      height: "100%"
-	    };
-
-	    return React.createElement(
-	      'div',
-	      { style: chartWrapStyle },
-	      React.createElement(
-	        'div',
-	        { style: chartStyle, id: this.gc_id },
-	        'Sorry, Google Chart API is not properly loaded.'
-	      )
-	    );
-	  }
-
-	});
-
-	Gauge.defaultProps = {
-	  data: { data: [], options: {} },
-	  onClick: undefined
-	};
-
-	module.exports = Gauge;
-
-/***/ },
-/* 201 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	//GoogleChartLoader Singleton
-	//Based on https://github.com/RakanNimer/react-google-charts/blob/master/src/components/GoogleChartLoader.js
-
-	var q = __webpack_require__(190);
-
-	var GoogleChartLoader = function GoogleChartLoader() {
-
-		this.is_loading = false;
-		this.is_loaded = false;
-		this.google_promise = q.defer();
-
-		var self = this;
-
-		this.init = function () {
-
-			if (!window.google || !window.google.charts) {
-				console.warn('Google Chart API not loaded, some widgets will not work.');
-				this.google_promise.reject();
-				return this.google_promise.promise;
-			}
-
-			if (this.is_loading) {
-				return this.google_promise.promise;
-			}
-
-			this.is_loading = true;
-
-			google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] });
-			google.charts.setOnLoadCallback(function () {
-				self.is_loaded = true;
-				self.google_promise.resolve();
-			});
-
-			return this.google_promise.promise;
-		};
-	};
-
-	module.exports = new GoogleChartLoader();
-
-/***/ },
-/* 202 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-	var forEach = __webpack_require__(205);
-	var PieChart = __webpack_require__(195);
-
-	var GithubAuthor = React.createClass({
-	  displayName: 'GithubAuthor',
-
-
-	  statics: {
-	    getTemplate: function getTemplate() {
-	      return {
-	        colSpan: "6",
-	        type: "GithubAuthor",
-	        title: "Github Author",
-	        ajax: "get",
-	        params: [{ name: "owner", type: "string", value: "angular", displayName: "project owner" }, { name: "project", type: "string", value: "angular", displayName: "project name" }]
-	      };
-	    },
-	    prepareUrl: function prepareUrl(params) {
-	      //var url = "testdata/PieChart.json";
-	      var owner = "";
-	      var project = "";
-
-	      angular.forEach(params, function (param) {
-	        if (param.name == "owner") {
-	          owner = param.value;
-	        }
-	        if (param.name == "project") {
-	          project = param.value;
-	        }
-	      });
-
-	      var url = "https://api.github.com/repos/" + owner + "/" + project + "/commits";
-	      return url;
-	    },
-	    prepareParamsForPost: function prepareParamsForPost(params) {}
-	  },
-
-	  getInitialState: function getInitialState() {
-	    return {};
-	  },
-
-	  componentDidMount: function componentDidMount() {},
-
-	  componentDidUpdate: function componentDidUpdate() {},
-
-	  render: function render() {
-	    //alert(JSON.stringify(this.props.data));
-
-	    if (this.props.data.length == 0) {
-	      return React.createElement(
-	        'div',
-	        null,
-	        'Sorry, failed to fetch data from server.'
-	      );
-	    }
-
-	    var data = {};
-	    forEach(this.props.data, function (commit) {
-	      var author = commit.commit.author.name;
-	      if (data[author]) {
-	        data[author]++;
-	      } else {
-	        data[author] = 1;
-	      }
-	    });
-
-	    var seriesData = [];
-	    forEach(data, function (count, author) {
-	      seriesData.push([author, count]);
-	    });
-	    //alert(JSON.stringify(seriesData));
-
-	    seriesData.unshift(["Author", "Commits"]);
-
-	    var gc_data = seriesData;
-	    var gc_options = {
-	      "title": "Author Commits",
-	      "chartArea": {
-	        "left": "10%",
-	        "top": "10%",
-	        "height": "90%",
-	        "width": "90%"
-	      }
-	    };
-
-	    return React.createElement(PieChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
-	  }
-
-	});
-
-	GithubAuthor.defaultProps = {
-	  data: [],
-	  onClick: undefined
-	};
-
-	module.exports = GithubAuthor;
-
-/***/ },
-/* 203 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var isArray = __webpack_require__(181);
-	var isEmpty = __webpack_require__(176);
-	var forEach = __webpack_require__(205);
-	var ColumnChart = __webpack_require__(196);
+	var forEach = __webpack_require__(184);
+	var GoogleChart = __webpack_require__(190);
+	var GithubAuthor = __webpack_require__(182);
+	var Modal = __webpack_require__(180).Modal;
 
 	var GithubCommit = React.createClass({
 	  displayName: 'GithubCommit',
@@ -10837,12 +10604,43 @@ var ReactDashboard =
 	  },
 
 	  getInitialState: function getInitialState() {
-	    return {};
+	    return { showModal: false };
 	  },
 
 	  componentDidMount: function componentDidMount() {},
 
 	  componentDidUpdate: function componentDidUpdate() {},
+
+	  onClick: function onClick(selected, data) {
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+	      if (!!this.props.onClick) {}
+	      //this.props.onClick(value);
+
+	      //get project from current params
+	      //build url with project and selected date (selected.row, 0)
+	      //https://api.github.com/repos/angular/angular/commits?since=2016-05-13&until=2016-05-14
+	      //sync ajax get data
+	      //validate and set to state
+	      //set modal header
+	      var tartgetDay = data.getValue(selected.row, 0);
+	      var modalData = [];
+	      forEach(this.props.data, function (commit) {
+	        var day = commit.commit.committer.date;
+	        day = day.substring(0, day.indexOf('T'));
+
+	        if (day == tartgetDay) {
+	          modalData.push(commit);
+	        }
+	      });
+
+	      this.setState({ showModal: true, modalData: modalData, modalHeader: tartgetDay });
+	    }
+	  },
+
+	  closeModal: function closeModal() {
+	    this.setState({ showModal: false });
+	  },
 
 	  parseDate: function parseDate(input) {
 	    var parts = input.split('-');
@@ -10862,7 +10660,7 @@ var ReactDashboard =
 
 	    var data = {};
 	    forEach(this.props.data, function (commit) {
-	      var day = commit.commit.author.date;
+	      var day = commit.commit.committer.date;
 	      day = day.substring(0, day.indexOf('T'));
 
 	      if (data[day]) {
@@ -10883,7 +10681,7 @@ var ReactDashboard =
 
 	    //alert(JSON.stringify(seriesData));
 
-	    seriesData.unshift(["Day", "Commits"]);
+	    seriesData.unshift(["Date", "Commits"]);
 
 	    var gc_data = seriesData;
 	    var gc_options = {
@@ -10903,258 +10701,159 @@ var ReactDashboard =
 	      }
 	    };
 
-	    return React.createElement(ColumnChart, { data: gc_data, options: gc_options, onClick: this.props.onClick });
+	    return React.createElement(
+	      'div',
+	      null,
+	      React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'ColumnChart', onClick: this.onClick }),
+	      React.createElement(
+	        Modal,
+	        { show: this.state.showModal, onHide: this.closeModal },
+	        React.createElement(
+	          Modal.Header,
+	          { closeButton: true },
+	          React.createElement(
+	            Modal.Title,
+	            null,
+	            this.state.modalHeader
+	          )
+	        ),
+	        React.createElement(
+	          Modal.Body,
+	          null,
+	          React.createElement(
+	            'div',
+	            { style: { position: "relative", height: window.innerHeight / 4 } },
+	            React.createElement(GithubAuthor, { data: this.state.modalData })
+	          )
+	        ),
+	        React.createElement(
+	          Modal.Footer,
+	          null,
+	          React.createElement(
+	            'button',
+	            { className: 'btn btn-default', onClick: this.closeModal },
+	            'Close'
+	          )
+	        )
+	      )
+	    );
 	  }
 
 	});
 
 	GithubCommit.defaultProps = {
 	  data: [],
+	  widget: { colSpan: "6", type: "GithubCommit", title: "Github Commit", ajax: "get", params: [{ name: "owner", type: "string", value: "facebook", displayName: "project owner" }, { name: "project", type: "string", value: "react", displayName: "project name" }] },
 	  onClick: undefined
 	};
 
 	module.exports = GithubCommit;
 
 /***/ },
-/* 204 */,
-/* 205 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var arrayEach = __webpack_require__(103),
-	    baseEach = __webpack_require__(206),
-	    baseIteratee = __webpack_require__(135),
-	    isArray = __webpack_require__(43);
-
-	/**
-	 * Iterates over elements of `collection` and invokes `iteratee` for each element.
-	 * The iteratee is invoked with three arguments: (value, index|key, collection).
-	 * Iteratee functions may exit iteration early by explicitly returning `false`.
-	 *
-	 * **Note:** As with other "Collections" methods, objects with a "length"
-	 * property are iterated like arrays. To avoid this behavior use `_.forIn`
-	 * or `_.forOwn` for object iteration.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @alias each
-	 * @category Collection
-	 * @param {Array|Object} collection The collection to iterate over.
-	 * @param {Function} [iteratee=_.identity] The function invoked per iteration.
-	 * @returns {Array|Object} Returns `collection`.
-	 * @see _.forEachRight
-	 * @example
-	 *
-	 * _([1, 2]).forEach(function(value) {
-	 *   console.log(value);
-	 * });
-	 * // => Logs `1` then `2`.
-	 *
-	 * _.forEach({ 'a': 1, 'b': 2 }, function(value, key) {
-	 *   console.log(key);
-	 * });
-	 * // => Logs 'a' then 'b' (iteration order is not guaranteed).
-	 */
-	function forEach(collection, iteratee) {
-	    return typeof iteratee == 'function' && isArray(collection) ? arrayEach(collection, iteratee) : baseEach(collection, baseIteratee(iteratee));
-	}
-
-	module.exports = forEach;
-
-/***/ },
-/* 206 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var baseForOwn = __webpack_require__(207),
-	    createBaseEach = __webpack_require__(210);
-
-	/**
-	 * The base implementation of `_.forEach` without support for iteratee shorthands.
-	 *
-	 * @private
-	 * @param {Array|Object} collection The collection to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Array|Object} Returns `collection`.
-	 */
-	var baseEach = createBaseEach(baseForOwn);
-
-	module.exports = baseEach;
-
-/***/ },
-/* 207 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var baseFor = __webpack_require__(208),
-	    keys = __webpack_require__(62);
-
-	/**
-	 * The base implementation of `_.forOwn` without support for iteratee shorthands.
-	 *
-	 * @private
-	 * @param {Object} object The object to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Object} Returns `object`.
-	 */
-	function baseForOwn(object, iteratee) {
-	  return object && baseFor(object, iteratee, keys);
-	}
-
-	module.exports = baseForOwn;
-
-/***/ },
-/* 208 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var createBaseFor = __webpack_require__(209);
-
-	/**
-	 * The base implementation of `baseForOwn` which iterates over `object`
-	 * properties returned by `keysFunc` and invokes `iteratee` for each property.
-	 * Iteratee functions may exit iteration early by explicitly returning `false`.
-	 *
-	 * @private
-	 * @param {Object} object The object to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @param {Function} keysFunc The function to get the keys of `object`.
-	 * @returns {Object} Returns `object`.
-	 */
-	var baseFor = createBaseFor();
-
-	module.exports = baseFor;
-
-/***/ },
-/* 209 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	/**
-	 * Creates a base function for methods like `_.forIn` and `_.forOwn`.
-	 *
-	 * @private
-	 * @param {boolean} [fromRight] Specify iterating from right to left.
-	 * @returns {Function} Returns the new base function.
-	 */
-	function createBaseFor(fromRight) {
-	  return function (object, iteratee, keysFunc) {
-	    var index = -1,
-	        iterable = Object(object),
-	        props = keysFunc(object),
-	        length = props.length;
-
-	    while (length--) {
-	      var key = props[fromRight ? length : ++index];
-	      if (iteratee(iterable[key], key, iterable) === false) {
-	        break;
-	      }
-	    }
-	    return object;
-	  };
-	}
-
-	module.exports = createBaseFor;
-
-/***/ },
-/* 210 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var isArrayLike = __webpack_require__(70);
-
-	/**
-	 * Creates a `baseEach` or `baseEachRight` function.
-	 *
-	 * @private
-	 * @param {Function} eachFunc The function to iterate over a collection.
-	 * @param {boolean} [fromRight] Specify iterating from right to left.
-	 * @returns {Function} Returns the new base function.
-	 */
-	function createBaseEach(eachFunc, fromRight) {
-	  return function (collection, iteratee) {
-	    if (collection == null) {
-	      return collection;
-	    }
-	    if (!isArrayLike(collection)) {
-	      return eachFunc(collection, iteratee);
-	    }
-	    var length = collection.length,
-	        index = fromRight ? length : -1,
-	        iterable = Object(collection);
-
-	    while (fromRight ? index-- : ++index < length) {
-	      if (iteratee(iterable[index], index, iterable) === false) {
-	        break;
-	      }
-	    }
-	    return collection;
-	  };
-	}
-
-	module.exports = createBaseEach;
-
-/***/ },
-/* 211 */
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var convert = __webpack_require__(4),
-	    func = convert('isEqual', __webpack_require__(212));
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
 
 	func.placeholder = __webpack_require__(7);
 	module.exports = func;
 
 /***/ },
-/* 212 */
+/* 197 */,
+/* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var baseIsEqual = __webpack_require__(138);
+	var React = __webpack_require__(1);
+	var cloneDeep = __webpack_require__(3);
+	var GoogleChart = __webpack_require__(190);
 
-	/**
-	 * Performs a deep comparison between two values to determine if they are
-	 * equivalent.
-	 *
-	 * **Note:** This method supports comparing arrays, array buffers, booleans,
-	 * date objects, error objects, maps, numbers, `Object` objects, regexes,
-	 * sets, strings, symbols, and typed arrays. `Object` objects are compared
-	 * by their own, not inherited, enumerable properties. Functions and DOM
-	 * nodes are **not** supported.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent,
-	 *  else `false`.
-	 * @example
-	 *
-	 * var object = { 'user': 'fred' };
-	 * var other = { 'user': 'fred' };
-	 *
-	 * _.isEqual(object, other);
-	 * // => true
-	 *
-	 * object === other;
-	 * // => false
-	 */
-	function isEqual(value, other) {
-	  return baseIsEqual(value, other);
-	}
+	var WorldPopulation = React.createClass({
+	  displayName: 'WorldPopulation',
 
-	module.exports = isEqual;
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return {
+	        colSpan: "6",
+	        type: "WorldPopulation",
+	        title: "World Population",
+	        ajax: "none",
+	        params: []
+	      };
+	    }
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return { data: [] };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var dataList = [];
+
+	    $.when($.get("http://api.population.io/1.0/population/Brazil/today-and-tomorrow/", function (result) {
+	      dataList.push(["Brazil", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/China/today-and-tomorrow/", function (result) {
+	      dataList.push(["China", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/United%20States/today-and-tomorrow/", function (result) {
+	      dataList.push(["United States", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/Canada/today-and-tomorrow/", function (result) {
+	      dataList.push(["Canada", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/Russian%20Federation/today-and-tomorrow/", function (result) {
+	      dataList.push(["RU", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/Australia/today-and-tomorrow/", function (result) {
+	      dataList.push(["Australia", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/India/today-and-tomorrow/", function (result) {
+	      dataList.push(["India", result.total_population[0].population]);
+	    })).then(function () {
+	      var gc_data = cloneDeep(dataList);
+	      gc_data.unshift(["Country", "Population"]);
+	      this.setState({ data: gc_data });
+	    }.bind(this));
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  onClick: function onClick(selected, data) {
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+	      if (!!this.props.onClick) {
+	        this.props.onClick(value);
+	      }
+	    }
+	  },
+
+	  render: function render() {
+	    //alert(JSON.stringify(this.props.data));
+
+	    if (this.state.data.length == 0) {
+	      return React.createElement(
+	        'div',
+	        null,
+	        'Sorry, failed to fetch data from server.'
+	      );
+	    }
+
+	    var gc_options = {
+	      colorAxis: { colors: ["#BCF5A9", "#04B404"] }
+	    };
+
+	    return React.createElement(GoogleChart, { data: this.state.data, options: gc_options, chartFunction: 'GeoChart', onClick: this.onClick });
+	  }
+
+	});
+
+	WorldPopulation.defaultProps = {
+	  data: [],
+	  widget: { colSpan: "6", type: "WorldPopulation", title: "World Population", ajax: "none", params: [] },
+	  onClick: undefined
+	};
+
+	module.exports = WorldPopulation;
 
 /***/ }
 /******/ ]);
