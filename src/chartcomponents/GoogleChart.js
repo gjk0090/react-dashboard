@@ -52,7 +52,9 @@ var GoogleChart = React.createClass({
 		var chart = this.chart;
 		var gc_data = this.gc_data;
 		var selected = chart.getSelection()[0];
-		this.props.onClick(selected, gc_data);      
+		if(!!selected){
+			this.props.onClick(selected, gc_data); 
+		}     
 	},
 
 	render: function() {

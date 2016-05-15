@@ -77,7 +77,7 @@ var Widget = React.createClass({
       }.bind(this), "json" );
 
     }else{
-      //do nothing
+      //framework do nothing, get data in your widget
     }
   },
 

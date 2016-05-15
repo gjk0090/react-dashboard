@@ -8,6 +8,9 @@ app.controller('myCtrl',function($scope){
       [
         {colSpan:"6", type:"GithubAuthor", title:"Github Author", ajax:"get", params:[{name:"owner", type:"string", value:"angular", displayName:"project owner"}, {name:"project", type:"string", value:"angular", displayName:"project name"}]},
         {colSpan:"6", type:"GithubCommit", title:"Github Commit", ajax:"get", params:[{name:"owner", type:"string", value:"facebook", displayName:"project owner"}, {name:"project", type:"string", value:"react", displayName:"project name"}]}
+      ],
+      [
+        {colSpan:"6", type:"WorldPopulation", title:"World Population", ajax:"none", params:[]}
       ]
     ]
   };

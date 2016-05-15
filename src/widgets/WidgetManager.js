@@ -4,7 +4,8 @@ var WidgetManager = {};
 
 WidgetManager.WidgetList = { 
     GithubAuthor : require('./GithubAuthor'),
-    GithubCommit : require('./GithubCommit')
+    GithubCommit : require('./GithubCommit'),
+    WorldPopulation : require('./WorldPopulation')
 };
 
 /**

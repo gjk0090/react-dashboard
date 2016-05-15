@@ -25,7 +25,7 @@ var GoogleChartLoader = function(){
 		
 		this.is_loading = true;
 		
-		google.charts.load('current', {'packages':['corechart','table','gauge']});
+		google.charts.load('current', {'packages':['corechart','table','gauge','geochart']});
 		google.charts.setOnLoadCallback(function() {
 			self.is_loaded = true;
 			self.google_promise.resolve();

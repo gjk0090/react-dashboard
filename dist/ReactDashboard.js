@@ -422,7 +422,7 @@ var ReactDashboard =
 	        this.setState({ data: result });
 	      }.bind(this), "json");
 	    } else {
-	      //do nothing
+	      //framework do nothing, get data in your widget
 	    }
 	  },
 
@@ -7859,7 +7859,8 @@ var ReactDashboard =
 
 	WidgetManager.WidgetList = {
 	  GithubAuthor: __webpack_require__(182),
-	  GithubCommit: __webpack_require__(195)
+	  GithubCommit: __webpack_require__(195),
+	  WorldPopulation: __webpack_require__(198)
 	};
 
 	/**
@@ -8274,7 +8275,9 @@ var ReactDashboard =
 			var chart = this.chart;
 			var gc_data = this.gc_data;
 			var selected = chart.getSelection()[0];
-			this.props.onClick(selected, gc_data);
+			if (!!selected) {
+				this.props.onClick(selected, gc_data);
+			}
 		},
 
 		render: function render() {
@@ -8342,7 +8345,7 @@ var ReactDashboard =
 
 			this.is_loading = true;
 
-			google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge'] });
+			google.charts.load('current', { 'packages': ['corechart', 'table', 'gauge', 'geochart'] });
 			google.charts.setOnLoadCallback(function () {
 				self.is_loaded = true;
 				self.google_promise.resolve();
@@ -10755,6 +10758,99 @@ var ReactDashboard =
 
 	func.placeholder = __webpack_require__(7);
 	module.exports = func;
+
+/***/ },
+/* 197 */,
+/* 198 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var cloneDeep = __webpack_require__(3);
+	var GoogleChart = __webpack_require__(190);
+
+	var WorldPopulation = React.createClass({
+	  displayName: 'WorldPopulation',
+
+
+	  statics: {
+	    getTemplate: function getTemplate() {
+	      return {
+	        colSpan: "6",
+	        type: "WorldPopulation",
+	        title: "World Population",
+	        ajax: "none",
+	        params: []
+	      };
+	    }
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return { data: [] };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var dataList = [];
+
+	    $.when($.get("http://api.population.io/1.0/population/Brazil/today-and-tomorrow/", function (result) {
+	      dataList.push(["Brazil", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/China/today-and-tomorrow/", function (result) {
+	      dataList.push(["China", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/United%20States/today-and-tomorrow/", function (result) {
+	      dataList.push(["United States", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/Canada/today-and-tomorrow/", function (result) {
+	      dataList.push(["Canada", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/Russian%20Federation/today-and-tomorrow/", function (result) {
+	      dataList.push(["RU", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/Australia/today-and-tomorrow/", function (result) {
+	      dataList.push(["Australia", result.total_population[0].population]);
+	    }), $.get("http://api.population.io/1.0/population/India/today-and-tomorrow/", function (result) {
+	      dataList.push(["India", result.total_population[0].population]);
+	    })).then(function () {
+	      var gc_data = cloneDeep(dataList);
+	      gc_data.unshift(["Country", "Population"]);
+	      this.setState({ data: gc_data });
+	    }.bind(this));
+	  },
+
+	  componentDidUpdate: function componentDidUpdate() {},
+
+	  onClick: function onClick(selected, data) {
+	    if (selected && (selected.row || selected.row == 0)) {
+	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
+	      if (!!this.props.onClick) {
+	        this.props.onClick(value);
+	      }
+	    }
+	  },
+
+	  render: function render() {
+	    //alert(JSON.stringify(this.props.data));
+
+	    if (this.state.data.length == 0) {
+	      return React.createElement(
+	        'div',
+	        null,
+	        'Sorry, failed to fetch data from server.'
+	      );
+	    }
+
+	    var gc_options = {
+	      colorAxis: { colors: ["#BCF5A9", "#04B404"] }
+	    };
+
+	    return React.createElement(GoogleChart, { data: this.state.data, options: gc_options, chartFunction: 'GeoChart', onClick: this.onClick });
+	  }
+
+	});
+
+	WorldPopulation.defaultProps = {
+	  data: [],
+	  onClick: undefined
+	};
+
+	module.exports = WorldPopulation;
 
 /***/ }
 /******/ ]);
