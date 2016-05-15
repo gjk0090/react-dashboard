@@ -50,7 +50,9 @@ var GithubAuthor = React.createClass({
   onClick: function(selected, data){
     if(selected && (selected.row || selected.row==0)){
       var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
-      this.props.onClick(value);      
+      if(!!this.props.onClick){
+        this.props.onClick(value);      
+      }
     }
   },
 

@@ -17,7 +17,10 @@
 * fix validation in addWidget method
 * more example widget
 * input for different param type
-* click popup widget
+* click popup modal
+
+###### google chart
+* click event instead of select
 
 ###### improvement
 * auto height

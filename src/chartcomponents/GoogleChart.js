@@ -35,7 +35,9 @@ var GoogleChart = React.createClass({
 				return;
 			}
 			this.chart = new google.visualization[this.props.chartFunction](document.getElementById(this.gc_id));
-			google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+			if(!!this.props.onClick){
+				google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+			}
 		}
 
 		if(!isArray(this.props.data) || isEmpty(this.props.data)){return;}

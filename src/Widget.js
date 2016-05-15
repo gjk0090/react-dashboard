@@ -193,7 +193,10 @@ var Widget = React.createClass({
 
 Widget.defaultProps = {
   widget      : {colSpan:"6", type:"", title:"", ajax:"none", params:[{name:"", type:"string", value:"", displayName:""}], data:""},
-  onClick     : undefined
+  widgetHeight: window.innerHeight/4,
+  editMode    : false,
+  onClick     : undefined,
+  onEdit      : undefined
 };
 
 module.exports = Widget;

@@ -3,6 +3,8 @@ var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
 var forEach = require('lodash/forEach');
 var GoogleChart = require('../chartcomponents/GoogleChart');
+var GithubAuthor = require('./GithubAuthor');
+var Modal = require('react-bootstrap').Modal;
 
 var GithubCommit = React.createClass({
 
@@ -38,7 +40,7 @@ var GithubCommit = React.createClass({
   },
 
   getInitialState: function(){
-    return {};
+    return {showModal:false};
   },
 
   componentDidMount: function(){
@@ -50,9 +52,23 @@ var GithubCommit = React.createClass({
   onClick: function(selected, data){
     if(selected && (selected.row || selected.row==0)){
       var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
-      this.props.onClick(value);      
+      if(!!this.props.onClick){
+        //this.props.onClick(value);
+      }
+      
+      //get project from current params
+      //build url with project and selected date (selected.row, 0)
+      //https://api.github.com/repos/angular/angular/commits?since=2016-05-13&until=2016-05-14
+      //sync ajax get data
+      //validate and set to state
+      //set modal header
+      this.setState({showModal:true});      
     }
   }, 
+
+  closeModal:function(){
+    this.setState({showModal:false});
+  },
 
   parseDate: function (input) {
       var parts = input.split('-');
@@ -70,7 +86,7 @@ var GithubCommit = React.createClass({
 
     var data = {};
     forEach(this.props.data, function(commit){
-      var day = commit.commit.author.date;
+      var day = commit.commit.committer.date;
       day = day.substring(0, day.indexOf('T'));
 
       if (data[day]){
@@ -112,7 +128,23 @@ var GithubCommit = React.createClass({
       };
 
     return (
+      <div>
       <GoogleChart data={gc_data} options={gc_options} chartFunction="ColumnChart" onClick={this.onClick}></GoogleChart>
+
+      <Modal show={this.state.showModal} onHide={this.closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Detail</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{position: "relative",height:window.innerHeight/4}}>
+            <GithubAuthor data={this.props.data} ></GithubAuthor>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-default" onClick={this.closeModal}>Close</button>
+        </Modal.Footer>
+      </Modal>
+      </div>
     );
   }
 

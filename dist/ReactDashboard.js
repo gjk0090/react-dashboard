@@ -630,7 +630,10 @@ var ReactDashboard =
 
 	Widget.defaultProps = {
 	  widget: { colSpan: "6", type: "", title: "", ajax: "none", params: [{ name: "", type: "string", value: "", displayName: "" }], data: "" },
-	  onClick: undefined
+	  widgetHeight: window.innerHeight / 4,
+	  editMode: false,
+	  onClick: undefined,
+	  onEdit: undefined
 	};
 
 	module.exports = Widget;
@@ -7952,7 +7955,9 @@ var ReactDashboard =
 	  onClick: function onClick(selected, data) {
 	    if (selected && (selected.row || selected.row == 0)) {
 	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
-	      this.props.onClick(value);
+	      if (!!this.props.onClick) {
+	        this.props.onClick(value);
+	      }
 	    }
 	  },
 
@@ -8250,7 +8255,9 @@ var ReactDashboard =
 					return;
 				}
 				this.chart = new google.visualization[this.props.chartFunction](document.getElementById(this.gc_id));
-				google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+				if (!!this.props.onClick) {
+					google.visualization.events.addListener(this.chart, 'select', this.handleSelect);
+				}
 			}
 
 			if (!isArray(this.props.data) || isEmpty(this.props.data)) {
@@ -10555,6 +10562,8 @@ var ReactDashboard =
 	var isEmpty = __webpack_require__(176);
 	var forEach = __webpack_require__(184);
 	var GoogleChart = __webpack_require__(190);
+	var GithubAuthor = __webpack_require__(182);
+	var Modal = __webpack_require__(180).Modal;
 
 	var GithubCommit = React.createClass({
 	  displayName: 'GithubCommit',
@@ -10591,7 +10600,7 @@ var ReactDashboard =
 	  },
 
 	  getInitialState: function getInitialState() {
-	    return {};
+	    return { showModal: false };
 	  },
 
 	  componentDidMount: function componentDidMount() {},
@@ -10601,8 +10610,22 @@ var ReactDashboard =
 	  onClick: function onClick(selected, data) {
 	    if (selected && (selected.row || selected.row == 0)) {
 	      var value = data.getValue(selected.row, 0) + ", " + data.getValue(selected.row, 1);
-	      this.props.onClick(value);
+	      if (!!this.props.onClick) {}
+	      //this.props.onClick(value);
+
+
+	      //get project from current params
+	      //build url with project and selected date (selected.row, 0)
+	      //https://api.github.com/repos/angular/angular/commits?since=2016-05-13&until=2016-05-14
+	      //sync ajax get data
+	      //validate and set to state
+	      //set modal header
+	      this.setState({ showModal: true });
 	    }
+	  },
+
+	  closeModal: function closeModal() {
+	    this.setState({ showModal: false });
 	  },
 
 	  parseDate: function parseDate(input) {
@@ -10623,7 +10646,7 @@ var ReactDashboard =
 
 	    var data = {};
 	    forEach(this.props.data, function (commit) {
-	      var day = commit.commit.author.date;
+	      var day = commit.commit.committer.date;
 	      day = day.substring(0, day.indexOf('T'));
 
 	      if (data[day]) {
@@ -10664,7 +10687,42 @@ var ReactDashboard =
 	      }
 	    };
 
-	    return React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'ColumnChart', onClick: this.onClick });
+	    return React.createElement(
+	      'div',
+	      null,
+	      React.createElement(GoogleChart, { data: gc_data, options: gc_options, chartFunction: 'ColumnChart', onClick: this.onClick }),
+	      React.createElement(
+	        Modal,
+	        { show: this.state.showModal, onHide: this.closeModal },
+	        React.createElement(
+	          Modal.Header,
+	          { closeButton: true },
+	          React.createElement(
+	            Modal.Title,
+	            null,
+	            'Detail'
+	          )
+	        ),
+	        React.createElement(
+	          Modal.Body,
+	          null,
+	          React.createElement(
+	            'div',
+	            { style: { position: "relative", height: window.innerHeight / 4 } },
+	            React.createElement(GithubAuthor, { data: this.props.data })
+	          )
+	        ),
+	        React.createElement(
+	          Modal.Footer,
+	          null,
+	          React.createElement(
+	            'button',
+	            { className: 'btn btn-default', onClick: this.closeModal },
+	            'Close'
+	          )
+	        )
+	      )
+	    );
 	  }
 
 	});
