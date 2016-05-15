@@ -52,7 +52,7 @@ var WorldPopulation = React.createClass({
 	}.bind(this));
   },
   
-  componentDidUpdate: function(){
+  componentWillReceiveProps: function(nextProps){
   },
 
   onClick: function(selected, data){
@@ -65,8 +65,6 @@ var WorldPopulation = React.createClass({
   },
 
   render: function() {
-    //alert(JSON.stringify(this.props.data));
-
     if(this.state.data.length == 0){
       return (
         <div>Sorry, failed to fetch data from server.</div>

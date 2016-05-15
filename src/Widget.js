@@ -89,7 +89,6 @@ var Widget = React.createClass({
 
   closeConfigModal: function(action) {
     if(action == "save"){
-      //this.setState({title: this.tempTitle, params: cloneDeep(this.tempParams)});
       this.props.onEdit("update_params", true, {title: this.tempTitle, params: this.tempParams});
     }else{
       this.setState({ showModal: false});

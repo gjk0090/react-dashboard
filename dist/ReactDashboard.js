@@ -51,7 +51,7 @@ var ReactDashboard =
 	var Widget = __webpack_require__(2);
 	var cloneDeep = __webpack_require__(3);
 	var isEmpty = __webpack_require__(176);
-	var isFunction = __webpack_require__(196);
+	var isFunction = __webpack_require__(197);
 	var forEach = __webpack_require__(184);
 	var WidgetList = __webpack_require__(181).WidgetList;
 
@@ -434,7 +434,6 @@ var ReactDashboard =
 
 	  closeConfigModal: function closeConfigModal(action) {
 	    if (action == "save") {
-	      //this.setState({title: this.tempTitle, params: cloneDeep(this.tempParams)});
 	      this.props.onEdit("update_params", true, { title: this.tempTitle, params: this.tempParams });
 	    } else {
 	      this.setState({ showModal: false });
@@ -7860,7 +7859,7 @@ var ReactDashboard =
 	WidgetManager.WidgetList = {
 	  GithubAuthor: __webpack_require__(182),
 	  GithubCommit: __webpack_require__(195),
-	  WorldPopulation: __webpack_require__(198)
+	  WorldPopulation: __webpack_require__(196)
 	};
 
 	/**
@@ -10755,19 +10754,6 @@ var ReactDashboard =
 
 	'use strict';
 
-	var convert = __webpack_require__(4),
-	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
-
-	func.placeholder = __webpack_require__(7);
-	module.exports = func;
-
-/***/ },
-/* 197 */,
-/* 198 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	var React = __webpack_require__(1);
 	var cloneDeep = __webpack_require__(3);
 	var GoogleChart = __webpack_require__(190);
@@ -10816,7 +10802,7 @@ var ReactDashboard =
 	    }.bind(this));
 	  },
 
-	  componentDidUpdate: function componentDidUpdate() {},
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {},
 
 	  onClick: function onClick(selected, data) {
 	    if (selected && (selected.row || selected.row == 0)) {
@@ -10828,8 +10814,6 @@ var ReactDashboard =
 	  },
 
 	  render: function render() {
-	    //alert(JSON.stringify(this.props.data));
-
 	    if (this.state.data.length == 0) {
 	      return React.createElement(
 	        'div',
@@ -10854,6 +10838,18 @@ var ReactDashboard =
 	};
 
 	module.exports = WorldPopulation;
+
+/***/ },
+/* 197 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('isFunction', __webpack_require__(17), __webpack_require__(175));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
 
 /***/ }
 /******/ ]);
