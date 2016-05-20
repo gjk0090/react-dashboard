@@ -332,6 +332,7 @@ var ReactDashboard =
 
 	Dashboard.addWidget = __webpack_require__(181).addWidget;
 	Dashboard.addWidgets = __webpack_require__(181).addWidgets;
+	Dashboard.WidgetList = __webpack_require__(181).WidgetList;
 	Dashboard.GoogleChartComponent = __webpack_require__(190);
 
 	module.exports = Dashboard;
