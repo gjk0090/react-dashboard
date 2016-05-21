@@ -141,14 +141,17 @@ var Widget = React.createClass({
       );
     }
 
-    var configParamsList = this.props.widget.params.map((param, i) => {
-      return(
-        <div className="row" key={"config_param_"+i}>
-          <p className="col-xs-6">{param.displayName}</p>
-          <input className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
-        </div>
-      );
-    });
+    var configParamsList;
+    if(!!this.props.widget.params){
+      configParamsList = this.props.widget.params.map((param, i) => {
+        return(
+          <div className="row" key={"config_param_"+i}>
+            <p className="col-xs-6">{param.displayName}</p>
+            <input className="col-xs-6" defaultValue={param.value} onChange={this.configParamsChanged.bind(this, i)}></input>
+          </div>
+        );
+      });
+    }
 
     //bootstrap classes : default/primary/success/info/warning/danger
     return (
@@ -191,7 +194,7 @@ var Widget = React.createClass({
 });
 
 Widget.defaultProps = {
-  widget      : {colSpan:"6", type:"", title:"", ajax:"none", params:[{name:"", type:"string", value:"", displayName:""}], data:""},
+  widget      : {colSpan:"6", type:"", title:"", ajax:"none", params:[], data:""},
   widgetHeight: window.innerHeight/4,
   editMode    : false,
   onClick     : undefined,

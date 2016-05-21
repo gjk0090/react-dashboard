@@ -541,18 +541,21 @@ var ReactDashboard =
 	      );
 	    }
 
-	    var configParamsList = this.props.widget.params.map(function (param, i) {
-	      return React.createElement(
-	        'div',
-	        { className: 'row', key: "config_param_" + i },
-	        React.createElement(
-	          'p',
-	          { className: 'col-xs-6' },
-	          param.displayName
-	        ),
-	        React.createElement('input', { className: 'col-xs-6', defaultValue: param.value, onChange: _this.configParamsChanged.bind(_this, i) })
-	      );
-	    });
+	    var configParamsList;
+	    if (!!this.props.widget.params) {
+	      configParamsList = this.props.widget.params.map(function (param, i) {
+	        return React.createElement(
+	          'div',
+	          { className: 'row', key: "config_param_" + i },
+	          React.createElement(
+	            'p',
+	            { className: 'col-xs-6' },
+	            param.displayName
+	          ),
+	          React.createElement('input', { className: 'col-xs-6', defaultValue: param.value, onChange: _this.configParamsChanged.bind(_this, i) })
+	        );
+	      });
+	    }
 
 	    //bootstrap classes : default/primary/success/info/warning/danger
 	    return React.createElement(
@@ -629,7 +632,7 @@ var ReactDashboard =
 	});
 
 	Widget.defaultProps = {
-	  widget: { colSpan: "6", type: "", title: "", ajax: "none", params: [{ name: "", type: "string", value: "", displayName: "" }], data: "" },
+	  widget: { colSpan: "6", type: "", title: "", ajax: "none", params: [], data: "" },
 	  widgetHeight: window.innerHeight / 4,
 	  editMode: false,
 	  onClick: undefined,
