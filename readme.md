@@ -22,6 +22,7 @@
 
 ###### google chart
 * click event instead of select
+* $(window).resize(function(){drawChart1();});
 
 ###### improvement
 * auto height
