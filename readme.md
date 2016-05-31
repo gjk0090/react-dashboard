@@ -25,7 +25,7 @@
 ###### google chart
 * click event instead of select
 * $(window).resize(function(){drawChart1();});
-* unique id for gc using _.uniqueId('contact_');
+* unique id for gc using lodash.uniqueId('contact_');
 
 ###### improvement
 * auto height
