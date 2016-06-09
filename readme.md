@@ -5,7 +5,7 @@
 * Schema is still under design, please refer to the example.
 * Run the example by double clicking example/index.html.
 * Use webpack to build source code, it outputs dist/ReactDashboard.js.
-* Try the demo [here](http://gjk0090.github.io/ReactDashboard "ReactDashboard Example").
+* Try the demo [here](http://gjk0090.github.io/react-dashboard "ReactDashboard Example").
 * Minimun requirement is IE 9.
 
 ### TODO
