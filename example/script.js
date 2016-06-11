@@ -3,7 +3,10 @@ app.controller('myCtrl',function($scope){
   
   $scope.schema = {
     title: "React Dashboard",
-    style: {},
+    config: {
+      header: true,
+      height: "md"
+    },
     widgets: [
       [
         {colSpan:"6", type:"GithubAuthor", title:"Github Author", ajax:"get", params:[{name:"owner", type:"string", value:"angular", displayName:"project owner"}, {name:"project", type:"string", value:"angular", displayName:"project name"}]},

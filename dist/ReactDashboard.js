@@ -221,7 +221,21 @@ var ReactDashboard =
 
 	      var widgets = row.map(function (widget, j) {
 	        var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
-	        var widgetHeight = widget.colSpan == "12" ? window.innerHeight / 3 : window.innerHeight / 4;
+	        var widgetHeightLevel = 4;
+	        switch (_this.props.schema.config.height) {
+	          case "lg":
+	            widgetHeightLevel = 3;
+	            break;
+	          case "md":
+	            widgetHeightLevel = 4;
+	            break;
+	          case "sm":
+	            widgetHeightLevel = 5;
+	            break;
+	          default:
+	            widgetHeightLevel = 4;
+	        }
+	        var widgetHeight = widget.colSpan == "12" ? window.innerHeight / (widgetHeightLevel - 1) : window.innerHeight / widgetHeightLevel;
 
 	        return React.createElement(
 	          'div',
@@ -251,71 +265,78 @@ var ReactDashboard =
 	      ));
 	    }
 
+	    var header;
+	    if (this.props.schema.config.header) {
+	      header = React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          'h3',
+	          null,
+	          !!this.props.schema.title ? this.props.schema.title : React.createElement(
+	            'span',
+	            null,
+	            ' '
+	          ),
+	          !this.state.editMode ? React.createElement(
+	            'span',
+	            { className: 'pull-right' },
+	            React.createElement(
+	              'a',
+	              { title: 'config layout', onClick: this.toggleEditMode.bind(this, 'edit'), style: aTagStyle },
+	              ' ',
+	              React.createElement('i', { className: 'glyphicon glyphicon-cog' }),
+	              ' '
+	            ),
+	            React.createElement(
+	              'a',
+	              { title: 'reload dashboard', onClick: this.refreshWidgets, style: aTagStyle },
+	              ' ',
+	              React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
+	              ' '
+	            )
+	          ) : React.createElement(
+	            'span',
+	            { className: 'pull-right' },
+	            React.createElement(
+	              'span',
+	              { className: 'dropdown' },
+	              React.createElement(
+	                'a',
+	                { style: aTagStyle, 'data-toggle': 'dropdown' },
+	                React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
+	                React.createElement('span', { className: 'caret' })
+	              ),
+	              React.createElement(
+	                'ul',
+	                { className: 'dropdown-menu' },
+	                addWidgetDropDownMenuOptions
+	              )
+	            ),
+	            React.createElement(
+	              'a',
+	              { title: 'cancel config', onClick: this.toggleEditMode.bind(this, 'cancel'), style: aTagStyle },
+	              ' ',
+	              React.createElement('i', { className: 'glyphicon glyphicon-floppy-remove' }),
+	              ' '
+	            ),
+	            React.createElement(
+	              'a',
+	              { title: 'save config', onClick: this.toggleEditMode.bind(this, 'save'), style: aTagStyle },
+	              ' ',
+	              React.createElement('i', { className: 'glyphicon glyphicon-floppy-disk' }),
+	              ' '
+	            )
+	          )
+	        ),
+	        React.createElement('hr', null)
+	      );
+	    }
+
 	    return React.createElement(
 	      'div',
 	      null,
-	      React.createElement(
-	        'h3',
-	        null,
-	        this.props.schema.title,
-	        function () {
-	          if (!_this.state.editMode) {
-	            return React.createElement(
-	              'span',
-	              { className: 'pull-right' },
-	              React.createElement(
-	                'a',
-	                { title: 'config layout', onClick: _this.toggleEditMode.bind(_this, 'edit'), style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-cog' }),
-	                ' '
-	              ),
-	              React.createElement(
-	                'a',
-	                { title: 'reload dashboard', onClick: _this.refreshWidgets, style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-refresh' }),
-	                ' '
-	              )
-	            );
-	          } else {
-	            return React.createElement(
-	              'span',
-	              { className: 'pull-right' },
-	              React.createElement(
-	                'span',
-	                { className: 'dropdown' },
-	                React.createElement(
-	                  'a',
-	                  { style: aTagStyle, 'data-toggle': 'dropdown' },
-	                  React.createElement('i', { className: 'glyphicon glyphicon-plus' }),
-	                  React.createElement('span', { className: 'caret' })
-	                ),
-	                React.createElement(
-	                  'ul',
-	                  { className: 'dropdown-menu' },
-	                  addWidgetDropDownMenuOptions
-	                )
-	              ),
-	              React.createElement(
-	                'a',
-	                { title: 'cancel config', onClick: _this.toggleEditMode.bind(_this, 'cancel'), style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-floppy-remove' }),
-	                ' '
-	              ),
-	              React.createElement(
-	                'a',
-	                { title: 'save config', onClick: _this.toggleEditMode.bind(_this, 'save'), style: aTagStyle },
-	                ' ',
-	                React.createElement('i', { className: 'glyphicon glyphicon-floppy-disk' }),
-	                ' '
-	              )
-	            );
-	          }
-	        }()
-	      ),
-	      React.createElement('hr', null),
+	      header,
 	      React.createElement(
 	        'div',
 	        { style: dashboardStyle },
@@ -327,7 +348,7 @@ var ReactDashboard =
 	});
 
 	Dashboard.defaultProps = {
-	  schema: { title: "ReactJS Dashboard", style: {}, widgets: [] }
+	  schema: { title: "ReactJS Dashboard", config: { header: true, height: "md" }, widgets: [] }
 	};
 
 	Dashboard.addWidget = __webpack_require__(181).addWidget;
@@ -8224,6 +8245,7 @@ var ReactDashboard =
 	var React = __webpack_require__(1);
 	var isArray = __webpack_require__(183);
 	var isEmpty = __webpack_require__(176);
+	var uniqueId = __webpack_require__(198);
 	var GoogleChartLoader = __webpack_require__(191);
 
 	var GoogleChart = React.createClass({
@@ -8236,13 +8258,18 @@ var ReactDashboard =
 		gc_options: null,
 
 		getInitialState: function getInitialState() {
-			this.gc_id = "google_chart_" + Math.floor(Math.random() * 10000000);
+			//this.gc_id = "google_chart_"+Math.floor(Math.random() * 10000000);
+			this.gc_id = uniqueId('google_chart_');
 			return null;
 		},
 
 		componentDidMount: function componentDidMount() {
 			var self = this;
 			GoogleChartLoader.init().then(function () {
+				self.drawChart();
+			});
+			//window resize draw chart
+			$(window).resize(function () {
 				self.drawChart();
 			});
 		},
@@ -10854,6 +10881,53 @@ var ReactDashboard =
 
 	func.placeholder = __webpack_require__(7);
 	module.exports = func;
+
+/***/ },
+/* 198 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var convert = __webpack_require__(4),
+	    func = convert('uniqueId', __webpack_require__(199));
+
+	func.placeholder = __webpack_require__(7);
+	module.exports = func;
+
+/***/ },
+/* 199 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var toString = __webpack_require__(157);
+
+	/** Used to generate unique IDs. */
+	var idCounter = 0;
+
+	/**
+	 * Generates a unique ID. If `prefix` is given, the ID is appended to it.
+	 *
+	 * @static
+	 * @since 0.1.0
+	 * @memberOf _
+	 * @category Util
+	 * @param {string} [prefix=''] The value to prefix the ID with.
+	 * @returns {string} Returns the unique ID.
+	 * @example
+	 *
+	 * _.uniqueId('contact_');
+	 * // => 'contact_104'
+	 *
+	 * _.uniqueId();
+	 * // => '105'
+	 */
+	function uniqueId(prefix) {
+	  var id = ++idCounter;
+	  return toString(prefix) + id;
+	}
+
+	module.exports = uniqueId;
 
 /***/ }
 /******/ ]);

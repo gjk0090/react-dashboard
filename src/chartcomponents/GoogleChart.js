@@ -1,6 +1,7 @@
 var React = require('react');
 var isArray = require('lodash/fp/isArray');
 var isEmpty = require('lodash/fp/isEmpty');
+var uniqueId = require('lodash/fp/uniqueId');
 var GoogleChartLoader = require('./GoogleChartLoader');
 
 var GoogleChart = React.createClass({
@@ -11,7 +12,8 @@ var GoogleChart = React.createClass({
 	gc_options: null,
 
 	getInitialState: function(){
-		this.gc_id = "google_chart_"+Math.floor(Math.random() * 10000000);
+		//this.gc_id = "google_chart_"+Math.floor(Math.random() * 10000000);
+		this.gc_id = uniqueId('google_chart_');
 		return null;
 	},
 
@@ -20,6 +22,8 @@ var GoogleChart = React.createClass({
 		GoogleChartLoader.init().then(function(){
 			self.drawChart();
 		});
+		//window resize draw chart
+		$(window).resize(function(){self.drawChart();});
 	},
 
 	componentDidUpdate: function(){

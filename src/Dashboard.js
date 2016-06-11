@@ -172,7 +172,21 @@ var Dashboard = React.createClass({
 
       var widgets = row.map((widget, j) => {
         var clazzName = "col-sm-" + widget.colSpan; //todo: validate colSpan
-        var widgetHeight = widget.colSpan == "12" ? window.innerHeight/3 : window.innerHeight/4;
+        var widgetHeightLevel = 4;
+        switch(this.props.schema.config.height) {
+          case "lg":
+              widgetHeightLevel = 3;
+              break;
+          case "md":
+              widgetHeightLevel = 4;
+              break;
+          case "sm":
+              widgetHeightLevel = 5;
+              break;
+          default:
+              widgetHeightLevel = 4;
+        }
+        var widgetHeight = widget.colSpan == "12" ? window.innerHeight/(widgetHeightLevel-1) : window.innerHeight/widgetHeightLevel;
 
         return (
           <div className={clazzName} key={"row_widget_"+j}>
@@ -195,20 +209,22 @@ var Dashboard = React.createClass({
       addWidgetDropDownMenuOptions.push(<li key={"addWidgetDropDownMenuOptions_"+key}><a onClick={this.addWidget.bind(this, key)}>{key}</a></li>);
     }
 
-    return (
-      <div>
-        <h3>
-          {this.props.schema.title}
-          {(() => {
-            if(!this.state.editMode){
-              return (
+    var header;
+    if(this.props.schema.config.header){
+      header = (
+        <div>
+          <h3>
+            {!!this.props.schema.title ? this.props.schema.title : (<span>&nbsp;</span>)}
+
+            {!this.state.editMode ? 
+              (
                 <span className="pull-right">
                   <a title="config layout" onClick={this.toggleEditMode.bind(this,'edit')} style={aTagStyle}> <i className="glyphicon glyphicon-cog"></i> </a>
                   <a title="reload dashboard" onClick={this.refreshWidgets} style={aTagStyle}> <i className="glyphicon glyphicon-refresh"></i> </a>
                 </span>
-              );
-            }else{
-              return (
+              )
+              :
+              (
                 <span className="pull-right">
                   <span className="dropdown">
                     <a style={aTagStyle} data-toggle="dropdown">
@@ -224,12 +240,19 @@ var Dashboard = React.createClass({
                   <a title="cancel config" onClick={this.toggleEditMode.bind(this,'cancel')} style={aTagStyle}> <i className="glyphicon glyphicon-floppy-remove"></i> </a>
                   <a title="save config" onClick={this.toggleEditMode.bind(this,'save')} style={aTagStyle}> <i className="glyphicon glyphicon-floppy-disk"></i> </a>
                 </span>
-              );
+              )
             }
-          })()}
-        </h3>
 
-        <hr/>
+          </h3>
+          <hr/>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        
+        {header}
 
         <div style={dashboardStyle}>
           {rows}
@@ -241,7 +264,7 @@ var Dashboard = React.createClass({
 });
 
 Dashboard.defaultProps = {
-  schema      : {title:"ReactJS Dashboard", style:{}, widgets:[]},
+  schema      : {title:"ReactJS Dashboard", config:{header: true, height: "md"}, widgets:[]},
 };
 
 Dashboard.addWidget = require('./widgets/WidgetManager').addWidget;

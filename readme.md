@@ -12,20 +12,13 @@
 ---
 ###### core feature
 * drag and drop (react-dnd)
-* wrap widget with grid for dnd
 * get rid of React-Bootstrap
 * fix validation in addWidget method
-* more example widget
 * input for different param type
-* click popup modal: Widget or widget?
-* height option
-* no config mode
-* manage widget list event with flux!!!!
+* manage widget list event with flux
 
 ###### google chart
 * click event instead of select
-* $(window).resize(function(){drawChart1();});
-* unique id for gc using lodash.uniqueId('contact_');
 
 ###### improvement
 * auto height
