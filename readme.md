@@ -12,10 +12,11 @@
 ---
 ###### core feature
 * drag and drop (react-dnd)
-* get rid of React-Bootstrap
+* remove React-Bootstrap modal
 * fix validation in addWidget method
 * input for different param type
 * manage widget list event with flux
+* popup at Widdget level
 
 ###### google chart
 * click event instead of select
@@ -23,7 +24,6 @@
 ###### improvement
 * auto height
 * use propTypes
-* learn Flux
 
 ###### project
 * tests
