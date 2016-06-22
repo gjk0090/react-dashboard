@@ -17,6 +17,8 @@
 * input for different param type
 * manage widget list event with flux
 * popup at Widdget level
+* wingleton widget
+
 
 ###### google chart
 * click event instead of select
