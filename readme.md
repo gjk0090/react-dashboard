@@ -17,7 +17,8 @@
 * input for different param type
 * manage widget list event with flux
 * popup at Widdget level
-* wingleton widget
+* singleton widget
+* add a link on demo
 
 
 ###### google chart
