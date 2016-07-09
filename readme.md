@@ -12,20 +12,17 @@
 ---
 ###### core feature
 * drag and drop (react-dnd)
-* remove React-Bootstrap modal
 * fix validation in addWidget method
 * input for different param type
-* manage widget list event with flux
+* manage widget list event with redux
 * popup at Widdget level
 * singleton widget
-* add a link on demo
-
+* add a link in demo
 
 ###### google chart
 * click event instead of select
 
 ###### improvement
-* auto height
 * use propTypes
 
 ###### project
