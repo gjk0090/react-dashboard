@@ -18,6 +18,8 @@
 * popup at Widget level
 * singleton widget
 * add a link in demo
+* format lodash functions
+* extract header buttons and else to component
 
 ###### google chart
 * click event instead of select
