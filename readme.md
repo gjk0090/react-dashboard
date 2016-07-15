@@ -15,7 +15,7 @@
 * fix validation in addWidget method
 * input for different param type
 * manage widget list event with redux
-* popup at Widdget level
+* popup at Widget level
 * singleton widget
 * add a link in demo
 
@@ -34,6 +34,6 @@
 
 ### Reference
 ---
-* [Lifecycle Methods](https://facebook.github.io/react/docs/component-specs.html)
+* [Life Cycle Methods](https://facebook.github.io/react/docs/component-specs.html)
 * [Component API](https://facebook.github.io/react/docs/component-api.html)
 * [DOM Event Listener](https://facebook.github.io/react/tips/dom-event-listeners.html)
