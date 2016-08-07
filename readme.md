@@ -20,6 +20,7 @@
 * add a link in demo
 * format lodash functions
 * extract header buttons and else to component
+* change to ES6
 
 ###### google chart
 * click event instead of select
